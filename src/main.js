@@ -50,7 +50,7 @@ const PORT = process.env.PORT || 3030;
     });
 
     // Configura el webhook para recibir actualizaciones
-    bot.telegram.setWebhook(`https://<your-server-url>/bot${botToken}`);
+    bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
 
     // Usamos Express para manejar las peticiones HTTP para el webhook
     app.use(bot.webhookCallback(`/bot${botToken}`));
