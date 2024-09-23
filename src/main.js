@@ -8,7 +8,7 @@ const databaseConnect = require('./utils/database');
 const botToken = process.env.BOT_TOKEN;
 const bot = new Telegraf(botToken);
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3030;
 
 (async () => {
   try {
