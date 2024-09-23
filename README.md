@@ -83,6 +83,8 @@ For any queries or collaborations, please reach out to:
   - geecypher41@gmail.com
   - secdad1@gmail.com
   - chideraonwuatu433@gmail.com
+  - alejandroberrio0525@gmail.com
+
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
