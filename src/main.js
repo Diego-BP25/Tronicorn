@@ -1,21 +1,21 @@
+const express = require('express');
 const { Telegraf } = require('telegraf');
 const { getUserAddress } = require('./utils/database');
 const { startCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
-const {fetchWallet} = require('../src/service/user.service');
-const  databaseConnect  = require('./utils/database');
-// const { connect } = require('mongoose');
-// const transferTRX = require('./commands/transfer');
+const { fetchWallet } = require('../src/service/user.service');
+const databaseConnect = require('./utils/database');
 
 const botToken = process.env.BOT_TOKEN;
-// const bot = new Telegraf(botToken);
+const bot = new Telegraf(botToken);
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 (async () => {
   try {
-    await databaseConnect();  
+    await databaseConnect();
     console.log('Database connected successfully');
 
-    const bot = new Telegraf(botToken);
-
+    // Comandos del bot
     bot.start(startCommand);
 
     bot.command('balance', balanceCommand);
@@ -49,11 +49,21 @@ const botToken = process.env.BOT_TOKEN;
       await transferTRX(ctx, toAddress, amount);
     });
 
-    bot.launch();
-    console.log('Bot is running...');
+    // Configura el webhook para recibir actualizaciones
+    bot.telegram.setWebhook(`https://<your-server-url>/bot${botToken}`);
+
+    // Usamos Express para manejar las peticiones HTTP para el webhook
+    app.use(bot.webhookCallback(`/bot${botToken}`));
+
+    // Servidor Express para escuchar en el puerto 3000 o el puerto configurado
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+
+    console.log('Bot is running with webhook...');
 
   } catch (error) {
     console.error('Failed to connect to the database:', error);
-    process.exit(1);  
+    process.exit(1);
   }
 })();
