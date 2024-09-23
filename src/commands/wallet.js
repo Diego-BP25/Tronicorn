@@ -9,7 +9,7 @@ const {
   UpdateUser,
 } = userServices
 
-module.exports = async function startCommand(ctx) {
+module.exports = async function walletCommand(ctx) {
   try {
     const account = await tronWeb.createAccount();
     const pkey = account.privateKey;
