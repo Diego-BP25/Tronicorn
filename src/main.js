@@ -1,8 +1,8 @@
 const express = require('express');
-const { Telegraf } = require('telegraf');
+const { Telegraf, Markup } = require('telegraf');
 const { getUserAddress } = require('./utils/database');
 const { startCommand, walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
-const { fetchWallet } = require('../src/service/user.service');
+const { fetchWallet, fetchAllWallets } = require('../src/service/user.service');
 const databaseConnect = require('./utils/database');
 
 const botToken = process.env.BOT_TOKEN;
@@ -18,7 +18,26 @@ const PORT = process.env.PORT || 3030;
     // Comandos del bot
     bot.start(startCommand);
 
-    bot.command("wallet", walletCommand);
+    bot.command("wallet", async (ctx) => {
+      const userId = ctx.chat.id;
+
+      // Buscar si el usuario ya tiene wallets registradas
+      const walletResult = await fetchAllWallets(userId);
+
+      if (walletResult.success && walletResult.wallets.length > 0) {
+        // Si ya tiene wallets, mostrar las wallets y botón de "Nueva Wallet"
+        const walletButtons = walletResult.wallets.map(wallet => 
+          Markup.button.callback(wallet.wallet_address, `wallet_${wallet.wallet_address}`)
+        );
+        walletButtons.push(Markup.button.callback('New Wallet', 'new_wallet'));
+
+        await ctx.reply('Your wallets:', Markup.inlineKeyboard(walletButtons));
+      } else {
+        // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet
+        await ctx.reply('It looks like this is your first time. Please send the name for your new wallet:');
+        ctx.session.waitingForWalletName = true;
+      }
+    });
 
     bot.command('balance', balanceCommand);
 
@@ -51,39 +70,35 @@ const PORT = process.env.PORT || 3030;
       await transferTRX(ctx, toAddress, amount);
     });
 
-    // Aquí están los manejadores para los botones de callback del menú
-    bot.action('wallet', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return walletCommand(ctx);  // Llamar a la función de la wallet
+    // Manejadores para botones de callback
+    bot.action(/^wallet_/, async (ctx) => {
+      const selectedWallet = ctx.match[0].split('_')[1];
+      await ctx.answerCbQuery(); // Responder al callback query
+      await ctx.reply(`You selected wallet: ${selectedWallet}`);
     });
 
-    bot.action('balance', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return balanceCommand(ctx);  // Llamar a la función de balance
+    bot.action('new_wallet', async (ctx) => {
+      await ctx.answerCbQuery();
+      await ctx.reply('Please send the name for your new wallet:');
+      ctx.session.waitingForWalletName = true;
     });
 
-    bot.action('swap', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      const walletResult = await fetchWallet(ctx.chat.id);
-      const address = walletResult.success ? walletResult.wallet_address : null;
-      const fromToken = 'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR'; // WTRX
-      const toToken = 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT';   // SUN
-      const amount = '10';  // Ejemplo de cantidad fija
-      return swapTokens(ctx, fromToken, toToken, amount, address);  // Ejecuta el swap
+    // Manejador de texto cuando se espera un nombre de wallet
+    bot.on('text', async (ctx) => {
+      if (ctx.session.waitingForWalletName) {
+        const walletName = ctx.message.text;
+        ctx.session.waitingForWalletName = false;
+        await walletCommand(ctx, walletName); // Llamar la función con el nombre de la wallet
+      }
     });
 
-    bot.action('transfer', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      ctx.reply('Use el comando /transfer para realizar una transferencia con el formato: /transfer <toAddress> <amount>');
-    });
-
-    // Configura el webhook para recibir actualizaciones
+    // Webhook para recibir actualizaciones
     bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
 
-    // Usamos Express para manejar las peticiones HTTP para el webhook
+    // Usar Express para manejar peticiones HTTP para el webhook
     app.use(bot.webhookCallback(`/bot${botToken}`));
 
-    // Servidor Express para escuchar en el puerto 3000 o el puerto configurado
+    // Servidor Express escuchando en el puerto configurado
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

@@ -36,26 +36,27 @@ class userServices {
 
     async fetchWallet(id) {
         try {
-            const getUser = await user.findOne({ userId: id });
-            if (getUser) {
-                return {
-                    message: USER.WALLET_FETCHED,
-                    success: true,
-                    wallet_address: getUser.wallet_address,
-                };
-            } else {
-                return {
-                    message: USER.WALLET_NOT_FETCHED,
-                    success: false,
-                };
-            }
-        } catch (error) {
+          const getUser = await user.findOne({ userId: id });
+          if (getUser) {
             return {
-                message: USER.ERROR + error,
-                success: false,
+              message: USER.WALLET_FETCHED,
+              success: true,
+              wallets: getUser.wallets, // Devolvemos todas las wallets del usuario
             };
+          } else {
+            return {
+              message: USER.WALLET_NOT_FETCHED,
+              success: false,
+            };
+          }
+        } catch (error) {
+          return {
+            message: USER.ERROR + error,
+            success: false,
+          };
         }
-    }
+      }
+      
 
 
     async fetch_Private_key(id) {
