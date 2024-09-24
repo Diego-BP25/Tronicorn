@@ -1,5 +1,6 @@
 const express = require('express');
-const { Telegraf, Markup, session } = require('telegraf');
+const { Telegraf, Markup } = require('telegraf');
+const LocalSession = require('telegraf-session-local'); // Usaremos telegraf-session-local para manejar las sesiones
 const { startCommand, walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
 const { fetchWallet, fetchAllWallets } = require('./service/user.service');
 const databaseConnect = require('./utils/database');
@@ -9,8 +10,11 @@ const bot = new Telegraf(botToken);
 const app = express();
 const PORT = process.env.PORT || 3030;
 
-// Middleware de sesión
-bot.use(session());  // Asegúrate de que el middleware de sesión esté activado
+// Middleware de sesión usando telegraf-session-local
+const localSession = new LocalSession({
+  database: 'sessions_db.json', // Se guarda la sesión en un archivo JSON para persistencia
+});
+bot.use(localSession.middleware());
 
 (async () => {
   try {
@@ -86,6 +90,8 @@ bot.use(session());  // Asegúrate de que el middleware de sesión esté activad
         const walletName = ctx.message.text;
         ctx.session.waitingForWalletName = false;  // Reseteamos el estado
         await walletCommand(ctx, walletName);  // Llamamos a la función que maneja la creación de la wallet
+      } else {
+        await ctx.reply('Please use the /wallet command to register a new wallet.');
       }
     });
 
