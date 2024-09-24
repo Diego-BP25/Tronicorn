@@ -51,6 +51,32 @@ const PORT = process.env.PORT || 3030;
       await transferTRX(ctx, toAddress, amount);
     });
 
+    // Aquí están los manejadores para los botones de callback del menú
+    bot.action('wallet', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return walletCommand(ctx);  // Llamar a la función de la wallet
+    });
+
+    bot.action('balance', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return balanceCommand(ctx);  // Llamar a la función de balance
+    });
+
+    bot.action('swap', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      const walletResult = await fetchWallet(ctx.chat.id);
+      const address = walletResult.success ? walletResult.wallet_address : null;
+      const fromToken = 'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR'; // WTRX
+      const toToken = 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT';   // SUN
+      const amount = '10';  // Ejemplo de cantidad fija
+      return swapTokens(ctx, fromToken, toToken, amount, address);  // Ejecuta el swap
+    });
+
+    bot.action('transfer', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      ctx.reply('Use el comando /transfer para realizar una transferencia con el formato: /transfer <toAddress> <amount>');
+    });
+
     // Configura el webhook para recibir actualizaciones
     bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
 
