@@ -1,7 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { getUserAddress } = require('./utils/database');
-const { walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
+const { startCommand, walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
 const { fetchWallet } = require('../src/service/user.service');
 const databaseConnect = require('./utils/database');
 
@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3030;
     console.log('Database connected successfully');
 
     // Comandos del bot
-    // bot.start(startCommand);
+    bot.start(startCommand);
 
     bot.command("wallet", walletCommand);
 
