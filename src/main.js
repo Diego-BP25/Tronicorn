@@ -1,6 +1,5 @@
 const express = require('express');
-const { Telegraf, Markup } = require('telegraf');
-const session = require('telegraf/session'); // Importar middleware de sesión
+const { Telegraf, Markup, session } = require('telegraf');  // Importa 'session' desde telegraf
 const { getUserAddress } = require('./utils/database');
 const { startCommand, walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
 const { fetchWallet, fetchAllWallets } = require('../src/service/user.service');
@@ -39,7 +38,7 @@ const PORT = process.env.PORT || 3030;
       } else {
         // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet
         await ctx.reply('It looks like this is your first time. Please send the name for your new wallet:');
-        ctx.session.waitingForWalletName = true; // Utilizando la sesión para almacenar el estado
+        ctx.session.waitingForWalletName = true;  // Utilizando la sesión para almacenar el estado
       }
     });
 
@@ -85,15 +84,15 @@ const PORT = process.env.PORT || 3030;
     bot.action('new_wallet', async (ctx) => {
       await ctx.answerCbQuery();
       await ctx.reply('Please send the name for your new wallet:');
-      ctx.session.waitingForWalletName = true; // Almacenar en la sesión que estamos esperando el nombre de la wallet
+      ctx.session.waitingForWalletName = true;  // Almacenar en la sesión que estamos esperando el nombre de la wallet
     });
 
     // Manejador de texto cuando se espera un nombre de wallet
     bot.on('text', async (ctx) => {
       if (ctx.session.waitingForWalletName) {
         const walletName = ctx.message.text;
-        ctx.session.waitingForWalletName = false; // Desactivar el estado de espera
-        await walletCommand(ctx, walletName); // Llamar la función con el nombre de la wallet
+        ctx.session.waitingForWalletName = false;  // Desactivar el estado de espera
+        await walletCommand(ctx, walletName);  // Llamar la función con el nombre de la wallet
       }
     });
 
