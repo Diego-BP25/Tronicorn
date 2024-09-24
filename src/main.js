@@ -3,7 +3,7 @@ const { Telegraf, Markup } = require('telegraf');
 const { startCommand, walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
 const { fetchWallet, fetchAllWallets, saveWallet } = require('./service/user.service'); // Asegúrate de importar saveWallet
 const databaseConnect = require('./utils/database');
-const LocalSession = require('telegraf-session-local');
+const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
 const botToken = process.env.BOT_TOKEN;
 const bot = new Telegraf(botToken);
@@ -11,7 +11,8 @@ const app = express();
 const PORT = process.env.PORT || 3030;
 
 // Middleware de sesión persistente
-bot.use((new LocalSession({ database: 'sessions.json' })).middleware());
+const localSession = new LocalSession({ database: 'sessions.json' });
+bot.use(localSession.middleware());  // Usar la sesión persistente
 
 (async () => {
   try {
@@ -60,6 +61,7 @@ bot.use((new LocalSession({ database: 'sessions.json' })).middleware());
     // Manejador de texto cuando se espera un nombre de wallet
     bot.on('text', async (ctx) => {
       console.log('Texto recibido:', ctx.message.text);  // Depuración del texto recibido
+      console.log('Estado de la sesión:', ctx.session);  // Verificar estado de la sesión
 
       // Verificamos si estamos esperando el nombre de la wallet
       if (ctx.session.waitingForWalletName) {
