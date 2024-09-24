@@ -1,20 +1,17 @@
 const express = require('express');
 const { Telegraf, Markup } = require('telegraf');
-const LocalSession = require('telegraf-session-local'); // Usaremos telegraf-session-local para manejar las sesiones
 const { startCommand, walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
-const { fetchWallet, fetchAllWallets } = require('./service/user.service');
+const { fetchWallet, fetchAllWallets, saveWallet } = require('./service/user.service'); // Asegúrate de importar saveWallet
 const databaseConnect = require('./utils/database');
+const LocalSession = require('telegraf-session-local');
 
 const botToken = process.env.BOT_TOKEN;
 const bot = new Telegraf(botToken);
 const app = express();
 const PORT = process.env.PORT || 3030;
 
-// Middleware de sesión usando telegraf-session-local
-const localSession = new LocalSession({
-  database: 'sessions_db.json', // Se guarda la sesión en un archivo JSON para persistencia
-});
-bot.use(localSession.middleware());
+// Middleware de sesión persistente
+bot.use((new LocalSession({ database: 'sessions.json' })).middleware());
 
 (async () => {
   try {
@@ -45,6 +42,41 @@ bot.use(localSession.middleware());
       }
     });
 
+    // Manejador de callback para botones de wallets existentes
+    bot.action(/^wallet_/, async (ctx) => {
+      const selectedWallet = ctx.match[0].split('_')[1];
+      await ctx.answerCbQuery();
+      await ctx.reply(`You selected wallet: ${selectedWallet}`);
+    });
+
+    bot.action('new_wallet', async (ctx) => {
+      await ctx.answerCbQuery();
+      await ctx.reply('Please send the name for your new wallet:');
+      ctx.session.waitingForWalletName = true;
+    });
+
+    // Manejador de texto cuando se espera un nombre de wallet
+    bot.on('text', async (ctx) => {
+      if (ctx.session.waitingForWalletName) {
+        const walletName = ctx.message.text;
+        ctx.session.waitingForWalletName = false;  // Reseteamos el estado
+
+        // Guardar la nueva wallet
+        const saveResult = await saveWallet({ 
+          id: ctx.chat.id, 
+          wallet_address: walletName 
+        });
+
+        if (saveResult.success) {
+          await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
+        } else {
+          await ctx.reply(`Error: ${saveResult.message}`);
+        }
+      } else {
+        await ctx.reply('Please use the /wallet command to register a new wallet.');
+      }
+    });
+
     bot.command('balance', balanceCommand);
 
     bot.command('swap', async (ctx) => {
@@ -69,30 +101,6 @@ bot.use(localSession.middleware());
         return ctx.reply('Please provide a valid positive number for the amount.');
       }
       await transferTRX(ctx, toAddress, amount);
-    });
-
-    // Manejadores para botones de callback
-    bot.action(/^wallet_/, async (ctx) => {
-      const selectedWallet = ctx.match[0].split('_')[1];
-      await ctx.answerCbQuery();
-      await ctx.reply(`You selected wallet: ${selectedWallet}`);
-    });
-
-    bot.action('new_wallet', async (ctx) => {
-      await ctx.answerCbQuery();
-      await ctx.reply('Please send the name for your new wallet:');
-      ctx.session.waitingForWalletName = true;
-    });
-
-    // Manejador de texto cuando se espera un nombre de wallet
-    bot.on('text', async (ctx) => {
-      if (ctx.session.waitingForWalletName) {
-        const walletName = ctx.message.text;
-        ctx.session.waitingForWalletName = false;  // Reseteamos el estado
-        await walletCommand(ctx, walletName);  // Llamamos a la función que maneja la creación de la wallet
-      } else {
-        await ctx.reply('Please use the /wallet command to register a new wallet.');
-      }
     });
 
     // Webhook para recibir actualizaciones
