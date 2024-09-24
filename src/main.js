@@ -82,10 +82,18 @@ bot.use(session());
 
     // Manejador de texto cuando se espera un nombre de wallet
     bot.on('text', async (ctx) => {
+      if (!ctx.session) {
+        ctx.session = {}; // Asegúrate de que ctx.session esté inicializado
+      }
       if (ctx.session.waitingForWalletName) {
-        const walletName = ctx.message.text;
-        ctx.session.waitingForWalletName = false;  // Reseteamos el estado
-        await walletCommand(ctx, walletName);  // Llamamos a la función que maneja la creación de la wallet
+        try {
+          const walletName = ctx.message.text;
+          ctx.session.waitingForWalletName = false;  // Reseteamos el estado
+          await walletCommand(ctx, walletName);  // Llamamos a la función que maneja la creación de la wallet
+        } catch (error) {
+          console.error('Error while processing wallet name:', error);
+          await ctx.reply('An error occurred while processing your wallet name. Please try again.');
+        }
       }
     });
 
