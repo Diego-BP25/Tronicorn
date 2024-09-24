@@ -39,6 +39,7 @@ bot.use((new LocalSession({ database: 'sessions.json' })).middleware());
         // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet
         await ctx.reply('It looks like this is your first time. Please send the name for your new wallet:');
         ctx.session.waitingForWalletName = true;  // Marcamos que estamos esperando el nombre de la wallet
+        console.log(`Esperando nombre de la wallet para el usuario ${userId}`);
       }
     });
 
@@ -53,13 +54,20 @@ bot.use((new LocalSession({ database: 'sessions.json' })).middleware());
       await ctx.answerCbQuery();
       await ctx.reply('Please send the name for your new wallet:');
       ctx.session.waitingForWalletName = true;
+      console.log('Esperando el nombre de la nueva wallet...');
     });
 
     // Manejador de texto cuando se espera un nombre de wallet
     bot.on('text', async (ctx) => {
+      console.log('Texto recibido:', ctx.message.text);  // Depuración del texto recibido
+
+      // Verificamos si estamos esperando el nombre de la wallet
       if (ctx.session.waitingForWalletName) {
         const walletName = ctx.message.text;
+        console.log(`Nombre de wallet recibido: ${walletName}`);  // Depuración
+
         ctx.session.waitingForWalletName = false;  // Reseteamos el estado
+        console.log('Guardando wallet en la base de datos...');
 
         // Guardar la nueva wallet
         const saveResult = await saveWallet({ 
@@ -69,11 +77,14 @@ bot.use((new LocalSession({ database: 'sessions.json' })).middleware());
 
         if (saveResult.success) {
           await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
+          console.log(`Wallet ${walletName} registrada exitosamente para el usuario ${ctx.chat.id}`);
         } else {
           await ctx.reply(`Error: ${saveResult.message}`);
+          console.log(`Error al registrar la wallet: ${saveResult.message}`);
         }
       } else {
         await ctx.reply('Please use the /wallet command to register a new wallet.');
+        console.log('El comando /wallet no fue utilizado.');
       }
     });
 
