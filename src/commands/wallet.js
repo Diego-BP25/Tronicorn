@@ -98,9 +98,7 @@ async function handleWalletName(ctx) {
       console.error("Error generating wallet or saving to database:", error);
       await ctx.reply("An error occurred while creating your wallet.");
     }
-  } else {
-    await ctx.reply('Please use the /wallet command to register a new wallet.');
-  }
+  } 
 }
 
 module.exports = {
