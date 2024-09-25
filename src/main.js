@@ -1,7 +1,7 @@
 const express = require('express');
-const { Telegraf, Markup } = require('telegraf');
+const { Telegraf } = require('telegraf');
 const { startCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
-const { fetchWallet, fetchAllWallets, saveWallet } = require('./service/user.service');
+const { walletCommand, createNewWallet, handleWalletName, handleWalletSelection } = require('./commands/wallet');
 const databaseConnect = require('./utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -22,78 +22,17 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Comandos del bot
     bot.start(startCommand);
 
-    bot.command("wallet", async (ctx) => {
-      const userId = ctx.chat.id;
-
-      // Buscar si el usuario ya tiene wallets registradas
-      const walletResult = await fetchAllWallets(userId);
-
-      if (walletResult.success && walletResult.wallets.length > 0) {
-        // Si ya tiene wallets, mostrar las wallets y botón de "Nueva Wallet"
-        const walletButtons = walletResult.wallets.map(wallet => 
-          Markup.button.callback(wallet.wallet_name, `wallet_${wallet.wallet_address}`)
-        );
-        walletButtons.push(Markup.button.callback('New Wallet', 'new_wallet'));
-
-        await ctx.reply('Your wallets:', Markup.inlineKeyboard(walletButtons));
-      } else {
-        // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet
-        await ctx.reply('It looks like this is your first time. Please send the name for your new wallet:');
-        ctx.session.waitingForWalletName = true;  // Marcamos que estamos esperando el nombre de la wallet
-        console.log(`Esperando nombre de la wallet para el usuario ${userId}`);
-      }
-    });
+    // Comando /wallet
+    bot.command("wallet", walletCommand);
 
     // Manejador de callback para botones de wallets existentes
-    bot.action(/^wallet_/, async (ctx) => {
-      const selectedWallet = ctx.match[0].split('_')[1];
-      await ctx.answerCbQuery();
-      await ctx.reply(`You selected wallet: ${selectedWallet}`);
-    });
+    bot.action(/^wallet_/, handleWalletSelection);
 
-    bot.action('new_wallet', async (ctx) => {
-      await ctx.answerCbQuery();
-      await ctx.reply('Please send the name for your new wallet:');
-      ctx.session.waitingForWalletName = true;
-      console.log('Esperando el nombre de la nueva wallet...');
-    });
+    // Manejador para la creación de una nueva wallet
+    bot.action('new_wallet', createNewWallet);
 
     // Manejador de texto cuando se espera un nombre de wallet
-    bot.on('text', async (ctx) => {
-      console.log('Texto recibido:', ctx.message.text);  // Depuración del texto recibido
-      console.log('Estado de la sesión:', ctx.session);  // Verificar estado de la sesión
-
-      if (ctx.session.waitingForWalletName) {
-        const walletName = ctx.message.text;
-        console.log(`Nombre de wallet recibido: ${walletName}`);
-
-        // Aquí deberías generar la dirección y clave privada de la wallet usando tu lógica
-        const walletAddress = "GeneratedWalletAddress"; // Cambia esto por tu lógica para generar dirección
-        const encryptedPrivateKey = "EncryptedPrivateKey"; // Cambia esto por tu lógica de cifrado
-
-        ctx.session.waitingForWalletName = false;  // Reseteamos el estado
-        console.log('Guardando wallet en la base de datos...');
-
-        // Guardar la nueva wallet
-        const saveResult = await saveWallet({ 
-          id: ctx.chat.id, 
-          wallet_name: walletName,
-          wallet_address: walletAddress,
-          encryptedPrivateKey: encryptedPrivateKey
-        });
-
-        if (saveResult.success) {
-          await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-          console.log(`Wallet "${walletName}" registrada exitosamente para el usuario ${ctx.chat.id}`);
-        } else {
-          await ctx.reply(`Error: ${saveResult.message}`);
-          console.log(`Error al registrar la wallet: ${saveResult.message}`);
-        }
-      } else {
-        await ctx.reply('Please use the /wallet command to register a new wallet.');
-        console.log('El comando /wallet no fue utilizado.');
-      }
-    });
+    bot.on('text', handleWalletName);
 
     bot.command('balance', balanceCommand);
 
