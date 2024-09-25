@@ -1,7 +1,7 @@
 const express = require('express');
 const { Telegraf, Markup } = require('telegraf');
-const { startCommand, walletCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
-const { fetchWallet, fetchAllWallets, saveWallet } = require('./service/user.service'); // Asegúrate de importar saveWallet
+const { startCommand, balanceCommand, swapTokens, transferTRX } = require('./commands');
+const { fetchWallet, fetchAllWallets, saveWallet } = require('./service/user.service');
 const databaseConnect = require('./utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -22,7 +22,6 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Comandos del bot
     bot.start(startCommand);
 
-    // Comando de wallet
     bot.command("wallet", async (ctx) => {
       const userId = ctx.chat.id;
 
@@ -32,7 +31,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       if (walletResult.success && walletResult.wallets.length > 0) {
         // Si ya tiene wallets, mostrar las wallets y botón de "Nueva Wallet"
         const walletButtons = walletResult.wallets.map(wallet => 
-          Markup.button.callback(wallet.wallet_address, `wallet_${wallet.wallet_address}`)
+          Markup.button.callback(wallet.wallet_name, `wallet_${wallet.wallet_address}`)
         );
         walletButtons.push(Markup.button.callback('New Wallet', 'new_wallet'));
 
@@ -64,10 +63,13 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       console.log('Texto recibido:', ctx.message.text);  // Depuración del texto recibido
       console.log('Estado de la sesión:', ctx.session);  // Verificar estado de la sesión
 
-      // Verificamos si estamos esperando el nombre de la wallet
       if (ctx.session.waitingForWalletName) {
         const walletName = ctx.message.text;
-        console.log(`Nombre de wallet recibido: ${walletName}`);  // Depuración
+        console.log(`Nombre de wallet recibido: ${walletName}`);
+
+        // Aquí deberías generar la dirección y clave privada de la wallet usando tu lógica
+        const walletAddress = "GeneratedWalletAddress"; // Cambia esto por tu lógica para generar dirección
+        const encryptedPrivateKey = "EncryptedPrivateKey"; // Cambia esto por tu lógica de cifrado
 
         ctx.session.waitingForWalletName = false;  // Reseteamos el estado
         console.log('Guardando wallet en la base de datos...');
@@ -75,14 +77,14 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
         // Guardar la nueva wallet
         const saveResult = await saveWallet({ 
           id: ctx.chat.id, 
-          wallet_address: walletName 
+          wallet_name: walletName,
+          wallet_address: walletAddress,
+          encryptedPrivateKey: encryptedPrivateKey
         });
-
-        console.log("Resultado del guardado de wallet:", saveResult);
 
         if (saveResult.success) {
           await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-          console.log(`Wallet ${walletName} registrada exitosamente para el usuario ${ctx.chat.id}`);
+          console.log(`Wallet "${walletName}" registrada exitosamente para el usuario ${ctx.chat.id}`);
         } else {
           await ctx.reply(`Error: ${saveResult.message}`);
           console.log(`Error al registrar la wallet: ${saveResult.message}`);
@@ -119,12 +121,13 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await transferTRX(ctx, toAddress, amount);
     });
 
-    // Usar Express para manejar peticiones HTTP para el webhook en Render
-    // Puedes comentar esto si haces pruebas locales
+    // Webhook para recibir actualizaciones, (render)
     bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
+
+    // Usar Express para manejar peticiones HTTP para el webhook
     app.use(bot.webhookCallback(`/bot${botToken}`));
 
-    // Iniciar servidor Express para el webhook
+    // Servidor Express escuchando en el puerto configurado
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

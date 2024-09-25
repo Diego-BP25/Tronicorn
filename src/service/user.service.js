@@ -2,27 +2,44 @@ const user = require("../model/user.model");
 const { USER } = require("../config/config.constant");
 
 class userServices {
-    // Guardar un usuario en la base de datos
-    async saveUser(data) {
+    // Guardar o añadir una wallet para un usuario
+    async saveWallet(data) {
         try {
-            const { id, wallet_address, encryptedPrivateKey } = data;
+            const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
 
-            const new_user = await user.create({
-                userId: id,
-                wallet_address: wallet_address,
-                encryptedPrivateKey: encryptedPrivateKey
-            });
+            // Buscar si el usuario ya existe
+            let existingUser = await user.findOne({ userId: id });
 
-            if (new_user) {
+            if (existingUser) {
+                // Si el usuario ya existe, añadir una nueva wallet a la lista de wallets
+                existingUser.wallets.push({
+                    wallet_address: wallet_address,
+                    encryptedPrivateKey: encryptedPrivateKey,
+                    wallet_name: wallet_name
+                });
+
+                await existingUser.save();
+
                 return {
                     message: USER.WALLET_SAVED,
                     success: true,
-                    data: new_user
+                    data: existingUser
                 };
             } else {
+                // Si no existe, crear un nuevo usuario con la wallet
+                const newUser = await user.create({
+                    userId: id,
+                    wallets: [{
+                        wallet_address: wallet_address,
+                        encryptedPrivateKey: encryptedPrivateKey,
+                        wallet_name: wallet_name
+                    }]
+                });
+
                 return {
-                    message: USER.WALLET_NOT_SAVED,
-                    success: false,
+                    message: USER.WALLET_SAVED,
+                    success: true,
+                    data: newUser
                 };
             }
         } catch (error) {
@@ -33,39 +50,15 @@ class userServices {
         }
     }
 
-    // Recuperar las wallets de un usuario
-    async fetchWallet(id) {
-        try {
-            const getUser = await user.findOne({ userId: id });
-            if (getUser) {
-                return {
-                    message: USER.WALLET_FETCHED,
-                    success: true,
-                    wallets: getUser.wallets, // Devolvemos todas las wallets del usuario
-                };
-            } else {
-                return {
-                    message: USER.WALLET_NOT_FETCHED,
-                    success: false,
-                };
-            }
-        } catch (error) {
-            return {
-                message: USER.ERROR + error,
-                success: false,
-            };
-        }
-    }
-
-    // Recuperar todas las wallets de un usuario (nueva función)
+    // Recuperar todas las wallets de un usuario
     async fetchAllWallets(userId) {
         try {
             const getUser = await user.findOne({ userId });
-            if (getUser && getUser.wallet_address) {
+            if (getUser && getUser.wallets.length > 0) {
                 return {
                     message: USER.WALLETS_FETCHED,
                     success: true,
-                    wallets: [{ wallet_address: getUser.wallet_address }] // Devolver las wallets encontradas
+                    wallets: getUser.wallets
                 };
             } else {
                 return {
