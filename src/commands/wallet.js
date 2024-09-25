@@ -1,9 +1,13 @@
 const { tronWeb, encrypt } = require('../utils/tron');
 const { fetchAllWallets, saveWallet } = require("../service/user.service");
 const { Markup } = require('telegraf');
+const account = tronWeb.createAccount();
+
 
 // Función para manejar el comando wallet
 async function walletCommand(ctx) {
+  const balance = await tronWeb.trx.getBalance(account.address.base58);
+
   try {
     const userId = ctx.chat.id;
 
@@ -57,10 +61,8 @@ async function handleWalletName(ctx) {
   if (ctx.session.waitingForWalletName) {
     const walletName = ctx.message.text;
     console.log(`Nombre de wallet recibido: ${walletName}`);
-
     try {
       // Generar la cuenta TRON (dirección y clave privada)
-      const account = await tronWeb.createAccount();
       const pkey = account.privateKey;
       const walletAddress = account.address.base58;  // Dirección pública generada
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
