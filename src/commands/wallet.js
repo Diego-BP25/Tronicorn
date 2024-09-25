@@ -46,24 +46,35 @@ async function handleWalletName(ctx) {
     const walletName = ctx.message.text;
     console.log(`Nombre de wallet recibido: ${walletName}`);
 
-    // Aquí deberías generar la dirección y clave privada de la wallet usando tu lógica
-    const walletAddress = "GeneratedWalletAddress"; // Cambia esto por tu lógica para generar dirección
-    const encryptedPrivateKey = "EncryptedPrivateKey"; // Cambia esto por tu lógica de cifrado
+    try {
+      // Generar la cuenta TRON (dirección y clave privada)
+      const account = await tronWeb.createAccount();
+      const walletAddress = account.address.base58;  // Dirección pública generada
+      const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
 
-    ctx.session.waitingForWalletName = false;  // Reseteamos el estado
+      ctx.session.waitingForWalletName = false;  // Reseteamos el estado
 
-    // Guardar la nueva wallet
-    const saveResult = await saveWallet({
-      id: ctx.chat.id,
-      wallet_name: walletName,
-      wallet_address: walletAddress,
-      encryptedPrivateKey: encryptedPrivateKey
-    });
+      // Guardar la nueva wallet
+      const saveResult = await saveWallet({
+        id: ctx.chat.id,
+        wallet_name: walletName,
+        wallet_address: walletAddress,
+        encryptedPrivateKey: encryptedPrivateKey
+      });
 
-    if (saveResult.success) {
-      await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-    } else {
-      await ctx.reply(`Error: ${saveResult.message}`);
+      if (saveResult.success) {
+        await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
+        await ctx.reply(`
+          Your TRON wallet details:
+          - Address: ${walletAddress}
+          - Encrypted Private Key: ${encryptedPrivateKey}
+        `);
+      } else {
+        await ctx.reply(`Error: ${saveResult.message}`);
+      }
+    } catch (error) {
+      console.error("Error generating wallet or saving to database:", error);
+      await ctx.reply("An error occurred while creating your wallet.");
     }
   } else {
     await ctx.reply('Please use the /wallet command to register a new wallet.');
