@@ -22,6 +22,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Comandos del bot
     bot.start(startCommand);
 
+    // Comando de wallet
     bot.command("wallet", async (ctx) => {
       const userId = ctx.chat.id;
 
@@ -77,6 +78,8 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
           wallet_address: walletName 
         });
 
+        console.log("Resultado del guardado de wallet:", saveResult);
+
         if (saveResult.success) {
           await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
           console.log(`Wallet ${walletName} registrada exitosamente para el usuario ${ctx.chat.id}`);
@@ -116,13 +119,12 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await transferTRX(ctx, toAddress, amount);
     });
 
-    // Webhook para recibir actualizaciones
+    // Usar Express para manejar peticiones HTTP para el webhook en Render
+    // Puedes comentar esto si haces pruebas locales
     bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
-
-    // Usar Express para manejar peticiones HTTP para el webhook
     app.use(bot.webhookCallback(`/bot${botToken}`));
 
-    // Servidor Express escuchando en el puerto configurado
+    // Iniciar servidor Express para el webhook
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
