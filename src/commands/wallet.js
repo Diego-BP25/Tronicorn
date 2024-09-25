@@ -14,16 +14,20 @@ async function walletCommand(ctx) {
       // Si ya tiene wallets, las listamos en el formato solicitado
       let walletMessage = '';
 
-      walletResult.wallets.forEach(wallet => {
+      for (const wallet of walletResult.wallets) {
         const walletAddress = wallet.wallet_address;
         const walletName = wallet.wallet_name;
         const tronScanLink = `https://tronscan.org/#/address/${walletAddress}`;
 
-        walletMessage += `💰 *${walletName}*  • 0 TRX\n`;
+        // Obtener el balance de cada wallet
+        const balance = await tronWeb.trx.getBalance(walletAddress);
+        const formattedBalance = tronWeb.fromSun(balance); // Formatear el balance a TRX
+
+        walletMessage += `💰 *${walletName}*  • ${formattedBalance} TRX\n`;
         walletMessage += `${walletAddress}\n`;
         walletMessage += `[🌍 View on Tronscan](${tronScanLink})\n`;
         walletMessage += `\n───────────────\n\n`;  // Separador entre wallets
-      });
+      }
 
       // Enviar la lista de wallets junto con el botón "New Wallet"
       await ctx.replyWithMarkdown(walletMessage, Markup.inlineKeyboard([
