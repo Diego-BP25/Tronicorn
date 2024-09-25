@@ -13,13 +13,14 @@ async function walletCommand(ctx) {
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Si ya tiene wallets, las listamos en el formato solicitado
       let walletMessage = '';
+      const balance = await tronWeb.trx.getBalance(account.address.base58);
 
       walletResult.wallets.forEach(wallet => {
         const walletAddress = wallet.wallet_address;
         const walletName = wallet.wallet_name;
         const tronScanLink = `https://tronscan.org/#/address/${walletAddress}`;
 
-        walletMessage += `🪙 *${walletName}*  • 0 TRX\n`;
+        walletMessage += `💰 *${walletName}*  • ${tronWeb.fromSun(balance)} TRX\n`;
         walletMessage += `${walletAddress}\n`;
         walletMessage += `[🌍 View on Tronscan](${tronScanLink})\n`;
         walletMessage += `\n───────────────\n\n`;  // Separador entre wallets
