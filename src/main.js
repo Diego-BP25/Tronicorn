@@ -25,9 +25,6 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Comando /wallet
     bot.command("wallet", walletCommand);
 
-    // Manejador de callback para botones de wallets existentes
-    bot.action(/^wallet_/, handleWalletSelection);
-
     // Manejador para la creación de una nueva wallet
     bot.action('new_wallet', createNewWallet);
 
