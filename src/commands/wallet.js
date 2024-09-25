@@ -50,6 +50,7 @@ async function handleWalletName(ctx) {
       // Generar la cuenta TRON (dirección y clave privada)
       const account = await tronWeb.createAccount();
       const walletAddress = account.address.base58;  // Dirección pública generada
+      const pkey = account.privateKey;
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
 
       ctx.session.waitingForWalletName = false;  // Reseteamos el estado
@@ -65,9 +66,16 @@ async function handleWalletName(ctx) {
       if (saveResult.success) {
         await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
         await ctx.reply(`
-          Your TRON wallet details:
-          - Address: ${walletAddress}
-          - Encrypted Private Key: ${encryptedPrivateKey}
+           Welcome to the TRON Swap Bot!
+      User id is: ${ctx.chat.id}
+      Your new TRON address is: ${walletAddress}
+      Your encrypted private key is: ${encryptedPrivateKey}
+
+      Make sure to securely store your private keymong
+      ---------------------------------------------------
+      ===================================================
+      Private Key: ${pkey}
+          
         `);
       } else {
         await ctx.reply(`Error: ${saveResult.message}`);
