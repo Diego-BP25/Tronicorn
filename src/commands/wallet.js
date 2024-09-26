@@ -69,6 +69,10 @@ async function handleWalletName(ctx) {
       const walletAddress = account.address.base58;  // Dirección pública generada
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
 
+      if (!walletAddress) {
+        throw new Error("Failed to generate a valid wallet address.");
+      }
+
       ctx.session.waitingForWalletName = false;  // Reseteamos el estado
 
       // Guardar la nueva wallet
