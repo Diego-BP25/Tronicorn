@@ -3,9 +3,7 @@ const Schema = mongoose.Schema
 
 const walletSchema = new Schema({
     wallet_address: {
-        type: String,
-        required: true,
-        unique: true,
+        type: String
     },
     encryptedPrivateKey: {
         type: String,
