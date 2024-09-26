@@ -65,6 +65,12 @@ async function handleWalletName(ctx) {
     try {
       // Generar la cuenta TRON (dirección y clave privada)
       const account = await tronWeb.createAccount();
+
+       // Validar que se ha creado correctamente la cuenta y que tiene una dirección y clave privada
+       if (!account || !account.address || !account.address.base58 || !account.privateKey) {
+        throw new Error("Failed to generate a valid wallet account.");
+      }
+      
       const pkey = account.privateKey;
       const walletAddress = account.address.base58;  // Dirección pública generada
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
