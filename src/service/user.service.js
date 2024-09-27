@@ -7,6 +7,15 @@ class userServices {
         try {
             const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
 
+
+            // Validar que el wallet_address no sea null o undefined
+    if (!wallet_address) {
+        return {
+          message: "Invalid wallet address. Cannot save wallet.",
+          success: false
+        };
+      }
+
             // Buscar si el usuario ya existe
             let existingUser = await user.findOne({ userId: id });
 
