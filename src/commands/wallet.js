@@ -74,7 +74,7 @@ async function handleWalletName(ctx) {
       const pkey = account.privateKey;
       const walletAddress = account.address.base58;  // Dirección pública generada
 
-      console.log('${walletAddress}')
+      console.log(`${walletAddress}`)
 
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
 
