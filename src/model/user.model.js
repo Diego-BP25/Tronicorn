@@ -6,6 +6,7 @@ const walletSchema = new Schema({
         type: String,
         required: true,
         unique: true,
+        sparse: true
     },
     encryptedPrivateKey: {
         type: String,
