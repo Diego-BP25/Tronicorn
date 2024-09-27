@@ -74,10 +74,8 @@ async function handleWalletName(ctx) {
       const pkey = account.privateKey;
       const walletAddress = account.address.base58;  // Dirección pública generada
 
-      if (!walletAddress) {
-        throw new Error("Failed to generate a valid wallet address.");
-      }
-      
+      console.log(${walletAddress})
+
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
 
       
