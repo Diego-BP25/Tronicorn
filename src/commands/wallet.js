@@ -1,5 +1,5 @@
 const { tronWeb, encrypt } = require('../utils/tron');
-const { fetchAllWallets, saveWallet } = require("../service/user.service");
+const { fetchWallet, fetchAllWallets, saveWallet } = require("../service/user.service");
 const { Markup } = require('telegraf');
 
 // Función para manejar el comando wallet
@@ -11,24 +11,13 @@ async function walletCommand(ctx) {
     const walletResult = await fetchAllWallets(userId);
 
     if (walletResult.success && walletResult.wallets.length > 0) {
-      // Si ya tiene wallets, las listamos en el formato solicitado
-      let walletMessage = '';
+      // Si ya tiene wallets, mostrar las wallets y botón de "Nueva Wallet"
+      const walletButtons = walletResult.wallets.map(wallet =>
+        Markup.button.callback(wallet.wallet_name, `wallet_${wallet.wallet_address}`)
+      );
+      walletButtons.push(Markup.button.callback('New Wallet', 'new_wallet'));
 
-      walletResult.wallets.forEach(wallet => {
-        const walletAddress = wallet.wallet_address;
-        const walletName = wallet.wallet_name;
-        const tronScanLink = `https://tronscan.org/#/address/${walletAddress}`;
-
-        walletMessage += `🪙 *${walletName}*  • 0 TRX\n`;
-        walletMessage += `${walletAddress}\n`;
-        walletMessage += `[🌍 View on Tronscan](${tronScanLink})\n`;
-        walletMessage += `\n───────────────\n\n`;  // Separador entre wallets
-      });
-
-      // Enviar la lista de wallets junto con el botón "New Wallet"
-      await ctx.replyWithMarkdown(walletMessage, Markup.inlineKeyboard([
-        Markup.button.callback('💳 New Wallet', 'new_wallet')
-      ]));
+      await ctx.reply('Your wallets:', Markup.inlineKeyboard(walletButtons));
     } else {
       // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet
       await ctx.reply('It looks like this is your first time. Please send the name for your new wallet:');
@@ -57,50 +46,44 @@ async function handleWalletName(ctx) {
     const walletName = ctx.message.text;
     console.log(`Nombre de wallet recibido: ${walletName}`);
 
-    try {
-      // Generar la cuenta TRON (dirección y clave privada)
-      const account = await tronWeb.createAccount();
-      const pkey = account.privateKey;
-      const walletAddress = account.address.base58;  // Dirección pública generada
-      const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
+    // Aquí deberías generar la dirección y clave privada de la wallet usando tu lógica
+    const walletAddress = "GeneratedWalletAddress"; // Cambia esto por tu lógica para generar dirección
+    const encryptedPrivateKey = "EncryptedPrivateKey"; // Cambia esto por tu lógica de cifrado
 
-      ctx.session.waitingForWalletName = false;  // Reseteamos el estado
+    ctx.session.waitingForWalletName = false;  // Reseteamos el estado
 
-      // Guardar la nueva wallet
-      const saveResult = await saveWallet({
-        id: ctx.chat.id,
-        wallet_name: walletName,
-        wallet_address: walletAddress,
-        encryptedPrivateKey: encryptedPrivateKey
-      });
+    // Guardar la nueva wallet
+    const saveResult = await saveWallet({
+      id: ctx.chat.id,
+      wallet_name: walletName,
+      wallet_address: walletAddress,
+      encryptedPrivateKey: encryptedPrivateKey
+    });
 
-      if (saveResult.success) {
-        await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-        await ctx.reply(`
-          Your wallet has been created
-      User id is: ${ctx.chat.id}
-      Your new TRON address is: ${walletAddress}
-      Your encrypted private key is: ${encryptedPrivateKey}
-
-      Make sure to securely store your private keymong
-      ---------------------------------------------------
-      ===================================================
-      Private Key: ${pkey}
-        `);
-      } else {
-        await ctx.reply(`Error: ${saveResult.message}`);
-      }
-    } catch (error) {
-      console.error("Error generating wallet or saving to database:", error);
-      await ctx.reply("An error occurred while creating your wallet.");
+    if (saveResult.success) {
+      await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
+    } else {
+      await ctx.reply(`Error: ${saveResult.message}`);
     }
   } else {
     await ctx.reply('Please use the /wallet command to register a new wallet.');
   }
 }
 
+// Función para manejar la selección de wallets existentes
+async function handleWalletSelection(ctx) {
+  try {
+    const selectedWallet = ctx.match[0].split('_')[1];
+    await ctx.answerCbQuery();
+    await ctx.reply(`You selected wallet: ${selectedWallet}`);
+  } catch (error) {
+    console.error("Error handling wallet selection:", error);
+  }
+}
+
 module.exports = {
   walletCommand,
   createNewWallet,
-  handleWalletName
+  handleWalletName,
+  handleWalletSelection
 };
