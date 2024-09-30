@@ -1,7 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { startCommand, balanceCommand, swapTokens, transferTRX } = require('./src/commands');
-const { walletCommand, createNewWallet, handleWalletName, handleWalletSelection } = require('./src/commands/wallet');
+const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 

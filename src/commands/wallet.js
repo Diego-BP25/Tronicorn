@@ -14,26 +14,21 @@ async function walletCommand(ctx) {
       // Si ya tiene wallets, las listamos en el formato solicitado
       let walletMessage = '';
 
-      for (const wallet of walletResult.wallets) {
+      walletResult.wallets.forEach(wallet => {
         const walletAddress = wallet.wallet_address;
         const walletName = wallet.wallet_name;
         const tronScanLink = `https://tronscan.org/#/address/${walletAddress}`;
 
-        // Obtener el balance de cada wallet
-        const balance = await tronWeb.trx.getBalance(walletAddress);
-        const formattedBalance = tronWeb.fromSun(balance); // Formatear el balance a TRX
-
-        walletMessage += `💰 *${walletName}*  • ${formattedBalance} TRX\n`;
+        walletMessage += `🪙 *${walletName}*  • 0 TRX\n`;
         walletMessage += `${walletAddress}\n`;
         walletMessage += `[🌍 View on Tronscan](${tronScanLink})\n`;
         walletMessage += `\n───────────────\n\n`;  // Separador entre wallets
-      }
+      });
 
       // Enviar la lista de wallets junto con el botón "New Wallet"
-      await ctx.replyWithMarkdown(walletMessage, {disable_web_page_preview: true, ...Markup.inlineKeyboard([
+      await ctx.replyWithMarkdown(walletMessage, Markup.inlineKeyboard([
         Markup.button.callback('💳 New Wallet', 'new_wallet')
-      ])
-    });
+      ]));
     } else {
       // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet
       await ctx.reply('It looks like this is your first time. Please send the name for your new wallet:');
@@ -65,20 +60,9 @@ async function handleWalletName(ctx) {
     try {
       // Generar la cuenta TRON (dirección y clave privada)
       const account = await tronWeb.createAccount();
-
-       // Validar que se ha creado correctamente la cuenta y que tiene una dirección y clave privada
-       if (!account || !account.address || !account.address.base58 || !account.privateKey) {
-        throw new Error("Failed to generate a valid wallet account.");
-      }
-      
       const pkey = account.privateKey;
       const walletAddress = account.address.base58;  // Dirección pública generada
-
-      console.log(`${walletAddress}`)
-
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
-
-      
 
       ctx.session.waitingForWalletName = false;  // Reseteamos el estado
 
@@ -110,7 +94,9 @@ async function handleWalletName(ctx) {
       console.error("Error generating wallet or saving to database:", error);
       await ctx.reply("An error occurred while creating your wallet.");
     }
-  } 
+  } else {
+    await ctx.reply('Please use the /wallet command to register a new wallet.');
+  }
 }
 
 module.exports = {
