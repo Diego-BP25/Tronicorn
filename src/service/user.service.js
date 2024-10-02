@@ -1,54 +1,77 @@
+
 const user = require("../model/user.model");
 const { USER } = require("../config/config.constant");
 
 class userServices {
     // Guardar o añadir una wallet para un usuario
-    async saveWallet(data) {
-        try {
-            const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
-
-            // Buscar si el usuario ya existe
-            let existingUser = await user.findOne({ userId: id });
-
-            if (existingUser) {
-                // Si el usuario ya existe, añadir una nueva wallet a la lista de wallets
-                existingUser.wallets.push({
-                    wallet_address: wallet_address,
-                    encryptedPrivateKey: encryptedPrivateKey,
-                    wallet_name: wallet_name
-                });
-
-                await existingUser.save();
-
-                return {
-                    message: USER.WALLET_SAVED,
-                    success: true,
-                    data: existingUser
-                };
-            } else {
-                // Si no existe, crear un nuevo usuario con la wallet
-                const newUser = await user.create({
-                    userId: id,
-                    wallets: [{
-                        wallet_address: wallet_address,
-                        encryptedPrivateKey: encryptedPrivateKey,
-                        wallet_name: wallet_name
-                    }]
-                });
-
-                return {
-                    message: USER.WALLET_SAVED,
-                    success: true,
-                    data: newUser
-                };
-            }
-        } catch (error) {
-            return {
-                message: USER.ERROR + error.message,
-                success: false,
-            };
+async saveWallet(data) {
+    try {
+      const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
+  
+      // Validar que el wallet_address no sea null o undefined
+      if (!wallet_address) {
+        return {
+          message: "Invalid wallet address. Cannot save wallet.",
+          success: false
+        };
+      }
+  
+      // Buscar si el usuario ya existe
+      let existingUser = await user.findOne({ userId: id });
+  
+      if (existingUser) {
+        // Verificar si la wallet ya existe para el usuario
+        const walletExists = existingUser.wallets.some(wallet => wallet.wallet_address === wallet_address);
+  
+        if (walletExists) {
+          return {
+            message: "This wallet address already exists for this user.",
+            success: false
+          };
         }
+  
+        // Añadir una nueva wallet a la lista de wallets
+        existingUser.wallets.push({
+          wallet_address: wallet_address,
+          encryptedPrivateKey: encryptedPrivateKey,
+          wallet_name: wallet_name
+        });
+  
+        await existingUser.save();
+  
+        return {
+          message: "Wallet saved successfully for the existing user.",
+          success: true,
+          data: existingUser
+        };
+  
+      } else {
+        // Si no existe, crear un nuevo usuario con la wallet
+        const newUser = await user.create({
+          userId: id,
+          wallets: [{
+            wallet_address: wallet_address,
+            encryptedPrivateKey: encryptedPrivateKey,
+            wallet_name: wallet_name
+          }]
+        });
+  
+        return {
+          message: "New user and wallet created successfully.",
+          success: true,
+          data: newUser
+        };
+      }
+  
+    } catch (error) {
+      console.error('Error saving wallet:', error);
+      return {
+        message: "An error occurred while saving the wallet: " + error.message,
+        success: false,
+      };
     }
+  }
+  
 
     // Recuperar todas las wallets de un usuario
     async fetchAllWallets(userId) {
