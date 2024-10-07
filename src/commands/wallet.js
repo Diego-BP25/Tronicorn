@@ -1,5 +1,5 @@
 const { tronWeb, encrypt } = require('../utils/tron');
-const { fetchAllWallets, saveWallet } = require("../service/user.service");
+const { fetchAllWallets, saveWallet, nuevoUsuario } = require("../service/user.service");
 const { Markup } = require('telegraf');
 
 // Función para manejar el comando wallet
@@ -136,7 +136,7 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
       ctx.session.waitingForWalletName = false;  // Reseteamos el estado
 
       // Guardar la nueva wallet
-      const saveResult = await saveWallet({
+      const saveResult = await nuevoUsuario({
         id: ctx.chat.id,
         wallet_name: walletName,
         wallet_address: walletAddress,
