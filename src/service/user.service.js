@@ -72,7 +72,9 @@ async saveWallet(data) {
     }
   }
 
-  async nuevoUsuario() {
+  async nuevoUsuario(data) {
+    const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
+
     const newUser = await user.create({
         userId: id,
         wallets: [{
