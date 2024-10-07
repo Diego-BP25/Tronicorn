@@ -58,7 +58,12 @@ class userServices {
 
             } else {
                 // Log para verificar los datos a guardar en MongoDB
-            console.log('Datos a guardar en MongoDB:', data);
+            console.log('id:', id);
+            console.log('address:', wallet_address);
+            console.log('wallet_name:', wallet_name);
+            console.log('encryptedPrivateKey:', encryptedPrivateKey);
+
+
                 // Si no existe, crear un nuevo usuario con la wallet
                 const newUser = await user.create({
                     userId: id,
