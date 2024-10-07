@@ -15,8 +15,7 @@ class userServices {
                 };
             }
 
-            // Log para verificar los datos a guardar en MongoDB
-            console.log('Datos a guardar en MongoDB:', data);
+            
 
             // Buscar si el usuario ya existe
             let existingUser = await user.findOne({ userId: id });
@@ -58,6 +57,8 @@ class userServices {
                 };
 
             } else {
+                // Log para verificar los datos a guardar en MongoDB
+            console.log('Datos a guardar en MongoDB:', data);
                 // Si no existe, crear un nuevo usuario con la wallet
                 const newUser = await user.create({
                     userId: id,
