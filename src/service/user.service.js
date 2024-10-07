@@ -46,6 +46,7 @@ async saveWallet(data) {
         };
   
       } else {
+        console.log('llego a user.service');
         // Si no existe, crear un nuevo usuario con la wallet
         const newUser = await user.create({
           userId: id,
