@@ -5,9 +5,11 @@ class userServices {
     // Guardar o añadir una wallet para un usuario
     async saveWallet(data) {
         try {
+            console.log('Datos a guardar en MongoDB:', data); // Log para verificar los datos a guardar
             const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
 
             // Validar que el wallet_address no sea null o undefined
+            console.log('Valor de wallet_address antes de guardar:', wallet_address); // Log para verificar el valor de wallet_address
             if (!wallet_address) {
                 return {
                     message: "Invalid wallet address. Cannot save wallet.",
