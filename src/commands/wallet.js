@@ -136,7 +136,7 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
       ctx.session.waitingForWalletName = false;  // Reseteamos el estado
 
       // Guardar la nueva wallet
-      const saveResult = await nuevoUsuario({
+      const saveResult = await saveWallet({
         id: ctx.chat.id,
         wallet_name: walletName,
         wallet_address: walletAddress,

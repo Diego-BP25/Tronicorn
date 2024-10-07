@@ -71,25 +71,6 @@ async saveWallet(data) {
       };
     }
   }
-
-  async nuevoUsuario(data) {
-    const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
-
-    const newUser = await user.save({
-        userId: id,
-        wallets: [{
-          wallet_address: wallet_address,
-          encryptedPrivateKey: encryptedPrivateKey,
-          wallet_name: wallet_name
-        }]
-      });
-
-      return {
-        message: "New user and wallet created successfully.",
-        success: true,
-        data: newUser
-      };
-  }
   
 
     // Recuperar todas las wallets de un usuario
