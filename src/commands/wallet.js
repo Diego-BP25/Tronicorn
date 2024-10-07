@@ -65,6 +65,10 @@ async function walletCommand(ctx) {
         
   
         ctx.session.waitingForWalletName = false;  // Reseteamos el estado
+
+        console.log(`Attempting to save wallet with address: ${walletAddress}`);
+        console.log(`User ID: ${ctx.chat.id}`);
+        console.log(`Encrypted Private Key: ${encryptedPrivateKey}`);
   
         // Guardar la nueva wallet
         const saveResult = await saveWallet({
