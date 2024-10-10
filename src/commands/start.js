@@ -8,7 +8,7 @@ module.exports = async function startCommand(ctx) {
     await ctx.reply(
       'Welcome to the TRON Bot! Choose an option:',
       Markup.inlineKeyboard([
-        [Markup.button.callback('💼 Wallet', 'wallet')],
+        [Markup.button.callback('💼 Wallet', '/wallet')],
         [Markup.button.callback('💰 Balance', 'balance')],
         [Markup.button.callback('🔄 Swap Tokens', 'swap')],
         [Markup.button.callback('💸 Transfer TRX', 'transfer')],
