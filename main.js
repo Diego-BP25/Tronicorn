@@ -1,7 +1,8 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { startCommand, balanceCommand, swapTokens, transferTRX } = require('./src/commands');
-const { walletCommand, createNewWallet, handleWalletName, handleWalletSelection } = require('./src/commands/wallet');
+const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
+const { handleWalletBalance} = require('./src/commands/balance');
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -24,6 +25,14 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await ctx.answerCbQuery();  // Responder al callback query
       return walletCommand(ctx);  // Llamar a la función de la wallet
     });
+
+    bot.action('balance', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return balanceCommand(ctx);  // Llamar a la función de balance
+    });
+
+    bot.action(/^wallet_balance_/, handleWalletBalance);
+
 
     // Comandos del bot
     bot.start(startCommand);
