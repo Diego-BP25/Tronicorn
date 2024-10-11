@@ -1,5 +1,5 @@
 const { tronWeb, encrypt } = require('../utils/tron');
-const { fetchAllWallets, saveWallet, nuevoUsuario } = require("../service/user.service");
+const { fetchAllWallets, saveWallet} = require("../service/user.service");
 const { Markup } = require('telegraf');
 
 // Función para manejar el comando wallet
