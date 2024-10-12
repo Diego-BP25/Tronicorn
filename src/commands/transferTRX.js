@@ -9,10 +9,10 @@ async function transferCommand(ctx) {
       throw new Error('No se encontraron wallets');
     }
 
-    // Mostrar botones con las wallets
+    // Mostrar botones con las wallets usando índices
     const wallets = walletResult.wallets; // Supongamos que es un array de wallets
     const buttons = wallets.map((wallet, index) => {
-      return [{ text: `Wallet ${index + 1}`, callback_data: `wallet_${wallet}` }];
+      return [{ text: `Wallet ${index + 1}`, callback_data: `wallet_${index}` }];
     });
 
     return ctx.reply('Selecciona una wallet para transferir:', {
@@ -25,7 +25,14 @@ async function transferCommand(ctx) {
 }
 
 async function handleWalletSelection(ctx) {
-  const walletAddress = ctx.match[1]; // Obtenemos la wallet seleccionada
+  const walletIndex = parseInt(ctx.match[1], 10); // Obtenemos el índice de la wallet seleccionada
+  const walletResult = await fetchWallet(ctx.chat.id);
+  
+  if (!walletResult.success || !walletResult.wallets[walletIndex]) {
+    return ctx.reply('Wallet no encontrada.');
+  }
+
+  const walletAddress = walletResult.wallets[walletIndex];
   ctx.session.fromWallet = walletAddress; // Guardamos la wallet en sesión
   await ctx.reply('Por favor, ingresa la dirección de la wallet a la que deseas transferir.');
   ctx.wizard.next(); // Pasamos al siguiente paso
