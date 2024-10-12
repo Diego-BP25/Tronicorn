@@ -14,6 +14,8 @@ async function transferCommand(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `transfer_wallet_${wallet.wallet_address}`)];
       });
 
+      // Guardamos el estado de la transferencia
+      ctx.session.transferState = 'waitingForWallet';
       // Enviar el mensaje con los botones de selección
       await ctx.reply('Selecciona una wallet para transferir:', Markup.inlineKeyboard(walletButtons));
     } else {
@@ -31,19 +33,23 @@ async function handleWalletSelection(ctx) {
 
   // Extraer la dirección de la wallet del callback_data
   const walletAddress = callbackData.replace('transfer_wallet_', '');
-  
-  // Guardar la wallet en sesión para continuar con la transferencia
+
+  // Guardar la wallet en sesión y cambiar el estado
   ctx.session.fromWallet = walletAddress;
+  ctx.session.transferState = 'waitingForToAddress';
+  
   await ctx.reply('Por favor, ingresa la dirección de la wallet a la que deseas transferir.');
-  ctx.wizard.next(); // Pasamos al siguiente paso
 }
 
+// Manejador para ingresar la dirección de destino
 async function handleToAddress(ctx) {
   ctx.session.toAddress = ctx.message.text; // Guardamos la dirección en sesión
+  ctx.session.transferState = 'waitingForAmount';
+  
   await ctx.reply('Por favor, ingresa el monto de TRX a transferir.');
-  ctx.wizard.next(); // Pasamos al siguiente paso
 }
 
+// Manejador para ingresar el monto
 async function handleAmount(ctx) {
   const amount = parseFloat(ctx.message.text);
   if (isNaN(amount) || amount <= 0) {
@@ -53,7 +59,12 @@ async function handleAmount(ctx) {
 
   // Realizamos la transferencia
   await transferTRX(ctx, ctx.session.fromWallet, ctx.session.toAddress, ctx.session.amount);
-  ctx.scene.leave(); // Terminamos el flujo
+  
+  // Limpiar la sesión después de la transferencia
+  ctx.session.transferState = null;
+  ctx.session.fromWallet = null;
+  ctx.session.toAddress = null;
+  ctx.session.amount = null;
 }
 
 async function transferTRX(ctx, fromAddress, toAddress, amount) {
