@@ -2,7 +2,7 @@ const { Markup } = require('telegraf');
 // const { balanceCommand, swapTokens, transferTRX } = require('../commands');
 
 // Función para el comando /start que mostrará el menú interactivo
-module.exports = async function startCommand(ctx) {
+async function startCommand(ctx) {
   try {
     // Respuesta con menú interactivo
     await ctx.reply(
@@ -19,3 +19,7 @@ module.exports = async function startCommand(ctx) {
     ctx.reply("Sorry, an error occurred while displaying the menu.");
   }
 };
+
+module.exports ={
+  startCommand
+}

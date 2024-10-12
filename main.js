@@ -1,6 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { startCommand, swapTokens} = require('./src/commands');
+const { swapTokens} = require('./src/commands');
+const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
 const { handleWalletBalance, balanceCommand} = require('./src/commands/balance');
 const { transferCommand, handleWalletSelection, handleToAddress, handleAmount} = require('./src/commands/transferTRX');
