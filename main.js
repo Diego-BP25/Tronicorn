@@ -30,7 +30,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await ctx.answerCbQuery();  // Responder al callback query
       return transferCommand(ctx);  // Llamar a la función de la transfer
     });
-    bot.action(/^wallet_(.+)/, handleWalletSelection);
+    bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
     bot.on('text', (ctx) => {
       if (!ctx.session.fromWallet) return;
       if (!ctx.session.toAddress) return handleToAddress(ctx);
