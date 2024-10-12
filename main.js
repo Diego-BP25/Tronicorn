@@ -22,6 +22,9 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     await databaseConnect();
     console.log('Database connected successfully');
 
+    // Comandos del bot
+    bot.start(startCommand);
+
     // Aquí están los manejadores para los botones de callback del menú
     bot.action('transfer', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
@@ -46,10 +49,6 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     });
 
     bot.action(/^wallet_balance_/, handleWalletBalance);
-
-
-    // Comandos del bot
-    bot.start(startCommand);
 
     // Comando /wallet
     bot.command("wallet", walletCommand);
