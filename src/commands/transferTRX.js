@@ -1,10 +1,10 @@
-const { fetchWallet, fetch_Private_key } = require('../service/user.service');
+const { fetchAllWallets, fetch_Private_key } = require('../service/user.service');
 const { decrypt, tronWeb } = require('../utils/tron');
 
 async function transferCommand(ctx) {
   try {
     // Obtener wallets del usuario
-    const walletResult = await fetchWallet(ctx.chat.id);
+    const walletResult = await fetchAllWallets(ctx.chat.id);
     if (!walletResult.success) {
       throw new Error('No se encontraron wallets');
     }
