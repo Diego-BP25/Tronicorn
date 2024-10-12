@@ -1,39 +1,39 @@
 const { fetchAllWallets, fetch_Private_key } = require('../service/user.service');
 const { decrypt, tronWeb } = require('../utils/tron');
+const { Markup } = require('telegraf');
 
+// Comando transfer modificado
 async function transferCommand(ctx) {
   try {
-    // Obtener wallets del usuario
+    // Obtener todas las wallets del usuario
     const walletResult = await fetchAllWallets(ctx.chat.id);
-    if (!walletResult.success) {
-      throw new Error('No se encontraron wallets');
+
+    if (walletResult.success && walletResult.wallets.length > 0) {
+      // Listar las wallets del usuario como botones con el nombre de la wallet
+      const walletButtons = walletResult.wallets.map(wallet => {
+        return [Markup.button.callback(wallet.wallet_name, `transfer_wallet_${wallet.wallet_address}`)];
+      });
+
+      // Enviar el mensaje con los botones de selección
+      await ctx.reply('Selecciona una wallet para transferir:', Markup.inlineKeyboard(walletButtons));
+    } else {
+      await ctx.reply("No tienes wallets registradas. Por favor, crea una primero.");
     }
-
-    // Mostrar botones con las wallets usando índices
-    const wallets = walletResult.wallets; // Supongamos que es un array de wallets
-    const buttons = wallets.map((wallet, index) => {
-      return [{ text: `Wallet ${index + 1}`, callback_data: `wallet_${index}` }];
-    });
-
-    return ctx.reply('Selecciona una wallet para transferir:', {
-      reply_markup: { inline_keyboard: buttons }
-    });
   } catch (error) {
     console.error('Error en transferCommand:', error);
-    return ctx.reply('Error al obtener wallets.');
+    await ctx.reply('Error al obtener wallets.');
   }
 }
 
+// Manejador para seleccionar la wallet
 async function handleWalletSelection(ctx) {
-  const walletIndex = parseInt(ctx.match[1], 10); // Obtenemos el índice de la wallet seleccionada
-  const walletResult = await fetchWallet(ctx.chat.id);
-  
-  if (!walletResult.success || !walletResult.wallets[walletIndex]) {
-    return ctx.reply('Wallet no encontrada.');
-  }
+  const callbackData = ctx.update.callback_query.data;
 
-  const walletAddress = walletResult.wallets[walletIndex];
-  ctx.session.fromWallet = walletAddress; // Guardamos la wallet en sesión
+  // Extraer la dirección de la wallet del callback_data
+  const walletAddress = callbackData.replace('transfer_wallet_', '');
+  
+  // Guardar la wallet en sesión para continuar con la transferencia
+  ctx.session.fromWallet = walletAddress;
   await ctx.reply('Por favor, ingresa la dirección de la wallet a la que deseas transferir.');
   ctx.wizard.next(); // Pasamos al siguiente paso
 }
@@ -80,10 +80,10 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     // Enviar la transacción
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
-    ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
+    await ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
   } catch (error) {
     console.error('Error en transferTRX:', error);
-    ctx.reply(`Error al ejecutar la transferencia: ${error.message}`);
+    await ctx.reply(`Error al ejecutar la transferencia: ${error.message}`);
   }
 }
 
