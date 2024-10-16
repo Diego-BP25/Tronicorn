@@ -24,7 +24,7 @@ async function getTRC20Balance(address) {
       return `No tokens found for address: ${address}`;
     }
 
-    let balanceReport = 
+    let balanceReport = `💼 Wallet Address: ${address}:\n\n`;
 
     data.data.forEach(token => {
       balanceReport += `${token.tokenName} (${token.tokenAbbr}): ${token.balance / Math.pow(10, token.tokenDecimal)} usd current value is ${token.tokenPriceInUsd}\n`;
@@ -77,7 +77,7 @@ async function handleWalletBalance(ctx) {
     const trc20Balance = await getTRC20Balance(walletAddress);
 
     // Responder con la información de balance
-    await ctx.reply(`💼 Wallet Address: ${walletAddress}\n\nTRX Balance: ${formattedBalance} TRX\n\n${trc20Balance}`);
+    await ctx.reply(`TRX\n\n${trc20Balance}`);
   } catch (error) {
     console.error("Error fetching wallet balance:", error);
     await ctx.reply("Sorry, an error occurred while fetching the balance for this wallet.");
