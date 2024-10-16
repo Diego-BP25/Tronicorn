@@ -24,8 +24,10 @@ async function getTRC20Balance(address) {
       return `No tokens found for address: ${address}`;
     }
 
+    let balanceReport = 
+
     data.data.forEach(token => {
-      `${token.tokenName} (${token.tokenAbbr}): ${token.balance / Math.pow(10, token.tokenDecimal)} usd current value is ${token.tokenPriceInUsd}\n`;
+      balanceReport += `${token.tokenName} (${token.tokenAbbr}): ${token.balance / Math.pow(10, token.tokenDecimal)} usd current value is ${token.tokenPriceInUsd}\n`;
     });
 
     return balanceReport;
