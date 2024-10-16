@@ -71,7 +71,7 @@ async function handleAmount(ctx) {
 async function transferTRX(ctx, fromAddress, toAddress, amount) {
   try {
     // Obtener y desencriptar la clave privada de la wallet seleccionada
-    const privateKeyResult = await fetch_Private_key(fromAddress); // Cambia el argumento para usar la dirección de la wallet
+    const privateKeyResult = await fetch_Private_key(ctx.chat.id); // Cambia el argumento para usar la dirección de la wallet
     if (!privateKeyResult.success) {
       throw new Error('No se pudo obtener la clave privada');
     }
