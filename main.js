@@ -72,18 +72,18 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await swapTokens(ctx, fromToken, toToken, amount, address);
     });
 
-    bot.command('transfer', async (ctx) => {
-      const args = ctx.message.text.split(' ');
-      if (args.length !== 3) {
-        return ctx.reply('Usage: /transfer <toAddress> <amount>');
-      }
-      const toAddress = args[1];
-      const amount = parseFloat(args[2]);
-      if (isNaN(amount) || amount <= 0) {
-        return ctx.reply('Please provide a valid positive number for the amount.');
-      }
-      await transferTRX(ctx, toAddress, amount);
-    });
+    // bot.command('transfer', async (ctx) => {
+    //   const args = ctx.message.text.split(' ');
+    //   if (args.length !== 3) {
+    //     return ctx.reply('Usage: /transfer <toAddress> <amount>');
+    //   }
+    //   const toAddress = args[1];
+    //   const amount = parseFloat(args[2]);
+    //   if (isNaN(amount) || amount <= 0) {
+    //     return ctx.reply('Please provide a valid positive number for the amount.');
+    //   }
+    //   await transferTRX(ctx, toAddress, amount);
+    // });
 
     // Webhook para recibir actualizaciones, (render)
     bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);

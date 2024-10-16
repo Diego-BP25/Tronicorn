@@ -2,7 +2,7 @@ const { fetchAllWallets, fetch_Private_key } = require('../service/user.service'
 const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
 
-// Comando transfer modificado
+// Comando transfer modificado para iniciar el proceso de transferencia
 async function transferCommand(ctx) {
   try {
     // Obtener todas las wallets del usuario
@@ -67,6 +67,7 @@ async function handleAmount(ctx) {
   ctx.session.amount = null;
 }
 
+// Función encargada de realizar la transferencia de TRX
 async function transferTRX(ctx, fromAddress, toAddress, amount) {
   try {
     // Obtener y desencriptar la clave privada
