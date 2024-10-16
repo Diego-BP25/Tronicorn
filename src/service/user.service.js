@@ -100,28 +100,31 @@ async saveWallet(data) {
     }
 
     // Recuperar la clave privada cifrada de un usuario
-    async fetch_Private_key(id) {
-        try {
-            const fetch_user = await user.findOne({ userId: id });
-            if (fetch_user) {
-                return {
-                    message: USER.PRIVATE_KEY_FETCHED,
-                    success: true,
-                    encryptedPrivateKey: fetch_user.encryptedPrivateKey,
-                };
-            } else {
-                return {
-                    message: USER.PRIVATE_KEY_NOT_FETCHED,
-                    success: false,
-                };
-            }
-        } catch (error) {
-            return {
-                message: USER.ERROR + error,
-                success: false,
-            };
-        }
-    }
+    async fetch_Private_key(id, walletAddress) {
+      try {
+          const fetch_user = await user.findOne({ userId: id });
+          if (fetch_user) {
+              const wallet = fetch_user.wallets.find(w => w.wallet_address === walletAddress);
+              if (wallet) {
+                  return {
+                      message: USER.PRIVATE_KEY_FETCHED,
+                      success: true,
+                      encryptedPrivateKey: wallet.encryptedPrivateKey,
+                  };
+              }
+          }
+          return {
+              message: USER.PRIVATE_KEY_NOT_FETCHED,
+              success: false,
+          };
+      } catch (error) {
+          return {
+              message: USER.ERROR + error,
+              success: false,
+          };
+      }
+  }
+  
 
     // Actualizar información de un usuario
     async UpdateUser(id, data) {
