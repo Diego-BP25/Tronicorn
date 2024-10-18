@@ -1,10 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { swapTokens } = require('./src/commands');
-const { startCommand } = require('./src/commands/start');
-const { walletCommand, createNewWallet, handleWalletName, handleBack, handleClose } = require('./src/commands/wallet');
-const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
-const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
+const { startCommand, balanceCommand, swapTokens, transferTRX } = require('./src/commands');
+const { walletCommand, createNewWallet, handleWalletName, handleWalletSelection } = require('./src/commands/wallet');
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -22,33 +19,14 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     await databaseConnect();
     console.log('Database connected successfully');
 
-    // Comandos del bot
-    bot.start(startCommand);
-
-    // Aquí están los manejadores para los botones de callback del menú
-    bot.action('transfer', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return transferCommand(ctx);  // Llamar a la función de la transfer
-    });
-    bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
-    bot.on('text', (ctx) => {
-      if (!ctx.session.fromWallet) return;
-      if (!ctx.session.toAddress) return handleToAddress(ctx);
-      if (!ctx.session.amount) return handleAmount(ctx);
-    });
-
-    // Aquí están los manejadores para los botones de callback del menú
-    bot.action('wallet', async (ctx) => {
+     // Aquí están los manejadores para los botones de callback del menú
+     bot.action('wallet', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
       return walletCommand(ctx);  // Llamar a la función de la wallet
     });
 
-    bot.action('balance', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return balanceCommand(ctx);  // Llamar a la función de balance
-    });
-
-    bot.action(/^wallet_balance_/, handleWalletBalance);
+    // Comandos del bot
+    bot.start(startCommand);
 
     // Comando /wallet
     bot.command("wallet", walletCommand);
@@ -72,11 +50,18 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await swapTokens(ctx, fromToken, toToken, amount, address);
     });
 
-     // // Manejador para el botón "Back"
-    // bot.action('back', handleBack);
-
-     // Manejador para el botón "Close"
-     bot.action('close', handleClose);
+    bot.command('transfer', async (ctx) => {
+      const args = ctx.message.text.split(' ');
+      if (args.length !== 3) {
+        return ctx.reply('Usage: /transfer <toAddress> <amount>');
+      }
+      const toAddress = args[1];
+      const amount = parseFloat(args[2]);
+      if (isNaN(amount) || amount <= 0) {
+        return ctx.reply('Please provide a valid positive number for the amount.');
+      }
+      await transferTRX(ctx, toAddress, amount);
+    });
 
     // Webhook para recibir actualizaciones, (render)
     bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
