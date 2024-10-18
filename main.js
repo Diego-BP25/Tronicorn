@@ -68,15 +68,15 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
     bot.on('text', async (ctx) => {
-      if (ctx.session.awaitingWalletName) {
+      if (ctx.session.waitingForWalletName) {
         return handleWalletName(ctx);  // Manejador de nombre de wallet
       }
 
-      if (ctx.session.awaitingToAddress) {
+      if (ctx.session.toAddress) {
         return handleToAddress(ctx);   // Manejador de dirección destino para transferencias
       }
 
-      if (ctx.session.awaitingAmount) {
+      if (ctx.session.amount) {
         return handleAmount(ctx);      // Manejador de monto para transferencias
       }
     });
