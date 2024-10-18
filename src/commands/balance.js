@@ -24,13 +24,13 @@ async function getTRC20Balance(address) {
       return `No tokens found for address: ${address}`;
     }
 
-    let balanceReport = `💼 Wallet Address: ${address}:\n\n TRX Balance: ${formattedBalance} TRX\n\n`;
+    let balanceReport = `💼 Wallet Address: ${address}:\n\n`;
 
     data.data.forEach(token => {
-      balanceReport += `${token.tokenName} (${token.tokenAbbr}): ${token.balance / Math.pow(10, token.tokenDecimal)} usd current value is ${token.tokenPriceInUsd}\n`
+      balanceReport += `${token.tokenName} (${token.tokenAbbr}): ${token.balance / Math.pow(10, token.tokenDecimal)} usd current value is ${token.tokenPriceInUsd}\n`;
     });
 
-    return balanceReport,await ctx.reply(([Markup.button.callback('❌ Close', 'close')]));;
+    return balanceReport;
   } catch (error) {
     console.error("Error fetching TRC20 balance:", error);
     return "Sorry, an error occurred while fetching your TRC20 balance.";
@@ -51,8 +51,7 @@ async function balanceCommand(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)];
       });
 
-      await ctx.reply('Please select a wallet to view its balance:', Markup.inlineKeyboard(walletButtons),
-       ([Markup.button.callback('❌ Close', 'close')]));
+      await ctx.reply('Please select a wallet to view its balance:', Markup.inlineKeyboard(walletButtons));
     } else {
       await ctx.reply("You don't have any registered wallets. Please create one first.");
     }

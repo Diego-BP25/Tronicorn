@@ -31,8 +31,10 @@ async function walletCommand(ctx) {
 
       // Enviar la lista de wallets junto con el botón "New Wallet"
       await ctx.replyWithMarkdown(walletMessage, {disable_web_page_preview: true, ...Markup.inlineKeyboard([
-        Markup.button.callback('💳 New Wallet', 'new_wallet')
-      ])([Markup.button.callback('❌ Close', 'close')])
+      [Markup.button.callback('💳 New Wallet', 'new_wallet')],
+      [Markup.button.callback('❌ Close', 'close')]
+      ])
+        
     });
     } else {
       // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet

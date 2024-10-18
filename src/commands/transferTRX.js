@@ -17,7 +17,7 @@ async function transferCommand(ctx) {
       // Guardamos el estado de la transferencia
       ctx.session.transferState = 'waitingForWallet';
       // Enviar el mensaje con los botones de selección
-      await ctx.reply('Selecciona una wallet para transferir:', ([Markup.inlineKeyboard(walletButtons)])([Markup.button.callback('❌ Close', 'close')]));
+      await ctx.reply('Selecciona una wallet para transferir:', Markup.inlineKeyboard(walletButtons));
     } else {
       await ctx.reply("No tienes wallets registradas. Por favor, crea una primero.");
     }
