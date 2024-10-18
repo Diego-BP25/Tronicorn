@@ -77,7 +77,7 @@ async function handleWalletBalance(ctx) {
     const trc20Balance = await getTRC20Balance(walletAddress);
 
     // Responder con la información de balance
-    await ctx.reply(`TRX\n\n${trc20Balance}`);
+    await ctx.reply(`${trc20Balance}`);
   } catch (error) {
     console.error("Error fetching wallet balance:", error);
     await ctx.reply("Sorry, an error occurred while fetching the balance for this wallet.");
