@@ -170,6 +170,5 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
 module.exports = {
   walletCommand,
   createNewWallet,
-  handleWalletName,
-  handleClose
+  handleWalletName
 };
