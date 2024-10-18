@@ -56,11 +56,11 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Manejador para la creación de una nueva wallet
     bot.action('new_wallet', createNewWallet);
 
-    // Manejador para el botón "Back"
-    bot.action('back', handleBack);
+    // // Manejador para el botón "Back"
+    // bot.action('back', handleBack);
 
-    // Manejador para el botón "Close"
-    bot.action('close', handleClose);
+     // Manejador para el botón "Close"
+     bot.action('close', handleClose);
 
     // Manejador de texto cuando se espera un nombre de wallet
     bot.on('text', handleWalletName);
