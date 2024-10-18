@@ -63,6 +63,62 @@ async function walletCommand(ctx) {
   }
 }
 
+// Función para manejar el texto cuando se espera un nombre de wallet
+async function handleWalletName(ctx) {
+  if (ctx.session.waitingForWalletName) {
+    const walletName = ctx.message.text;
+    console.log(`Nombre de wallet recibido: ${walletName}`);
+
+    try {
+      // Generar la cuenta TRON (dirección y clave privada)
+      const account = await tronWeb.createAccount();
+
+     // Validar que se ha creado correctamente la cuenta
+if (!account || !account.address || !account.address.base58 || !account.privateKey) {
+  throw new Error("Failed to generate a valid wallet account.");
+}
+      
+      const pkey = account.privateKey;
+      const walletAddress = account.address.base58;  // Dirección pública generada
+      console.log(`direccion de la wallet: ${walletAddress}`)
+
+      const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
+
+      
+
+      ctx.session.waitingForWalletName = false;  // Reseteamos el estado
+
+      // Guardar la nueva wallet
+      const saveResult = await saveWallet({
+        id: ctx.chat.id,
+        wallet_name: walletName,
+        wallet_address: walletAddress,
+        encryptedPrivateKey: encryptedPrivateKey
+      });
+
+      if (saveResult.success) {
+        await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
+        await ctx.reply(`
+          Your wallet has been created
+      User id is: ${ctx.chat.id}
+      Your new TRON address is: ${walletAddress}
+      Your encrypted private key is: ${encryptedPrivateKey}
+
+      Make sure to securely store your private keymong
+      ---------------------------------------------------
+      ===================================================
+      Private Key: ${pkey}
+        `);
+      } else {
+        await ctx.reply(`Error: ${saveResult.message}`);
+      }
+    } catch (error) {
+      console.error("Error generating wallet or saving to database:", error);
+      await ctx.reply("An error occurred while creating your wallet.");
+    }
+  } 
+}
+
 // Función para manejar el botón "Back" (ejemplo sencillo, puedes personalizar el flujo)
 async function handleBack(ctx) {
   await ctx.answerCbQuery();  // Responder el callback
@@ -91,4 +147,5 @@ module.exports = {
   createNewWallet,
   handleBack,
   handleClose,
+  handleWalletName
 };
