@@ -27,6 +27,17 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     bot.start(startCommand);
 
     // Aquí están los manejadores para los botones de callback del menú
+    bot.action('transfer', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return transferCommand(ctx);  // Llamar a la función de la transfer
+    });
+    bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
+    bot.on('text', (ctx) => {
+      if (!ctx.session.fromWallet) return;
+      if (!ctx.session.toAddress) return handleToAddress(ctx);
+      if (!ctx.session.amount) return handleAmount(ctx);
+    });
+    // Aquí están los manejadores para los botones de callback del menú
     bot.action('wallet', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
       return walletCommand(ctx);  // Llamar a la función de la wallet
@@ -48,17 +59,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
 
     bot.action(/^wallet_balance_/, handleWalletBalance);
 
-    // Aquí están los manejadores para los botones de callback del menú
-    bot.action('transfer', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return transferCommand(ctx);  // Llamar a la función de la transfer
-    });
-    bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
-    bot.on('text', (ctx) => {
-      if (!ctx.session.fromWallet) return;
-      if (!ctx.session.toAddress) return handleToAddress(ctx);
-      if (!ctx.session.amount) return handleAmount(ctx);
-    });
+    
 
     // Manejador para el botón "Back"
     // bot.action('back', handleBack);
