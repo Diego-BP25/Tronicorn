@@ -31,6 +31,15 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       return walletCommand(ctx);  // Llamar a la función de la wallet
     });
 
+    // Comando /wallet
+    bot.command("wallet", walletCommand);
+
+    // Manejador para la creación de una nueva wallet
+    bot.action('new_wallet', createNewWallet);
+
+    // Manejador de texto cuando se espera un nombre de wallet
+    bot.on('text', handleWalletName);
+
     bot.action('balance', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
       return balanceCommand(ctx);  // Llamar a la función de balance
@@ -49,15 +58,6 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       if (!ctx.session.toAddress) return handleToAddress(ctx);
       if (!ctx.session.amount) return handleAmount(ctx);
     });
-
-    // Comando /wallet
-    bot.command("wallet", walletCommand);
-
-    // Manejador para la creación de una nueva wallet
-    bot.action('new_wallet', createNewWallet);
-
-    // Manejador de texto cuando se espera un nombre de wallet
-    bot.on('text', handleWalletName);
 
     bot.command('balance', balanceCommand);
 
