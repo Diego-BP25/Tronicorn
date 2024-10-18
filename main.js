@@ -1,7 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { swapTokens } = require('./src/commands');
-const { handleClose } = require('./src/commands/botons')
+const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
 const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
@@ -26,49 +26,13 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Comandos del bot
     bot.start(startCommand);
 
-    // Aquí están los manejadores para los botones de callback del menú
-    bot.action('transfer', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return transferCommand(ctx);  // Llamar a la función de la transfer
-    });
-    bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
-    bot.on('text', (ctx) => {
-      if (!ctx.session.fromWallet) return;
-      if (!ctx.session.toAddress) return handleToAddress(ctx);
-      if (!ctx.session.amount) return handleAmount(ctx);
-    });
-    // Aquí están los manejadores para los botones de callback del menú
-    bot.action('wallet', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return walletCommand(ctx);  // Llamar a la función de la wallet
-    });
-
     // Comando /wallet
     bot.command("wallet", walletCommand);
 
-    // Manejador para la creación de una nueva wallet
-    bot.action('new_wallet', createNewWallet);
-
-    // Manejador de texto cuando se espera un nombre de wallet
-    bot.on('text', handleWalletName);
-
-    bot.action('balance', async (ctx) => {
-      await ctx.answerCbQuery();  // Responder al callback query
-      return balanceCommand(ctx);  // Llamar a la función de balance
-    });
-
-    bot.action(/^wallet_balance_/, handleWalletBalance);
-
-    
-
-    // Manejador para el botón "Back"
-    // bot.action('back', handleBack);
-
-    // Manejador para el botón "Close"
-    bot.action('close', handleClose);
-
+    // Comando /balance
     bot.command('balance', balanceCommand);
 
+    // Comando de swap
     bot.command('swap', async (ctx) => {
       const walletResult = await fetchWallet(ctx.chat.id);
       const address = walletResult.success ? walletResult.wallet_address : null;
@@ -80,18 +44,45 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await swapTokens(ctx, fromToken, toToken, amount, address);
     });
 
-    // bot.command('transfer', async (ctx) => {
-    //   const args = ctx.message.text.split(' ');
-    //   if (args.length !== 3) {
-    //     return ctx.reply('Usage: /transfer <toAddress> <amount>');
-    //   }
-    //   const toAddress = args[1];
-    //   const amount = parseFloat(args[2]);
-    //   if (isNaN(amount) || amount <= 0) {
-    //     return ctx.reply('Please provide a valid positive number for the amount.');
-    //   }
-    //   await transferTRX(ctx, toAddress, amount);
-    // });
+    // Manejadores para botones de callback
+    bot.action('wallet', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return walletCommand(ctx);  // Llamar a la función de la wallet
+    });
+
+    bot.action('new_wallet', createNewWallet);
+
+    bot.action('balance', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return balanceCommand(ctx);  // Llamar a la función de balance
+    });
+
+    bot.action(/^wallet_balance_/, handleWalletBalance);
+
+    bot.action('transfer', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return transferCommand(ctx);  // Llamar a la función de la transferencia
+    });
+
+    bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
+
+    // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
+    bot.on('text', async (ctx) => {
+      if (ctx.session.awaitingWalletName) {
+        return handleWalletName(ctx);  // Manejador de nombre de wallet
+      }
+
+      if (ctx.session.awaitingToAddress) {
+        return handleToAddress(ctx);   // Manejador de dirección destino para transferencias
+      }
+
+      if (ctx.session.awaitingAmount) {
+        return handleAmount(ctx);      // Manejador de monto para transferencias
+      }
+    });
+
+    // Manejador para el botón "Close"
+    bot.action('close', handleClose);
 
     // Webhook para recibir actualizaciones, (render)
     bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
