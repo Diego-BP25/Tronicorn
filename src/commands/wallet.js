@@ -168,15 +168,9 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
   } 
 };
 
-// Función para manejar el botón "Close"
-async function handleClose(ctx) {
-  await ctx.answerCbQuery();  // Responder el callback
-  await ctx.deleteMessage();  // Eliminar el mensaje actual
-}
 
 module.exports = {
   walletCommand,
   createNewWallet,
-  handleWalletName,
-  handleClose
+  handleWalletName
 };

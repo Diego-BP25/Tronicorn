@@ -1,10 +1,11 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { swapTokens} = require('./src/commands');
+const { swapTokens } = require('./src/commands');
+const { handleClose } = require('./src/commands/botons')
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
-const { handleWalletBalance, balanceCommand} = require('./src/commands/balance');
-const { transferCommand, handleWalletSelection, handleToAddress, handleAmount} = require('./src/commands/transferTRX');
+const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
+const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -25,8 +26,8 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Comandos del bot
     bot.start(startCommand);
 
-     // Aquí están los manejadores para los botones de callback del menú
-     bot.action('wallet', async (ctx) => {
+    // Aquí están los manejadores para los botones de callback del menú
+    bot.action('wallet', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
       return walletCommand(ctx);  // Llamar a la función de la wallet
     });
@@ -58,6 +59,12 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       if (!ctx.session.toAddress) return handleToAddress(ctx);
       if (!ctx.session.amount) return handleAmount(ctx);
     });
+
+    // Manejador para el botón "Back"
+    // bot.action('back', handleBack);
+
+    // Manejador para el botón "Close"
+    bot.action('close', handleClose);
 
     bot.command('balance', balanceCommand);
 
