@@ -27,7 +27,7 @@ async function getTRC20Balance(address) {
     let balanceReport = `💼 Wallet Address: ${address}:\n\n`;
 
     data.data.forEach(token => {
-      balanceReport += `${token.tokenName} (${token.tokenAbbr}): ${token.balance / Math.pow(10, token.tokenDecimal)} usd current value is ${token.tokenPriceInUsd}\n`;
+      balanceReport += `TRX: ${token.balance / Math.pow(10, token.tokenDecimal)}\n\n USD: ${token.tokenPriceInUsd}\n`;
     });
 
     return balanceReport;
