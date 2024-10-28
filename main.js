@@ -71,12 +71,13 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       if (ctx.session.waitingForWalletName) {
         return handleWalletName(ctx);  // Manejador de nombre de wallet
       }
-
-      if (ctx.session.toAddress) {
+    
+      // Verificar el estado de la transferencia
+      if (ctx.session.transferState === 'waitingForToAddress') {
         return handleToAddress(ctx);   // Manejador de dirección destino para transferencias
       }
-
-      if (ctx.session.amount) {
+    
+      if (ctx.session.transferState === 'waitingForAmount') {
         return handleAmount(ctx);      // Manejador de monto para transferencias
       }
     });
