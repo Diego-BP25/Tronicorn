@@ -35,8 +35,6 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     // Comando de swap
     bot.command('swap', swapTokens);
 
-    bot.action('swap_wallet_', handleWalletSwap);
-
     // Manejadores para botones de callback
     bot.action('wallet', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
@@ -58,6 +56,13 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     });
 
     bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
+
+    bot.action('swap', async (ctx) => {
+      await ctx.answerCbQuery();  // Responder al callback query
+      return swapTokens(ctx);  // Llamar a la función de la transferencia
+    });
+
+    bot.action(/^swap_wallet_/, handleWalletBalance);
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
     bot.on('text', async (ctx) => {
