@@ -141,5 +141,6 @@ module.exports = {
   swapTokens,
   handleWalletSwap,
   handleTokenAddress,
-  handleTrxAmount
+  handleTrxAmount,
+  handleSwapType
 };
