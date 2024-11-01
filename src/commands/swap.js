@@ -28,6 +28,7 @@ async function swapTokens(ctx) {
 // Manejador para la selección de wallet y mostrar opciones de swap
 async function handleWalletSwap(ctx) {
   const Datacallback = ctx.update.callback_query.data;
+  console.log("Callback data:", Datacallback);
 
   // Extraer la dirección de la wallet del callback_data
   const Addresswallet = Datacallback.replace('swap_wallet_', '');

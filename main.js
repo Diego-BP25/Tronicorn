@@ -62,7 +62,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       return swapTokens(ctx);  // Llamar a la función de la transferencia
     });
 
-    bot.action(/^swap_wallet_(.+)$/, handleWalletBalance);
+    bot.action(/^swap_wallet_/, handleWalletSwap);
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
     bot.on('text', async (ctx) => {
