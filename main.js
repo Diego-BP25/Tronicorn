@@ -1,6 +1,6 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { swapTokens } = require('./src/commands');
+const { swapTokens, handleWalletSwap } = require('./src/commands/swap');
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
@@ -33,16 +33,9 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     bot.command('balance', balanceCommand);
 
     // Comando de swap
-    bot.command('swap', async (ctx) => {
-      const walletResult = await fetchWallet(ctx.chat.id);
-      const address = walletResult.success ? walletResult.wallet_address : null;
+    bot.command('swap', swapTokens);
 
-      const fromToken = 'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR'; // WTRX
-      const toToken = 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT';   // SUN
-      const amount = '10';
-
-      await swapTokens(ctx, fromToken, toToken, amount, address);
-    });
+    bot.action('swap_wallet_', handleWalletSwap);
 
     // Manejadores para botones de callback
     bot.action('wallet', async (ctx) => {

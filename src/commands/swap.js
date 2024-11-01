@@ -1,86 +1,52 @@
-const { tronWeb } = require('../utils/tron');
-const axios = require('axios');
-const { fetchWallet } = require('../service/user.service');
+const { fetchAllWallets } = require("../service/user.service");
+const { Markup } = require('telegraf');
 
-async function getBestPath(fromToken, toToken, amount) {
-  console.log(`Getting best path for: ${fromToken} -> ${toToken}, amount: ${amount}`);
-  const typeList = 'PSM,CURVE,CURVE_COMBINATION,WTRX,SUNSWAP_V1,SUNSWAP_V2,SUNSWAP_V3';
+// Función para manejar el comando swap
+async function swapTokens(ctx) {
   try {
-    const response = await axios.get(`https://rot.endjgfsv.link/swap/router`, {
-      params: { fromToken, toToken, amountIn: amount, typeList }
-    });
+    const userId = ctx.chat.id;
 
-    if (response.data.code === 0) {
-      console.log('Best path found:', response.data.data[0]);
-      return response.data.data[0];
+    // Obtener todas las wallets del usuario
+    const walletResult = await fetchAllWallets(userId);
+
+    if (walletResult.success && walletResult.wallets.length > 0) {
+      // Listar las wallets del usuario como botones
+      const walletButtons = walletResult.wallets.map(wallet => {
+        return [Markup.button.callback(wallet.wallet_name, `swap_wallet_${wallet.wallet_address}`)];
+      });
+
+      await ctx.reply('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
     } else {
-      throw new Error('Failed to retrieve swap path');
+      await ctx.reply("You don't have any registered wallets. Please create one first.");
     }
   } catch (error) {
-    console.error('Error in getBestPath:', error);
-    throw error;
+    console.error("Error fetching wallets for swap:", error);
+    ctx.reply("Sorry, an error occurred while fetching your wallets.");
   }
 }
 
-async function executeSwap(contract, paths, poolVersions, poolLengths, fees, swapData) {
+// Manejador para la selección de wallet y mostrar opciones de swap
+async function handleWalletSwap(ctx) {
+  const callbackData = ctx.update.callback_query.data;
+
+  // Extraer la dirección de la wallet del callback_data
+  const walletAddress = callbackData.replace('swap_wallet_', '');
+
   try {
-    const tx = await contract.methods.swapExactInput(
-      paths,
-      poolVersions,
-      poolLengths,
-      fees,
-      swapData
-    ).send({
-      feeLimit: 10000 * 1e6,
-      shouldPollResponse: true
-    });
-    console.log("Swap transaction successful:", tx);
-    return tx;
+    // Opciones de tipo de swap como botones
+    const swapOptions = [
+      [Markup.button.callback("TRX/Tokens", `swap_type_TRX_TOKENS_${walletAddress}`)],
+      [Markup.button.callback("Tokens/TRX", `swap_type_TOKENS_TRX_${walletAddress}`)]
+    ];
+
+    await ctx.reply('Please select the type of swap:', Markup.inlineKeyboard(swapOptions));
   } catch (error) {
-    console.error("Error executing swap transaction:", error);
-    throw error;
+    console.error("Error handling wallet swap:", error);
+    await ctx.reply("Sorry, an error occurred while setting up the swap options.");
   }
 }
 
-module.exports = async function swapTokens(ctx, fromToken, toToken, amount) {
-  try {
-    // Fetch user's wallet address
-    const walletResult = await fetchWallet(ctx.chat.id);
-    if (!walletResult.success) {
-      throw new Error('Failed to fetch user wallet');
-    }
-    const recipient = walletResult.wallet_address;
-
-    // Get the best swap path
-    const bestPath = await getBestPath(fromToken, toToken, amount);
-    
-    // Setup contract
-    const routerContractAddress = 'TFVisXFaijZfeyeSjCEVkHfex7HGdTxzF9';
-    const contract = await tronWeb.contract().at(routerContractAddress);
-    
-    // Prepare swap parameters
-    const paths = bestPath.tokens;
-    const poolVersions = bestPath.poolVersions;
-    const poolLengths = [paths.length];
-    const fees = bestPath.poolFees.map(fee => parseInt(fee, 10));
-
-    const amountIn = tronWeb.toBigNumber(tronWeb.toSun(parseFloat(bestPath.amountIn)));
-    const minAmountOut = tronWeb.toBigNumber(tronWeb.toSun(parseFloat(bestPath.amountOut)));
-    const deadline = tronWeb.toBigNumber(Math.floor(Date.now() / 1000) + 60 * 10);
-
-    const swapData = {
-      amountIn,
-      minAmountOut,
-      to: recipient,
-      deadline
-    };
-
-    // Execute the swap
-    const tx = await executeSwap(contract, paths, poolVersions, poolLengths, fees, swapData);
-
-    ctx.reply(`Swap successful! Transaction: ${tx}`);
-  } catch (error) {
-    console.error("Error in swapTokens:", error);
-    ctx.reply(`Error executing swap: ${error.message}`);
-  }
+module.exports = {
+  swapTokens,
+  handleWalletSwap,
 };
