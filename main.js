@@ -1,6 +1,6 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { swapTokens, handleWalletSwap } = require('./src/commands/swap');
+const { swapTokens, handleWalletSwap, handleTokenAddress, handleTrxAmount } = require('./src/commands/swap');
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
@@ -65,20 +65,30 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     bot.action(/^swap_wallet_/, handleWalletSwap);
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
-    bot.on('text', async (ctx) => {
-      if (ctx.session.waitingForWalletName) {
-        return handleWalletName(ctx);  // Manejador de nombre de wallet
-      }
-    
-      // Verificar el estado de la transferencia
-      if (ctx.session.transferState === 'waitingForToAddress') {
-        return handleToAddress(ctx);   // Manejador de dirección destino para transferencias
-      }
-    
-      if (ctx.session.transferState === 'waitingForAmount') {
-        return handleAmount(ctx);      // Manejador de monto para transferencias
-      }
-    });
+bot.on('text', async (ctx) => {
+  if (ctx.session.waitingForWalletName) {
+    return handleWalletName(ctx);  // Manejador de nombre de wallet
+  }
+
+  // Verificar el estado de la transferencia
+  if (ctx.session.transferState === 'waitingForToAddress') {
+    return handleToAddress(ctx);   // Manejador de dirección destino para transferencias
+  }
+
+  if (ctx.session.transferState === 'waitingForAmount') {
+    return handleAmount(ctx);      // Manejador de monto para transferencias
+  }
+
+  // Verificar el estado del swap
+  if (ctx.session.awaitingTokenAddress) {
+    return handleTokenAddress(ctx);  // Manejador para dirección del token en el flujo de swap
+  }
+
+  if (ctx.session.awaitingTrxAmount) {
+    return handleTrxAmount(ctx);     // Manejador para el monto en TRX en el flujo de swap
+  }
+});
+
 
     // Manejador para el botón "Close"
     bot.action('close', handleClose);
