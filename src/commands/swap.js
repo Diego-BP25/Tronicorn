@@ -27,16 +27,16 @@ async function swapTokens(ctx) {
 
 // Manejador para la selección de wallet y mostrar opciones de swap
 async function handleWalletSwap(ctx) {
-  const callbackData = ctx.update.callback_query.data;
+  const Datacallback = ctx.update.callback_query.data;
 
   // Extraer la dirección de la wallet del callback_data
-  const walletAddress = callbackData.replace('swap_wallet_', '');
+  const Addresswallet = Datacallback.replace('swap_wallet_', '');
 
   try {
     // Opciones de tipo de swap como botones
     const swapOptions = [
-      [Markup.button.callback("TRX/Tokens", `swap_type_TRX_TOKENS_${walletAddress}`)],
-      [Markup.button.callback("Tokens/TRX", `swap_type_TOKENS_TRX_${walletAddress}`)]
+      [Markup.button.callback("TRX/Tokens", `swap_type_TRX_TOKENS_${Addresswallet}`)],
+      [Markup.button.callback("Tokens/TRX", `swap_type_TOKENS_TRX_${Addresswallet}`)]
     ];
 
     await ctx.reply('Please select the type of swap:', Markup.inlineKeyboard(swapOptions));
