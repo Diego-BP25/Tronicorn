@@ -59,12 +59,12 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
 
     bot.action('swap', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
-      return swapTokens(ctx);  // Llamar a la función de la transferencia
+      return handleWalletSwap(ctx);  // Llamar a la función de la transferencia
     });
 
-    bot.action(/^swap_wallet_/, handleWalletSwap);
+    bot.action(/^swap_type_TRX_TOKENS_/, swapTokens);
 
-    bot.action(new RegExp(`^swap_type_TRX_TOKENS_${Addresswallet}`), handleSwapType);
+    bot.action(/^transfer_wallet_.+$/, handleSwapType);
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
 bot.on('text', async (ctx) => {

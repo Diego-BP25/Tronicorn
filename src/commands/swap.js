@@ -15,6 +15,8 @@ async function swapTokens(ctx) {
     // Obtener todas las wallets del usuario
     const walletResult = await fetchAllWallets(userId);
 
+    
+
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Listar las wallets del usuario como botones
       const walletButtons = walletResult.wallets.map(wallet => {
@@ -33,16 +35,12 @@ async function swapTokens(ctx) {
 
 // Manejador para la selección de wallet y mostrar opciones de swap
 async function handleWalletSwap(ctx) {
-  const Datacallback = ctx.update.callback_query.data;
-
-  // Extraer la dirección de la wallet del callback_data
-  const Addresswallet = Datacallback.replace('swap_wallet_', '');
 
   try {
     // Opciones de tipo de swap como botones
     const swapOptions = [
-      [Markup.button.callback("TRX/Tokens", `swap_type_TRX_TOKENS_${Addresswallet}`)],
-      [Markup.button.callback("Tokens/TRX", `swap_type_TOKENS_TRX_${Addresswallet}`)]
+      [Markup.button.callback("TRX/Tokens", `swap_type_TRX_TOKENS_`)],
+      [Markup.button.callback("Tokens/TRX", `swap_type_TOKENS_TRX_`)]
     ];
 
     await ctx.reply('Please select the type of swap:', Markup.inlineKeyboard(swapOptions));
@@ -53,14 +51,17 @@ async function handleWalletSwap(ctx) {
 }
 
 // Función para manejar el flujo de swap
-async function handleSwapType(ctx, Addresswallet) {
-  ctx.session.swapData = { Addresswallet }; // Guarda la wallet seleccionada
+async function handleSwapType(ctx, fromAddress) {
+// Extraer la dirección de la wallet del callback_data
+const walletAddress = callbackData.replace('swap_wallet_', '');
 
+// Guardar la wallet en sesión y cambiar el estado
+ctx.session.fromWallet = walletAddress;
   // Recupera la clave privada cifrada de la wallet
   const userId = ctx.chat.id;
-  const privateKeyResult = await fetch_Private_key(userId, Addresswallet);
+  const privateKeyResult = await fetch_Private_key(userId, fromAddress);
 
-  if (privateKeyResult.success) {
+  if (privateKeyResult.success) { 
       // Almacena la clave privada cifrada en la sesión
       ctx.session.swapData.encryptedPrivateKey = privateKeyResult.encryptedPrivateKey;
       
