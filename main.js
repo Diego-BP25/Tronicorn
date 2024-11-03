@@ -62,9 +62,23 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       return handleWalletSwap(ctx);  // Llamar a la función de la transferencia
     });
 
-    bot.action(/^swap_type_TRX_TOKENS_/, swapTokens);
+    // Acción para el botón de swap inicial
+  bot.action('swap', async (ctx) => {
+    await ctx.answerCbQuery();
+    return handleWalletSwap(ctx);
+  });
 
-    bot.action(/^swap_wallet_.+$/, handleSwapType);
+  // Acción para el tipo de swap TRX a Tokens
+  bot.action(/^swap_type_TRX_TOKENS$/, async (ctx) => {
+    await ctx.answerCbQuery();
+    return swapTokens(ctx);
+  });
+
+  // Acción para seleccionar una wallet
+  bot.action(/^swap_wallet_.+$/, async (ctx) => {
+    await ctx.answerCbQuery();
+    return handleSwapType(ctx);
+  });
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
 bot.on('text', async (ctx) => {
@@ -81,13 +95,12 @@ bot.on('text', async (ctx) => {
     return handleAmount(ctx);      // Manejador de monto para transferencias
   }
 
-  // Verificar el estado del swap
   if (ctx.session.awaitingTokenAddress) {
-    return handleTokenAddress(ctx);  // Manejador para dirección del token en el flujo de swap
+    return handleTokenAddress(ctx);
   }
 
   if (ctx.session.awaitingTrxAmount) {
-    return handleTrxAmount(ctx);     // Manejador para el monto en TRX en el flujo de swap
+    return handleTrxAmount(ctx);
   }
 });
 
