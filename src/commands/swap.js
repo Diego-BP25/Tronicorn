@@ -1,6 +1,7 @@
 const { fetchAllWallets, fetch_Private_key } = require("../service/user.service");
 const { Markup } = require('telegraf');
-const { decrypt, tronWeb } = require('../utils/tron');
+const { decrypt } = require('../utils/tron');
+const TronWeb = require('tronweb').TronWeb;
 
 const fullNode = 'https://api.trongrid.io';
 const solidityNode = 'https://api.trongrid.io';
@@ -100,6 +101,7 @@ async function swapTRXForTokens(ctx) {
   try {
     // Desencripta la clave privada
     const decryptedPrivateKey = decrypt(encryptedPrivateKey);
+
 
     // Inicializa TronWeb con la clave privada específica de la wallet
     const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
