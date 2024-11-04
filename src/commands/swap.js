@@ -1,7 +1,7 @@
 const { fetchAllWallets, fetch_Private_key } = require("../service/user.service");
 const { Markup } = require('telegraf');
 const { decrypt } = require('../utils/tron');
-const TronWeb = require('tronweb').TronWeb;
+const TronWeb = require('tronweb');
 
 const fullNode = 'https://api.trongrid.io';
 const solidityNode = 'https://api.trongrid.io';
