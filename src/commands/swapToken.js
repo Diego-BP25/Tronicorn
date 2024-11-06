@@ -69,7 +69,7 @@ async function handleAskToken(ctx) {
     const addressWallet = callbackData.replace('swap_wallet_token', '');
   
     // Guardar la wallet en sesión y cambiar el estado
-    ctx.session.fromWallet = addressWallet;
+    ctx.session.walletFrom = addressWallet;
   
     // Recuperar la clave privada cifrada de la wallet
     const userId = ctx.chat.id;
