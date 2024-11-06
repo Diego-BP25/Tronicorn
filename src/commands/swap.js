@@ -66,7 +66,7 @@ async function handleSwapType(ctx) {
       walletAddress
     };
     
-    await ctx.reply("Please enter the token address you want to receive:");
+    await ctx.reply("Please enter the token address you want to swap:");
     ctx.session.awaitingTokenAddress = true; // Marca que estamos esperando la dirección del token
   } else {
     await ctx.reply("Could not fetch the private key for this wallet. Please check your wallet details.");

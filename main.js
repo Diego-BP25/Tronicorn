@@ -1,6 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { swapTokens, handleWalletSwap, handleTokenAddress, handleTrxAmount, handleSwapType } = require('./src/commands/swap');
+const { handleAskAmount, handleAskToken, handleProcessData, listWallets } = require('./src/commands/swapToken');
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
@@ -80,6 +81,19 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     return handleSwapType(ctx);
   });
 
+  // Acción para el tipo de swap tokens a TRX
+  bot.action(/^swap_type_TOKENS_TRX$/, async (ctx) => {
+    await ctx.answerCbQuery();
+    return listWallets(ctx);
+  });
+
+    // Acción para seleccionar una wallet
+    bot.action(/^swap_wallet_token.+$/, async (ctx) => {
+      await ctx.answerCbQuery();
+      return handleAskToken(ctx);
+    });
+
+
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
 bot.on('text', async (ctx) => {
   if (ctx.session.waitingForWalletName) {
@@ -101,6 +115,14 @@ bot.on('text', async (ctx) => {
 
   if (ctx.session.awaitingTrxAmount) {
     return handleTrxAmount(ctx);
+  }
+
+  if (ctx.session.Token) {
+    return handleAskAmount(ctx);
+  }
+
+  if (ctx.session.awaitingAmount) {
+    return handleProcessData(ctx);
   }
 });
 
