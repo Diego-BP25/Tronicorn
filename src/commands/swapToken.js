@@ -50,7 +50,7 @@ async function listWallets(ctx) {
       if (walletResult.success && walletResult.wallets.length > 0) {
         // Listar las wallets del usuario como botones
         const walletButtons = walletResult.wallets.map(wallet => {
-          return [Markup.button.callback(wallet.wallet_name, `swap_wallet_token${wallet.wallet_address}`)];
+          return [Markup.button.callback(wallet.wallet_name, `swap_wallet_token_${wallet.wallet_address}`)];
         });
   
         await ctx.reply('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
@@ -67,7 +67,7 @@ async function listWallets(ctx) {
 async function handleAskToken(ctx) {
     const callbackData = ctx.update.callback_query.data;
     console.log("Callback data:", callbackData); // Verifica el valor recibido en el callback
-    const addressWallet = callbackData.replace('swap_wallet_token', '');
+    const addressWallet = callbackData.replace('swap_wallet_token_', '');
     console.log("Parsed wallet address:", addressWallet);
   
     // Guardar la wallet en sesión y cambiar el estado

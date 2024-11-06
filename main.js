@@ -88,7 +88,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
   });
 
     // Acción para seleccionar una wallet
-    bot.action(/^swap_wallet_token.+$/, async (ctx) => {
+    bot.action(/^swap_wallet_token_.+$/, async (ctx) => {
       await ctx.answerCbQuery();
       return handleAskToken(ctx);
     });
