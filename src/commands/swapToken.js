@@ -66,20 +66,20 @@ async function listWallets(ctx) {
   // Manejador para la selección de wallet y para solicitar la dirección del token
 async function handleAskToken(ctx) {
     const callbackData = ctx.update.callback_query.data;
-    const addressWallet = callbackData.replace('swap_wallet_token_', '');
+    const walletAddress = callbackData.replace('swap_wallet_token_', '');
   
     // Guardar la wallet en sesión y cambiar el estado
-    ctx.session.fromWallet = addressWallet;
+    ctx.session.fromWallet = walletAddress;
   
     // Recuperar la clave privada cifrada de la wallet
     const userId = ctx.chat.id;
-    const privateKeyResult = await fetch_Private_key(userId, addressWallet);
+    const privateKeyResult = await fetch_Private_key(userId, walletAddress);
   
     if (privateKeyResult.success) { 
       // Almacena la clave privada cifrada en la sesión
       ctx.session.swapData = {
         PrivateKeyencrypted: privateKeyResult.PrivateKeyencrypted,
-        addressWallet
+        walletAddress
       };
       
       await ctx.reply("Please enter the token address you want to swap:");
@@ -138,7 +138,7 @@ async function approveTokens(ctx) {
 
   // Función de swap final usando los datos recopilados y clave privada desencriptada
 async function swapTokenForTRX(ctx) {
-    const { addressWallet, addressToken, tokenAmount, PrivateKeyencrypted } = ctx.session.swapData;
+    const { walletAddress, addressToken, tokenAmount, PrivateKeyencrypted } = ctx.session.swapData;
   
     try {
       // Desencripta la clave privada
@@ -158,7 +158,7 @@ async function swapTokenForTRX(ctx) {
         addressToken // Dirección del token objetivo proporcionado por el usuario
       ];
       const amountOutMin = 2451; // Ajusta el mínimo a recibir según tu lógica
-      const recipient = addressWallet; // Usa la wallet seleccionada por el usuario
+      const recipient = walletAddress; // Usa la wallet seleccionada por el usuario
       const deadline = Math.floor(Date.now() / 1000) + 20 * 60; // 20 minutos desde ahora
       const amountIn = Math.floor(tokenAmount * Math.pow(10, decimals));
 
