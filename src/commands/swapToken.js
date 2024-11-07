@@ -50,7 +50,7 @@ async function listWallets(ctx) {
         if (walletResult.success && walletResult.wallets.length > 0) {
           // Listar las wallets del usuario como botones
           const walletButtons = walletResult.wallets.map(wallet => {
-            return [Markup.button.callback(wallet.wallet_name, `swap_wallet_${wallet.wallet_address}`)];
+            return [Markup.button.callback(wallet.wallet_name, `swap_wallet_t${wallet.wallet_address}`)];
           });
     
           await ctx.reply('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
