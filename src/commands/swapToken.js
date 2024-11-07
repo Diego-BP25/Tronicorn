@@ -78,7 +78,7 @@ async function handleAskToken(ctx) {
     if (privateKeyResult.success) { 
       // Almacena la clave privada cifrada en la sesión
       ctx.session.swapData = {
-        PrivateKeyencrypted: privateKeyResult.PrivateKeyencrypted,
+        encryptedPrivateKey: privateKeyResult.encryptedPrivateKey,
         walletAddress
       };
       
@@ -113,11 +113,11 @@ async function handleProcessData(ctx) {
   // Función para aprobar tokens
 async function approveTokens(ctx) {
 
-    const {  addressToken, tokenAmount, PrivateKeyencrypted } = ctx.session.swapData;
+    const {  addressToken, tokenAmount, encryptedPrivateKey } = ctx.session.swapData;
     try {
 
         // Desencripta la clave privada
-      const decryptedPrivateKey = decrypt(PrivateKeyencrypted);
+      const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
         // Inicializa TronWeb con la clave privada específica de la wallet
         const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
@@ -138,11 +138,11 @@ async function approveTokens(ctx) {
 
   // Función de swap final usando los datos recopilados y clave privada desencriptada
 async function swapTokenForTRX(ctx) {
-    const { walletAddress, addressToken, tokenAmount, PrivateKeyencrypted } = ctx.session.swapData;
+    const { walletAddress, addressToken, tokenAmount, encryptedPrivateKey } = ctx.session.swapData;
   
     try {
       // Desencripta la clave privada
-      const decryptedPrivateKey = decrypt(PrivateKeyencrypted);
+      const decryptedPrivateKey = decrypt(encryptedPrivateKey);
   
   
       // Inicializa TronWeb con la clave privada específica de la wallet
