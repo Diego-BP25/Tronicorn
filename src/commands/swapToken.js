@@ -66,7 +66,7 @@ async function listWallets(ctx) {
   // Manejador para la selección de wallet y para solicitar la dirección del token
 async function handleAskToken(ctx) {
     const callbackData = ctx.update.callback_query.data;
-  const walletAddress = callbackData.replace('swap_wallet_', '');
+  const walletAddress = callbackData.replace('swap_wallet_t', '');
 
   // Guardar la wallet en sesión y cambiar el estado
   ctx.session.fromWallet = walletAddress;

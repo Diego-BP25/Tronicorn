@@ -129,7 +129,7 @@ async function swapTRXForTokens(ctx) {
 
     await ctx.reply(`Transaction successful: ${transaction}`);
   } catch (error) {
-    console.error('Error swapping TRX for tokensss:', error);
+    console.error('Error swapping TRX for tokens:', error);
     await ctx.reply("Error swapping TRX for tokens. Please check the details and try again.");
   }
 }
