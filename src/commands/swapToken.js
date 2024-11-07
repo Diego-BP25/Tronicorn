@@ -138,7 +138,7 @@ async function approveTokens(ctx) {
         });
         console.log('Tokens aprobados. Tx:', approveTx);
         // Llama a la función de swap con los datos proporcionados
-      await swapTokenForTRX(ctx);
+      
         
     } catch (error) {
         console.error("Error en la aprobación de tokens:", error);
