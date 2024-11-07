@@ -42,39 +42,38 @@ const abi = [
 // Función para manejar el comando swap de tipo tokens a TRX
 async function listWallets(ctx) {
     try {
-      const userId = ctx.chat.id;
-  
-      // Obtener todas las wallets del usuario
-      const walletResult = await fetchAllWallets(userId);
-  
-      if (walletResult.success && walletResult.wallets.length > 0) {
-        // Listar las wallets del usuario como botones
-        const walletButtons = walletResult.wallets.map(wallet => {
-          return [Markup.button.callback(wallet.wallet_name, `swap_wallet_token_${wallet.wallet_address}`)];
-        });
-  
-        await ctx.reply('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
-      } else {
-        await ctx.reply("You don't have any registered wallets. Please create one first.");
+        const userId = ctx.chat.id;
+    
+        // Obtener todas las wallets del usuario
+        const walletResult = await fetchAllWallets(userId);
+    
+        if (walletResult.success && walletResult.wallets.length > 0) {
+          // Listar las wallets del usuario como botones
+          const walletButtons = walletResult.wallets.map(wallet => {
+            return [Markup.button.callback(wallet.wallet_name, `swap_wallet_${wallet.wallet_address}`)];
+          });
+    
+          await ctx.reply('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
+        } else {
+          await ctx.reply("You don't have any registered wallets. Please create one first.");
+        }
+      } catch (error) {
+        console.error("Error fetching wallets for swap:", error);
+        ctx.reply("Sorry, an error occurred while fetching your wallets.");
       }
-    } catch (error) {
-      console.error("Error fetching wallets for swap:", error);
-      ctx.reply("Sorry, an error occurred while fetching your wallets.");
-    }
   }
 
   // Manejador para la selección de wallet y para solicitar la dirección del token
 async function handleAskToken(ctx) {
     const callbackData = ctx.update.callback_query.data;
-    const walletAddress = callbackData.replace('swap_wallet_token_', '');
-  
-    // Guardar la wallet en sesión y cambiar el estado
-    ctx.session.fromWallet = walletAddress;
-  
-    // Recuperar la clave privada cifrada de la wallet
-    const userId = ctx.chat.id;
-    const privateKeyResult = await fetch_Private_key(userId, walletAddress);
-  
+  const walletAddress = callbackData.replace('swap_wallet_', '');
+
+  // Guardar la wallet en sesión y cambiar el estado
+  ctx.session.fromWallet = walletAddress;
+
+  // Recuperar la clave privada cifrada de la wallet
+  const userId = ctx.chat.id;
+  const privateKeyResult = await fetch_Private_key(userId, walletAddress);
     if (privateKeyResult.success) { 
       // Almacena la clave privada cifrada en la sesión
       ctx.session.swapData = {
