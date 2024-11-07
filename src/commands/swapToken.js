@@ -118,16 +118,19 @@ async function approveTokens(ctx) {
 
         // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
+      console.log("Token Address:", addressToken);
+
 
         // Inicializa TronWeb con la clave privada específica de la wallet
         const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
         const tokenContract = await tronWeb.contract(abi, addressToken);
 
         const decimales = await tokenContract.methods.decimals().call();
+        console.log("Decimales:", decimales);
         const decimals = parseInt(decimales)
 
         const amountIn = Math.floor(tokenAmount * Math.pow(10, decimals));
-        console.log(amountIn)
+        console.log("valor final: ",amountIn)
 
         // Realiza la aprobación sin comprobar allowance
         const approveTx = await tokenContract.methods.approve(routerAddress, amountIn.toString()).send({
