@@ -125,7 +125,7 @@ async function listWallets(ctx) {
         // Inicializa TronWeb con la clave privada específica de la wallet
         const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
         const tokenContract = await tronWeb.contract(abi, addressToken);
-  
+        console.log(tokenContract.methods)
         const decimales = await tokenContract.methods.decimals().call();
         console.log("Decimales:", decimales);
         const decimals = parseInt(decimales)
