@@ -127,6 +127,7 @@ async function approveTokens(ctx) {
         const decimals = parseInt(decimales)
 
         const amountIn = Math.floor(tokenAmount * Math.pow(10, decimals));
+        console.log(amountIn)
 
         // Realiza la aprobación sin comprobar allowance
         const approveTx = await tokenContract.methods.approve(routerAddress, amountIn.toString()).send({
