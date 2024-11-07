@@ -66,12 +66,10 @@ async function listWallets(ctx) {
   // Manejador para la selección de wallet y para solicitar la dirección del token
 async function handleAskToken(ctx) {
     const callbackData = ctx.update.callback_query.data;
-    console.log("Callback data:", callbackData); // Verifica el valor recibido en el callback
     const addressWallet = callbackData.replace('swap_wallet_token_', '');
-    console.log("Parsed wallet address:", addressWallet);
   
     // Guardar la wallet en sesión y cambiar el estado
-    ctx.session.walletFrom = addressWallet;
+    ctx.session.fromWallet = addressWallet;
   
     // Recuperar la clave privada cifrada de la wallet
     const userId = ctx.chat.id;
