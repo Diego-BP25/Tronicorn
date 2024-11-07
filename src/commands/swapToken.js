@@ -74,6 +74,7 @@ async function handleAskToken(ctx) {
   // Recuperar la clave privada cifrada de la wallet
   const userId = ctx.chat.id;
   const privateKeyResult = await fetch_Private_key(userId, walletAddress);
+
     if (privateKeyResult.success) { 
       // Almacena la clave privada cifrada en la sesión
       ctx.session.swapData = {
@@ -122,8 +123,13 @@ async function approveTokens(ctx) {
         const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
         const tokenContract = await tronWeb.contract(abi, addressToken);
 
+        const decimales = await tokenContract.methods.decimals().call();
+        const decimals = parseInt(decimales)
+
+        const amountIn = Math.floor(tokenAmount * Math.pow(10, decimals));
+
         // Realiza la aprobación sin comprobar allowance
-        const approveTx = await tokenContract.methods.approve(routerAddress, tokenAmount.toString()).send({
+        const approveTx = await tokenContract.methods.approve(routerAddress, amountIn.toString()).send({
             feeLimit: 100000000
         });
         console.log('Tokens aprobados. Tx:', approveTx);
