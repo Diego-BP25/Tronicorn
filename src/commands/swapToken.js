@@ -126,7 +126,7 @@ async function listWallets(ctx) {
         const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
         const tokenContract = await tronWeb.contract(abi, addressToken);
   
-        const decimales = await tokenContract.methods.decimals().send();
+        const decimales = await tokenContract.methods.decimals().call();
         console.log("Decimales:", decimales);
         const decimals = parseInt(decimales)
   
