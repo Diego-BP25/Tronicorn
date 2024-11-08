@@ -10,10 +10,6 @@ async function walletCommand(ctx) {
     // Buscar si el usuario ya tiene wallets registradas
     const walletResult = await fetchAllWallets(userId);
 
-    if (walletResult.success && walletResult.wallets.length >= 3){
-      await ctx.reply("You can't have more than 3 wallets")
-    }
-
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Si ya tiene wallets, las listamos en el formato solicitado
       let walletMessage = '';
@@ -108,9 +104,13 @@ async function walletCommand(ctx) {
 // Función para manejar la creación de nuevas wallets
 async function createNewWallet(ctx) {
   try {
-    await ctx.answerCbQuery();
-    await ctx.reply('Please send the name for your new wallet:');
-    ctx.session.waitingForWalletName = true;
+    if (walletResult.success && walletResult.wallets.length >= 3){
+      await ctx.reply("You can't have more than 3 wallets")
+    }else(
+    await ctx.answerCbQuery(),
+    await ctx.reply('Please send the name for your new wallet:'),
+    ctx.session.waitingForWalletName = true
+    )
   } catch (error) {
     console.error("Error creating new wallet:", error);
   }
