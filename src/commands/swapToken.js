@@ -161,8 +161,8 @@ async function listWallets(ctx) {
       
       const routerContract = await tronWeb.contract().at(routerAddress);
       const path = [
-        'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR', // Dirección de WTRX (para swaps de TRX a tokens)
-        addressToken // Dirección del token objetivo proporcionado por el usuario
+          addressToken, // Dirección del token objetivo proporcionado por el usuario
+        'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR' // Dirección de WTRX (para swaps de TRX a tokens)
       ];
       const amountOutMin = '2451'; // Ajusta el mínimo a recibir según tu lógica
       const recipient = walletAddress; // Usa la wallet seleccionada por el usuario
