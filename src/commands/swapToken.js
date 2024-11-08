@@ -129,7 +129,6 @@ async function listWallets(ctx) {
         const decimals = parseInt(decimales)
   
         const amountIn = BigInt(Math.floor(tokenAmount * Math.pow(10, decimals))).toString();
-        console.log("valor final: ",amountIn)
   
         // Realiza la aprobación sin comprobar allowance
         const approveTx = await tokenContract.methods.approve(routerAddress, amountIn).send({
@@ -157,23 +156,23 @@ async function listWallets(ctx) {
       const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
   
       const tokenContract = await tronWeb.contract(abi, addressToken);
-        const decimales = await tokenContract.methods.decimals().call();
-        const decimals = parseInt(decimales)
+      const decimales = await tokenContract.methods.decimals().call();
+      const decimals = parseInt(decimales)
       
       const routerContract = await tronWeb.contract().at(routerAddress);
       const path = [
         'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR', // Dirección de WTRX (para swaps de TRX a tokens)
         addressToken // Dirección del token objetivo proporcionado por el usuario
       ];
-      const amountOutMin = 2451; // Ajusta el mínimo a recibir según tu lógica
+      const amountOutMin = '2451'; // Ajusta el mínimo a recibir según tu lógica
       const recipient = walletAddress; // Usa la wallet seleccionada por el usuario
       const deadline = Math.floor(Date.now() / 1000) + 20 * 60; // 20 minutos desde ahora
-      const amountIn = Math.floor(tokenAmount * Math.pow(10, decimals));
+      const amountIn = BigInt(Math.floor(tokenAmount * Math.pow(10, decimals))).toString();
   
       // Realiza el swap
       const transaction = await routerContract.methods.swapExactTokensForETH(
-        amountIn.toString(),
-        amountOutMin.toString(),
+        amountIn,
+        amountOutMin,
         path,
         recipient,
         deadline
