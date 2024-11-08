@@ -10,6 +10,10 @@ async function walletCommand(ctx) {
     // Buscar si el usuario ya tiene wallets registradas
     const walletResult = await fetchAllWallets(userId);
 
+    if (walletResult.success && walletResult.wallets.length >= 3){
+      await ctx.reply("You can't have more than 3 wallets")
+    }
+
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Si ya tiene wallets, las listamos en el formato solicitado
       let walletMessage = '';
@@ -116,7 +120,6 @@ async function createNewWallet(ctx) {
 async function handleWalletName(ctx) {
   if (ctx.session.waitingForWalletName) {
     const walletName = ctx.message.text;
-    console.log(`Nombre de wallet recibido: ${walletName}`);
 
     try {
       // Generar la cuenta TRON (dirección y clave privada)
