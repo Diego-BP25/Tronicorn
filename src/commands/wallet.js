@@ -104,6 +104,8 @@ async function walletCommand(ctx) {
 // Función para manejar la creación de nuevas wallets
 async function createNewWallet(ctx) {
 
+  const userId = ctx.chat.id;
+
   const walletResult = await fetchAllWallets(userId);
 
   if (walletResult.success && walletResult.wallets.length >= 3){
