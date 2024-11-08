@@ -103,17 +103,20 @@ async function walletCommand(ctx) {
 
 // Función para manejar la creación de nuevas wallets
 async function createNewWallet(ctx) {
+
+  if (walletResult.success && walletResult.wallets.length >= 3){
+    await ctx.reply("You can't have more than 3 wallets")
+  }
+  else{
   try {
-    if (walletResult.success && walletResult.wallets.length >= 3){
-      await ctx.reply("You can't have more than 3 wallets")
-    }else(
-    await ctx.answerCbQuery(),
-    await ctx.reply('Please send the name for your new wallet:'),
-    ctx.session.waitingForWalletName = true
-    )
+    await ctx.answerCbQuery();
+    await ctx.reply('Please send the name for your new wallet:');
+    ctx.session.waitingForWalletName = true;
+    
   } catch (error) {
     console.error("Error creating new wallet:", error);
   }
+}
 }
 
 // Función para manejar el texto cuando se espera un nombre de wallet
