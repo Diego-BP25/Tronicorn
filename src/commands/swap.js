@@ -8,6 +8,10 @@ const solidityNode = 'https://api.trongrid.io';
 const eventServer = 'https://api.trongrid.io';
 const routerAddress = 'TXF1xDbVGdxFGbovmmmXvBGu8ZiE3Lq4mR'; // SunSwap V2 Router
 
+// Definir el porcentaje de comisión
+const commissionRate = 0.01; // Comisión del 1%
+const botAddress = 'TPB27eRk4gPcYqSh4ihqXmdWZWidB87quR'; // Dirección para recibir la comisión
+
 // Función para manejar el comando inicial de swap
 async function handleWalletSwap(ctx) {
   try {
@@ -99,6 +103,13 @@ async function swapTRXForTokens(ctx) {
   const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey } = ctx.session.swapData;
 
   try {
+
+    const commissionAmount = trxAmountInSun * commissionRate;
+    const netTrxAmount = trxAmountInSun - commissionAmount;
+
+    // Transferir la comisión a la billetera del bot
+    await tronWeb.trx.sendTransaction(botAddress, commissionAmount);
+
     // Desencripta la clave privada
     const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
@@ -123,7 +134,7 @@ async function swapTRXForTokens(ctx) {
       recipient,
       deadline
     ).send({
-      callValue: trxAmountInSun, // Monto en TRX
+      callValue: netTrxAmount, // Monto en TRX
       shouldPollResponse: true
     });
 

@@ -12,6 +12,7 @@ async function startCommand(ctx) {
         [Markup.button.callback('💰 Balance', 'balance')],
         [Markup.button.callback('🔄 Swap Tokens', 'swap')],
         [Markup.button.callback('💸 Transfer TRX', 'transfer')],
+        [Markup.button.callback('🎯 Sniper', 'sniper')]
       ])
     );
   } catch (error) {
