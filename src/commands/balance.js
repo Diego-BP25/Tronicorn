@@ -21,10 +21,10 @@ async function getTRC20Balance(address) {
       return `No tokens found for address: ${address}`;
     }
 
-    let balanceReport = `💼 Wallet Address: ${address}:\n\n`;
+    let balanceReport = `💼 Wallet Address: ${address}:`;
 
     for (const asset of assets)  {
-      balanceReport += `------------------------------------------------------\n\nToken: ${asset.token_name}\n\n balance: ${asset.balance}\n\n current value in USD : ${asset.token_value_in_usd}`;
+      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${asset.token_name}\n\n balance: ${asset.balance}\n\n current value in USD : ${asset.token_value_in_usd}`;
     };
 
     return balanceReport;
