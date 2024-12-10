@@ -10,7 +10,7 @@ async function getTRC20Balance(address) {
       import('node-fetch').then(({ default: fetch }) => fetch(...args));
   
   // Obtener los activos de la billetera usando la API adecuada
-  const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${walletAddress}&asset_type=1`)
+  const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${address}&asset_type=1`)
 
 
   const data = await response.json();
