@@ -6,19 +6,16 @@ const axios = require('axios');
 // Función para obtener el balance de TRC20 tokens
 async function getTRC20Balance(address) {
   try {
-    const response = await axios.get('https://apilist.tronscanapi.com/api/account/tokens', {
-      params: {
-        address: address,
-        start: 0,
-        limit: 200,
-        hidden: 0,
-        show: 0,
-        sortBy: 2,
-        sortType: 0,
-      }
-    });
+    const fetch = (...args) =>
+      import('node-fetch').then(({ default: fetch }) => fetch(...args));
+  
+  // Obtener los activos de la billetera usando la API adecuada
+  const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${walletAddress}&asset_type=1`)
 
-    const data = response.data;
+
+  const data = await response.json();
+
+  const assets = data.data;
 
     if (!data || !data.data || data.data.length === 0) {
       return `No tokens found for address: ${address}`;
@@ -26,9 +23,9 @@ async function getTRC20Balance(address) {
 
     let balanceReport = `💼 Wallet Address: ${address}:\n\n`;
 
-    data.data.forEach(token => {
-      balanceReport += `TRX: ${token.balance / Math.pow(10, token.tokenDecimal)}\n\n current value in USD : ${token.tokenPriceInUsd.toFixed(2)}\n`;
-    });
+    for (const asset of assets)  {
+      balanceReport += `Token: ${asset.token_name}\n\n balance: ${asset.balance / Math.pow(10, asset.tokenDecimal)}\n\n current value in USD : ${asset.token_value_in_usd.toFixed(2)}\n\n---------------------------`;
+    };
 
     return balanceReport;
   } catch (error) {
@@ -69,10 +66,8 @@ async function handleWalletBalance(ctx) {
   const walletAddress = callbackData.replace('wallet_balance_', '');
 
   try {
-    // Obtener el balance en TRX de la wallet
-    const balance = await tronWeb.trx.getBalance(walletAddress);
-    const formattedBalance = tronWeb.fromSun(balance);  // Convertir de Sun a TRX
 
+    
     // Obtener el balance de los tokens TRC20
     const trc20Balance = await getTRC20Balance(walletAddress);
 
