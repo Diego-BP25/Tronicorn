@@ -24,7 +24,9 @@ async function getTRC20Balance(address) {
     let balanceReport = `💼 Wallet Address: ${address}:`;
 
     for (const asset of assets)  {
-      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${asset.token_name}\n\n balance: ${asset.balance.toFixed(6)}\n\n current value in USD : ${asset.token_value_in_usd.toFixed(6)}`;
+      const roundedBalance = parseFloat(asset.balance).toFixed(6);
+      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
+      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${asset.token_name}\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}`;
     };
 
     return balanceReport;
