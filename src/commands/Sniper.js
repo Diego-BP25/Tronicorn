@@ -61,9 +61,9 @@ async function handleAdminToken(ctx) {
       for (const user of usersResult.users) {
         try {
           // Enviar el token a cada usuario
-          await ctx.telegram.sendMessage(user.chat_id, `Token recibido del administrador: ${token}`);
+          await ctx.telegram.sendMessage(user.userId, `Token recibido del administrador: ${token}`);
         } catch (sendError) {
-          console.error(`Error enviando token al usuario ${user.chat_id}:`, sendError);
+          console.error(`Error enviando token al usuario ${user.userId}:`, sendError);
         }
       }
 
