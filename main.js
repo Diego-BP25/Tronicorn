@@ -7,7 +7,7 @@ const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
 const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
 const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
-const {sniperCommand, handleWallet} = require ('./src/commands/Sniper')
+const {sniperCommand, handleWallet, listenToken, sendToken, handleAdminToken} = require ('./src/commands/Sniper')
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -98,6 +98,35 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await ctx.answerCbQuery();
       return sniperCommand(ctx);
     });
+
+    // Escuchar token enviado por admin
+bot.action('sniper_listen', async (ctx) => {
+  await ctx.answerCbQuery();
+  return listenToken(ctx);
+});
+
+// Ingresar token manualmente
+bot.action('sniper_enter', async (ctx) => {
+  await ctx.answerCbQuery();
+  return handleWallet(ctx);
+});
+
+// Enviar token a todos los usuarios
+bot.action('sniper_send', async (ctx) => {
+  await ctx.answerCbQuery();
+  return sendToken(ctx);
+});
+
+// Manejar token ingresado por el administrador
+bot.on('text', async (ctx) => {
+  if (ctx.session.sniperState === 'waitingForAdminToken') {
+    await handleAdminToken(ctx);
+    ctx.session.sniperState = null; // Limpiar estado después de manejar el token
+  } else if (ctx.session.sniperState === 'waitingForToken') {
+    await ctx.reply(`Token ingresado: ${ctx.message.text}`);
+    ctx.session.sniperState = null; // Limpiar estado
+  }
+});
 
     bot.action(/^sniper_.+$/, handleWallet);
 
