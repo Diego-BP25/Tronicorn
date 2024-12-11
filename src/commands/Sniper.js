@@ -27,8 +27,16 @@ async function sniperCommand(ctx) {
 
 // Escuchar token enviado por el administrador
 async function listenToken(ctx) {
-  await ctx.reply('Esperando token del administrador...');
-}
+  try {
+    if (currentToken) {
+      await ctx.reply(`El token actual es: ${currentToken}`);
+    } else {
+      await ctx.reply('No hay ningún token disponible en este momento.');
+    }
+  } catch (error) {
+    console.error('Error en listenToken:', error);
+    await ctx.reply('Error al mostrar el token.');
+  }}
 
 // Enviar token a todos los usuarios registrados
 async function sendToken(ctx) {
@@ -48,11 +56,14 @@ async function sendToken(ctx) {
   }
 }
 
+let currentToken = null; // Variable global para almacenar el token actual
 
 // Manejar token enviado por el administrador
 async function handleAdminToken(ctx) {
   try {
     const token = ctx.message.text;
+    currentToken = token; // Almacenar el token globalmente
+
 
     // Obtener todos los usuarios registrados
     const usersResult = await fetchAllUsers();
@@ -61,13 +72,13 @@ async function handleAdminToken(ctx) {
       for (const user of usersResult.users) {
         try {
           // Enviar el token a cada usuario
-          await ctx.telegram.sendMessage(user.userId, `Token recibido del administrador: ${token}`);
+          await ctx.telegram.sendMessage(user.userId, `Un nuevo token está disponible. Presiona "Escuchar token admin" para verlo.`);
         } catch (sendError) {
-          console.error(`Error enviando token al usuario ${user.userId}:`, sendError);
+          console.error(`Error notificando al usuario ${user.userId}:`, sendError);
         }
       }
 
-      await ctx.reply('El token ha sido enviado a todos los usuarios registrados.');
+      await ctx.reply('El token ha sido almacenado y los usuarios han sido notificados.');
     } else {
       await ctx.reply('No hay usuarios registrados en la base de datos.');
     }
