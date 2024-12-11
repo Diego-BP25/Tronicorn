@@ -148,6 +148,20 @@ async saveWallet(data) {
             };
         }
     }
+    async fetchAllUsers() {
+      try {
+        const users = await user.find(); // Busca todos los usuarios
+        if (users.length === 0) {
+          return { success: false, message: 'No hay usuarios registrados.' };
+        }
+        return { success: true, users };
+      } catch (error) {
+        console.error('Error al obtener los usuarios:', error);
+        return { success: false, message: 'Error al obtener usuarios.' };
+      }
+    }
 }
+
+
 
 module.exports = new userServices();
