@@ -57,12 +57,25 @@ async function sendToken(ctx) {
 }
 
 let currentToken = null; // Variable global para almacenar el token actual
+let tokenExpirationTimer = null; // Temporizador para la expiración del token
+
 
 // Manejar token enviado por el administrador
 async function handleAdminToken(ctx) {
   try {
     const token = ctx.message.text;
     currentToken = token; // Almacenar el token globalmente
+
+    // Cancelar cualquier temporizador de expiración previo
+    if (tokenExpirationTimer) {
+      clearTimeout(tokenExpirationTimer);
+    }
+
+    // Configurar el temporizador para borrar el token después de 10 minutos (600,000 ms)
+    tokenExpirationTimer = setTimeout(() => {
+      currentToken = null;
+      console.log('El token ha expirado.');
+    }, 2 * 60 * 1000); // 20 minutos
 
 
     // Obtener todos los usuarios registrados
@@ -72,7 +85,7 @@ async function handleAdminToken(ctx) {
       for (const user of usersResult.users) {
         try {
           // Enviar el token a cada usuario
-          await ctx.telegram.sendMessage(user.userId, `Un nuevo token está disponible. Presiona "Escuchar token admin" para verlo.`);
+          await ctx.telegram.sendMessage(user.userId, `Un nuevo token está disponible. Ve al menu de "Sniper" y presiona "Escuchar token admin" para verlo. (Este token es valido durante 20 minutos)`);
         } catch (sendError) {
           console.error(`Error notificando al usuario ${user.userId}:`, sendError);
         }
