@@ -30,6 +30,7 @@ async function listenToken(ctx) {
   try {
     if (currentToken) {
       await ctx.reply(`El token actual es: ${currentToken}`);
+      messageIdToDelete = sentMessage.message_id;
     } else {
       await ctx.reply('No hay ningún token disponible en este momento.');
     }
@@ -58,6 +59,7 @@ async function sendToken(ctx) {
 
 let currentToken = null; // Variable global para almacenar el token actual
 let tokenExpirationTimer = null; // Temporizador para la expiración del token
+let messageIdToDelete = null; // ID del mensaje que contiene el token
 
 
 // Manejar token enviado por el administrador
@@ -74,7 +76,15 @@ async function handleAdminToken(ctx) {
     // Configurar el temporizador para borrar el token después de 10 minutos (600,000 ms)
     tokenExpirationTimer = setTimeout(() => {
       currentToken = null;
-      console.log('El token ha expirado.');
+      // Intentar borrar el mensaje que contiene el token
+      if (messageIdToDelete) {
+        try {
+           ctx.telegram.deleteMessage(ctx.chat.id, messageIdToDelete);
+        } catch (error) {
+          console.error('Error al eliminar el mensaje del token:', error);
+        }
+        messageIdToDelete = null; // Resetear el ID del mensaje
+      }
     }, 2 * 60 * 1000); // 20 minutos
 
 
