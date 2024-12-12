@@ -29,7 +29,7 @@ async function sniperCommand(ctx) {
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.reply(`El token actual es: ${currentToken}`);
+      const sentMessage = await ctx.reply(`El token actual es: ${currentToken}`);
       messageIdToDelete = sentMessage.message_id;
     } else {
       await ctx.reply('No hay ningún token disponible en este momento.');
