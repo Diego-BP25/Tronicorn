@@ -3,6 +3,10 @@ const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
 
 const ADMIN_ID = process.env.ADMIN_ID 
+let currentToken = null; // Variable global para almacenar el token actual
+let tokenExpirationTimer = null; // Temporizador para la expiración del token
+let messageIdToDelete = null; // ID del mensaje que contiene el token
+const userMessages = new Map();
 
 async function sniperCommand(ctx) {
   try {
@@ -24,23 +28,47 @@ async function sniperCommand(ctx) {
     await ctx.reply('Error al ejecutar el comando sniper.');
   }
 }
+async function storeMessage(userId, messageId) {
+  userMessages.set(userId, messageId);
+}
+
+async function deleteMessageForUser(ctx, userId) {
+  const messageId = userMessages.get(userId);
+
+  if (messageId) {
+    try {
+      await ctx.telegram.deleteMessage(userId, messageId);
+      console.log(`Mensaje de usuario ${userId} eliminado correctamente.`);
+      userMessages.delete(userId); // Elimina del mapa después de borrarlo
+    } catch (error) {
+      if (error.response && error.response.error_code === 400) {
+        console.log(`Mensaje de usuario ${userId} ya no está disponible para eliminar.`);
+      } else {
+        console.error('Error al eliminar el mensaje:', error);
+      }
+    }
+  }
+}
 
 // Escuchar token enviado por el administrador
 async function listenToken(ctx) {
   try {
     if (currentToken) {
       const sentMessage = await ctx.reply(`El token actual es: ${currentToken}`);
-      messageIdToDelete = sentMessage.message_id;
-    } else {
+      storeMessage(ctx.chat.id, sentMessage.message_id);
+        } else {
       // Intentar eliminar el mensaje previo si ya expiró
       if (messageIdToDelete) {
         try {
+          // Verificar si el mensaje aún existe antes de intentar eliminarlo
           await ctx.telegram.deleteMessage(ctx.chat.id, messageIdToDelete);
-          console.log('Mensaje antiguo eliminado porque el token ya expiró.');
+          console.log('Mensaje eliminado correctamente.');
         } catch (error) {
-          console.error('Error al eliminar el mensaje antiguo:', error);
+          console.error('Error al intentar eliminar el mensaje:', error);
+        } finally {
+          // Asegúrate de limpiar la variable para evitar intentos posteriores
+          messageIdToDelete = null;
         }
-        messageIdToDelete = null;
       }
       await ctx.reply('No hay ningún token disponible en este momento.');
     }
@@ -67,10 +95,6 @@ async function sendToken(ctx) {
   }
 }
 
-let currentToken = null; // Variable global para almacenar el token actual
-let tokenExpirationTimer = null; // Temporizador para la expiración del token
-let messageIdToDelete = null; // ID del mensaje que contiene el token
-
 
 // Manejar token enviado por el administrador
 async function handleAdminToken(ctx) {
@@ -89,8 +113,8 @@ async function handleAdminToken(ctx) {
       // Intentar borrar el mensaje que contiene el token
       if (messageIdToDelete) {
         try {
-           ctx.telegram.deleteMessage(ctx.chat.id, messageIdToDelete);
-        } catch (error) {
+           deleteMessageForUser(ctx, ctx.chat.id);
+                } catch (error) {
           console.error('Error al eliminar el mensaje del token:', error);
         }
         messageIdToDelete = null; // Resetear el ID del mensaje
