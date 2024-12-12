@@ -32,6 +32,16 @@ async function listenToken(ctx) {
       const sentMessage = await ctx.reply(`El token actual es: ${currentToken}`);
       messageIdToDelete = sentMessage.message_id;
     } else {
+      // Intentar eliminar el mensaje previo si ya expiró
+      if (messageIdToDelete) {
+        try {
+          await ctx.telegram.deleteMessage(ctx.chat.id, messageIdToDelete);
+          console.log('Mensaje antiguo eliminado porque el token ya expiró.');
+        } catch (error) {
+          console.error('Error al eliminar el mensaje antiguo:', error);
+        }
+        messageIdToDelete = null;
+      }
       await ctx.reply('No hay ningún token disponible en este momento.');
     }
   } catch (error) {
