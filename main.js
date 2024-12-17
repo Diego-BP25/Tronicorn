@@ -117,17 +117,6 @@ bot.action('sniper_send', async (ctx) => {
   return sendToken(ctx);
 });
 
-// Manejar token ingresado por el administrador
-bot.on('text', async (ctx) => {
-  if (ctx.session.sniperState === 'waitingForAdminToken') {
-    await handleAdminToken(ctx);
-    ctx.session.sniperState = null; // Limpiar estado después de manejar el token
-  } else if (ctx.session.sniperState === 'waitingForToken') {
-    await ctx.reply(`Token ingresado: ${ctx.message.text}`);
-    ctx.session.sniperState = null; // Limpiar estado
-  }
-});
-
     bot.action(/^sniper_.+$/, handleWallet);
 
 
@@ -160,6 +149,14 @@ bot.on('text', async (ctx) => {
 
   if (ctx.session.awaitingAmount) {
     return handleProcessData(ctx);
+  }
+
+  if (ctx.session.sniperState === 'waitingForAdminToken') {
+    await handleAdminToken(ctx);
+    ctx.session.sniperState = null; // Limpiar estado después de manejar el token
+  } else if (ctx.session.sniperState === 'waitingForToken') {
+    await ctx.reply(`Token ingresado: ${ctx.message.text}`);
+    ctx.session.sniperState = null; // Limpiar estado
   }
 });
 

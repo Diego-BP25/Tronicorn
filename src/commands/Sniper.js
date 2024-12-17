@@ -5,8 +5,6 @@ const { Markup } = require('telegraf');
 const ADMIN_ID = process.env.ADMIN_ID 
 let currentToken = null; // Variable global para almacenar el token actual
 let tokenExpirationTimer = null; // Temporizador para la expiración del token
-let messageIdToDelete = null; // ID del mensaje que contiene el token
-const userMessages = new Map();
 
 async function sniperCommand(ctx) {
   try {
@@ -28,49 +26,14 @@ async function sniperCommand(ctx) {
     await ctx.reply('Error al ejecutar el comando sniper.');
   }
 }
-async function storeMessage(userId, messageId) {
-  userMessages.set(userId, messageId);
-}
-
-async function deleteMessageForUser(ctx, userId) {
-  const messageId = userMessages.get(userId);
-
-  if (messageId) {
-    try {
-      await ctx.telegram.deleteMessage(userId, messageId);
-      console.log(`Mensaje de usuario ${userId} eliminado correctamente.`);
-      userMessages.delete(userId); // Elimina del mapa después de borrarlo
-    } catch (error) {
-      if (error.response && error.response.error_code === 400) {
-        console.log(`Mensaje de usuario ${userId} ya no está disponible para eliminar.`);
-      } else {
-        console.error('Error al eliminar el mensaje:', error);
-      }
-    }
-  }
-}
 
 // Escuchar token enviado por el administrador
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      const sentMessage = await ctx.reply(`El token actual es: ${currentToken}`);
-      storeMessage(ctx.chat.id, sentMessage.message_id);
-        } else {
-      // Intentar eliminar el mensaje previo si ya expiró
-      if (messageIdToDelete) {
-        try {
-          // Verificar si el mensaje aún existe antes de intentar eliminarlo
-          await ctx.telegram.deleteMessage(ctx.chat.id, messageIdToDelete);
-          console.log('Mensaje eliminado correctamente.');
-        } catch (error) {
-          console.error('Error al intentar eliminar el mensaje:', error);
-        } finally {
-          // Asegúrate de limpiar la variable para evitar intentos posteriores
-          messageIdToDelete = null;
-        }
-      }
-      await ctx.reply('No hay ningún token disponible en este momento.');
+      await ctx.reply(`El token actual es: ${currentToken}`);
+    } else {
+         await ctx.reply('No hay ningún token disponible en este momento.');
     }
   } catch (error) {
     console.error('Error en listenToken:', error);
@@ -110,16 +73,7 @@ async function handleAdminToken(ctx) {
     // Configurar el temporizador para borrar el token después de 10 minutos (600,000 ms)
     tokenExpirationTimer = setTimeout(() => {
       currentToken = null;
-      // Intentar borrar el mensaje que contiene el token
-      if (messageIdToDelete) {
-        try {
-           deleteMessageForUser(ctx, ctx.chat.id);
-                } catch (error) {
-          console.error('Error al eliminar el mensaje del token:', error);
-        }
-        messageIdToDelete = null; // Resetear el ID del mensaje
-      }
-    }, 2 * 60 * 1000); // 20 minutos
+       }, 2 * 60 * 1000); // 20 minutos
 
 
     // Obtener todos los usuarios registrados
