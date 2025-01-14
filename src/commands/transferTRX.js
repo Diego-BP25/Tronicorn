@@ -93,8 +93,21 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     // Enviar la transacción
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
-    await ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
-  } catch (error) {
+
+     // Validar la respuesta de `sendRawTransaction`
+     if (!receipt.result) {
+      throw new Error('La transferencia falló durante el envío de la transacción.');
+    }
+
+
+// Validar el estado de la transacción en la blockchain
+    const transaction = await tronWeb.trx.getTransaction(receipt.txid);
+    if (transaction.ret && transaction.ret[0].contractRet === 'SUCCESS') {
+      await ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
+    } else {
+      throw new Error('La transacción no se completó con éxito en la blockchain.');
+      }
+    } catch (error) {
     console.error('Error en transferTRX:', error);
     await ctx.reply(`Error al ejecutar la transferencia: ${error.message}`);
   }

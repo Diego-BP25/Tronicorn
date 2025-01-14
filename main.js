@@ -51,7 +51,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     });
 
     bot.action(/^wallet_balance_/, handleWalletBalance);
-
+//-----------------------------transferTRX------------------------
     bot.action('transfer', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
       return transferCommand(ctx);  // Llamar a la función de la transferencia
