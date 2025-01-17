@@ -104,7 +104,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
     }
 
  else {
-      throw new Error(`Transacción fallida. Recibo: ${JSON.stringify(receipt)}`);
+      throw new Error(`Transacción fallida.`);
     }
     } catch (error) {
     console.error('Error en transferTRX:', error);
