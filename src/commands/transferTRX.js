@@ -94,9 +94,13 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
     // Enviar la transacción
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
 
+
     // Validar el recibo
     if (receipt.result) {
       await ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
+     console.log("receipt.result",receipt.result)
+     console.log("receipt",receipt)
+
     }
 
  else {
