@@ -24,7 +24,7 @@ async function walletCommand(ctx) {
         const data = await response.json();
         console.log("data",data)
         const assets = data.data;
-        console.log("asets",asets)
+        console.log("asets",assets)
 
         const roundedBalance = parseFloat(assets.balance).toFixed(6);
         const balance = await tronWeb.trx.getBalance(walletAddress);
