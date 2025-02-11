@@ -22,9 +22,9 @@ async function walletCommand(ctx) {
         // Obtener el balance de cada wallet
         const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${walletAddress}&asset_type=1`)
         const data = await response.json();
-        console.log("data"data)
+        console.log("data",data)
         const assets = data.data;
-        console.log("asets"asets)
+        console.log("asets",asets)
 
         const roundedBalance = parseFloat(assets.balance).toFixed(6);
         const balance = await tronWeb.trx.getBalance(walletAddress);
