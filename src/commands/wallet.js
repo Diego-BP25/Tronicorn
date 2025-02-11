@@ -20,10 +20,14 @@ async function walletCommand(ctx) {
         const tronScanLink = `https://tronscan.org/#/address/${walletAddress}`;
 
         // Obtener el balance de cada wallet
+        const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${walletAddress}&asset_type=1`)
+        const data = await response.json();
+        const assets = data.data;
+        const roundedBalance = parseFloat(assets.balance).toFixed(6);
         const balance = await tronWeb.trx.getBalance(walletAddress);
         const formattedBalance = tronWeb.fromSun(balance); // Formatear el balance a TRX
 
-        walletMessage += `💰 *${walletName}*  • ${formattedBalance} TRX\n`;
+        walletMessage += `💰 *${walletName}*  • ${roundedBalance} TRX\n`;
         walletMessage += `${walletAddress}\n`;
         walletMessage += `[🌍 View on Tronscan](${tronScanLink})\n`;
         walletMessage += `\n───────────────\n\n`;  // Separador entre wallets
