@@ -14,6 +14,9 @@ async function transferCommand(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `transfer_wallet_${wallet.wallet_address}`)];
       });
 
+      // Agregar botón de "Close" al final
+      walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
+
       // Guardamos el estado de la transferencia
       ctx.session.transferState = 'waitingForWallet';
       // Enviar el mensaje con los botones de selección
