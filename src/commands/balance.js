@@ -47,11 +47,10 @@ async function balanceCommand(ctx) {
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Listar las wallets del usuario como botones
       const walletButtons = walletResult.wallets.map(wallet => {
-        return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)],
-        [Markup.button.callback('❌ Close', 'close')];
+        return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)];
       });
 
-      await ctx.reply('Please select a wallet to view its balance:', Markup.inlineKeyboard(walletButtons));
+      await ctx.reply('Please select a wallet to view its balance:', Markup.inlineKeyboard(walletButtons), [Markup.button.callback('❌ Close', 'close')]);
     } else {
       await ctx.reply("You don't have any registered wallets. Please create one first.");
     }
