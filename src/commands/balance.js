@@ -36,7 +36,6 @@ async function getTRC20Balance(address) {
   }
 }
 
-// Comando balance modificado
 async function balanceCommand(ctx) {
   try {
     const userId = ctx.chat.id;
@@ -50,7 +49,13 @@ async function balanceCommand(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)];
       });
 
-      await ctx.reply('Please select a wallet to view its balance:', Markup.inlineKeyboard(walletButtons), [Markup.button.callback('❌ Close', 'close')]);
+      // Agregar botón de "Close" al final
+      walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
+
+      await ctx.reply(
+        'Please select a wallet to view its balance:',
+        Markup.inlineKeyboard(walletButtons)
+      );
     } else {
       await ctx.reply("You don't have any registered wallets. Please create one first.");
     }
@@ -59,6 +64,7 @@ async function balanceCommand(ctx) {
     ctx.reply("Sorry, an error occurred while fetching your wallets.");
   }
 }
+
 
 // Manejador para obtener el balance de la wallet seleccionada
 async function handleWalletBalance(ctx) {
