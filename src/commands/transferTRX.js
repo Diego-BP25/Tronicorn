@@ -14,11 +14,12 @@ async function transferCommand(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `transfer_wallet_${wallet.wallet_address}`)];
       });
 
-      // Agregar botón de "Close" al final
+      // Agregar botón de cerrar al final de la lista
       walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
 
       // Guardamos el estado de la transferencia
       ctx.session.transferState = 'waitingForWallet';
+
       // Enviar el mensaje con los botones de selección
       await ctx.reply('Selecciona una wallet para transferir:', Markup.inlineKeyboard(walletButtons));
     } else {
@@ -29,6 +30,7 @@ async function transferCommand(ctx) {
     await ctx.reply('Error al obtener wallets.');
   }
 }
+
 
 // Manejador para seleccionar la wallet
 async function handleWalletSelection(ctx) {
