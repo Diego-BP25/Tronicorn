@@ -53,7 +53,7 @@ async function handleToAddress(ctx) {
 async function handleAmount(ctx) {
   const amount = parseFloat(ctx.message.text);
   if (isNaN(amount) || amount < 1) {
-    return ctx.reply('Por favor, ingresa un monto válido mayor o igual a 1.');
+    return ctx.reply('Por favor ingresa un monto válido mayor o igual a 1.');
   }
   ctx.session.amount = amount;
 

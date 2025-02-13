@@ -21,21 +21,12 @@ async function getTRC20Balance(address) {
       return `No tokens found for address: ${address}`;
     }
 
-    // Obtener el precio de 1 TRX en USD desde CoinGecko
-    const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd');
-    const priceData = await priceResponse.json();
-    const trxPriceInUSD = priceData.tron.usd;
-
     let balanceReport = `💼 Wallet Address: ${address}:`;
 
     for (const asset of assets)  {
-      const tokenName = asset.token_name || "Unknown"; // Nombre del token
-      const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
       const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
-      // Calcular equivalente en TRX
-      const valueInTRX = (parseFloat(asset.token_value_in_usd) / trxPriceInUSD).toFixed(6);
-      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX} TRX`;
+      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${asset.token_name}\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}`;
     };
 
     return balanceReport;
@@ -56,7 +47,8 @@ async function balanceCommand(ctx) {
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Listar las wallets del usuario como botones
       const walletButtons = walletResult.wallets.map(wallet => {
-        return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)];
+        return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)],
+        [Markup.button.callback('❌ Close', 'close')];
       });
 
       await ctx.reply('Please select a wallet to view its balance:', Markup.inlineKeyboard(walletButtons));

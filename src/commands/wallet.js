@@ -23,7 +23,7 @@ async function walletCommand(ctx) {
         const balance = await tronWeb.trx.getBalance(walletAddress);
         const formattedBalance = tronWeb.fromSun(balance); // Formatear el balance a TRX
 
-        walletMessage += `💰 *${walletName}*  • ${formattedBalance} TRX\n`;
+        walletMessage += `💼 *${walletName}*  • ${formattedBalance} TRX\n`;
         walletMessage += `${walletAddress}\n`;
         walletMessage += `[🌍 View on Tronscan](${tronScanLink})\n`;
         walletMessage += `\n───────────────\n\n`;  // Separador entre wallets
