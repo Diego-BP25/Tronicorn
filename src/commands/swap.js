@@ -104,6 +104,7 @@ async function swapTRXForTokens(ctx) {
 
   try {
 
+    const trxAmountInSun = tronWeb.toSun(trxAmount); // Convierte el monto a SUN
     const commissionAmount = trxAmountInSun * commissionRate;
     const netTrxAmount = trxAmountInSun - commissionAmount;
 
@@ -125,7 +126,6 @@ async function swapTRXForTokens(ctx) {
     const amountOutMin = tronWeb.toSun('0.1'); // Ajusta el mínimo a recibir según tu lógica
     const recipient = walletAddress; // Usa la wallet seleccionada por el usuario
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutos desde ahora
-    const trxAmountInSun = tronWeb.toSun(trxAmount); // Convierte el monto a SUN
 
     // Realiza el swap
     const transaction = await routerContract.methods.swapExactETHForTokens(
