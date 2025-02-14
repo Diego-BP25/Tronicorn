@@ -104,19 +104,19 @@ async function swapTRXForTokens(ctx) {
 
   try {
 
-    const trxAmountInSun = tronWeb.toSun(trxAmount); // Convierte el monto a SUN
-    const commissionAmount = trxAmountInSun * commissionRate;
-    const netTrxAmount = trxAmountInSun - commissionAmount;
-
-    // Transferir la comisión a la billetera del bot
-    await tronWeb.trx.sendTransaction(botAddress, commissionAmount);
-
     // Desencripta la clave privada
     const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
 
     // Inicializa TronWeb con la clave privada específica de la wallet
     const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
+
+    const trxAmountInSun = tronWeb.toSun(trxAmount); // Convierte el monto a SUN
+    const commissionAmount = trxAmountInSun * commissionRate;
+    const netTrxAmount = trxAmountInSun - commissionAmount;
+
+    // Transferir la comisión a la billetera del bot
+    await tronWeb.trx.sendTransaction(botAddress, commissionAmount);
 
     const routerContract = await tronWeb.contract().at(routerAddress);
     const path = [
