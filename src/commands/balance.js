@@ -34,13 +34,14 @@ async function getTRC20Balance(address) {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
       const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
+      const TokenName= asset.token_name
       let valueInTRX;
 
-      if (tokenSymbol === "trx") {
+      if (TokenName === "trx") {
         valueInTRX = roundedBalance; // Si es TRX, el valor en TRX es el mismo balance
       } else {
         valueInTRX = (parseFloat(asset.token_value_in_usd) / trxPriceInUSD).toFixed(6);
-      }      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${asset.token_name} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
+      }      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${TokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
     };
 
     return balanceReport;
