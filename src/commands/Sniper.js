@@ -5,6 +5,10 @@ const { Markup } = require('telegraf');
 const ADMIN_ID = process.env.ADMIN_ID 
 let currentToken = null; // Variable global para almacenar el token actual
 let tokenExpirationTimer = null; // Temporizador para la expiración del token
+let TokenName= null;
+let TokenSymbol= null
+let TokenUsdt= null
+let TokenTrx= null
 
 async function sniperCommand(ctx) {
   try {
@@ -31,7 +35,7 @@ async function sniperCommand(ctx) {
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.reply(`El token actual es: ${currentToken}`);
+      await ctx.reply(`El token actual es: ${currentToken}\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`);
     } else {
          await ctx.reply('No hay ningún token disponible en este momento.');
     }
@@ -86,7 +90,10 @@ async function handleAdminToken(ctx) {
 
     // 5️⃣ Mensaje de confirmación al admin con los detalles del token
     const tokenMessage = `✅ Nuevo Token Ingresado:\n\n📌 *Nombre:* ${tokenInfo.name} (${tokenInfo.symbol})\n💰 *Precio:* $${tokenInfo.priceUSD} USD\n🔄 *Equivalente en TRX:* ${tokenInfo.priceTRX} TRX\n\n📢 Este token estará disponible para los usuarios por 20 minutos.`;
-
+    TokenName = tokenInfo.name
+    TokenSymbol = tokenInfo.symbol
+    TokenUsdt = tokenInfo.priceUSD
+    TokenTrx = tokenInfo.priceTRX
     await ctx.replyWithMarkdown(tokenMessage);
 
     // 6️⃣ Notificar a los usuarios
@@ -96,7 +103,7 @@ async function handleAdminToken(ctx) {
         try {
           await ctx.telegram.sendMessage(
             user.userId,
-            `🔔 *Nuevo Token Disponible*\n\n📌 *Nombre:* ${tokenInfo.name} (${tokenInfo.symbol})\n💰 *Precio:* $${tokenInfo.priceUSD} USD\n🔄 *Equivalente en TRX:* ${tokenInfo.priceTRX} TRX\n\n📢 Ve al menú "Sniper" y presiona "Escuchar token admin" para verlo.`,
+            `🔔 *Nuevo Token Disponible*\n\n📢 Ve al menú "Sniper" y presiona "Escuchar token admin" para verlo.`,
             { parse_mode: "Markdown" }
           );
         } catch (sendError) {
