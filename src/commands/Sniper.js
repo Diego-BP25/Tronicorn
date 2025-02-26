@@ -35,7 +35,7 @@ async function sniperCommand(ctx) {
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.reply(`El token actual es:\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`, { parse_mode: "MarkdownV2" });
+      await ctx.reply(`El token actual es:\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`, { parse_mode: "Markdown" });
     } else {
          await ctx.reply('No hay ningún token disponible en este momento.');
     }
