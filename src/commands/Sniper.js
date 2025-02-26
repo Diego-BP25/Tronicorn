@@ -31,7 +31,7 @@ async function sniperCommand(ctx) {
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.reply(`El token actual es: ${currentToken}`);
+      await ctx.reply(`El token actual es: ${currentToken}\n\n📌 *Nombre:* ${tokenInfo.name} (${tokenInfo.symbol})\n💰 *Precio:* $${tokenInfo.priceUSD} USD\n🔄 *Equivalente en TRX:* ${tokenInfo.priceTRX} TRX`);
     } else {
          await ctx.reply('No hay ningún token disponible en este momento.');
     }
@@ -96,7 +96,7 @@ async function handleAdminToken(ctx) {
         try {
           await ctx.telegram.sendMessage(
             user.userId,
-            `🔔 *Nuevo Token Disponible*\n\n📌 *Nombre:* ${tokenInfo.name} (${tokenInfo.symbol})\n💰 *Precio:* $${tokenInfo.priceUSD} USD\n🔄 *Equivalente en TRX:* ${tokenInfo.priceTRX} TRX\n\n📢 Ve al menú "Sniper" y presiona "Escuchar token admin" para verlo.`,
+            `🔔 *Nuevo Token Disponible*\n\n📢 Ve al menú "Sniper" y presiona "Escuchar token admin" para verlo.`,
             { parse_mode: "Markdown" }
           );
         } catch (sendError) {
@@ -129,8 +129,8 @@ async function fetchTokenInfo(contractAddress) {
     const token = tronScanData.trc20_tokens[0];
 
     // 2️⃣ Obtener el precio del token desde CoinGecko
-    const tokenSymbolLower = token.symbol.toLowerCase();
-    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/price?ids=${tokenSymbolLower}&vs_currencies=usd`;
+    const tokenID = token.symbol.toLowerCase(); // ⚠️ Puede no coincidir con el ID real en CoinGecko
+    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/price?ids=${tokenID}&vs_currencies=usd`;
     const coingeckoResponse = await fetch(coingeckoURL);
     const coingeckoData = await coingeckoResponse.json();
 
