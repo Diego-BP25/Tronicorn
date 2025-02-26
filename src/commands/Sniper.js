@@ -129,8 +129,8 @@ async function fetchTokenInfo(contractAddress) {
     const token = tronScanData.trc20_tokens[0];
 
     // 2️⃣ Obtener el precio del token desde CoinGecko
-    const tokenID = token.symbol.toLowerCase(); // ⚠️ Puede no coincidir con el ID real en CoinGecko
-    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/price?ids=${tokenID}&vs_currencies=usd`;
+    const tokenSymbolLower = token.symbol.toLowerCase();
+    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/price?ids=${tokenSymbolLower}&vs_currencies=usd`;
     const coingeckoResponse = await fetch(coingeckoURL);
     const coingeckoData = await coingeckoResponse.json();
 
