@@ -131,7 +131,7 @@ async function fetchTokenInfo(currentToken) {
     const tronScanResponse = await fetch(tronScanURL);
     const tronScanData = await tronScanResponse.json();
 
-    const contractPriceInUSD = priceData.tron.usd;
+    const contractPriceInUSD = priceData[currentToken]?.usd;
 
     if (!tronScanData || !tronScanData.trc20_tokens || tronScanData.trc20_tokens.length === 0) {
       return null; // No se encontró el token
