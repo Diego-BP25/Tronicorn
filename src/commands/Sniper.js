@@ -124,7 +124,7 @@ async function fetchTokenInfo(currentToken) {
     const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
     // 1️⃣ Obtener datos del token desde TronScan
-    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contract=${currentToken}`;
+    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contractAddress=${currentToken}`;
     const response = await fetch(tronScanURL);
     const data = await response.json();
 
@@ -136,10 +136,10 @@ async function fetchTokenInfo(currentToken) {
     const token = data.trc20_tokens[0]; // Tomar el primer resultado
 
     // 2️⃣ Extraer la información del token
-    const name = token.tokenName || "N/A";
-    const symbol = token.tokenAbbr || "N/A";
-    const priceUSD = token.price?.rate || "N/A";
-    const priceTRX = token.tokenPriceInTrx || "N/A";
+    const name = token.tokenName || "Desconocido";
+    const symbol = token.tokenAbbr || "Desconocido";
+    const priceUSD = token.price?.rate || "0";
+    const priceTRX = token.tokenPriceInTrx || "0";
     console.log("contrato",currentToken)
 
     console.log("📊 Token encontrado:", { name, symbol, priceUSD, priceTRX });
