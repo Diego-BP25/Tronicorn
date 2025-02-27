@@ -35,7 +35,7 @@ async function sniperCommand(ctx) {
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.reply(`El token actual es:\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`, { parse_mode: "HTML" });
+      await ctx.reply(`El contrato actual es: ${currentToken}\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`, { parse_mode: "HTML" });
     } else {
          await ctx.reply('No hay ningún token disponible en este momento.');
     }
@@ -119,49 +119,42 @@ async function handleAdminToken(ctx) {
   }
 }
 
-async function fetchTokenInfo(contractAddress) {
+async function fetchTokenInfo(currentToken) {
   try {
-    const fetch = (...args) =>
-      import("node-fetch").then(({ default: fetch }) => fetch(...args));
+    const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
-    // 1️⃣ Obtener datos del token desde Tronscan
-    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contract=${contractAddress}`;
-    const tronScanResponse = await fetch(tronScanURL);
-    const tronScanData = await tronScanResponse.json();
+    // 1️⃣ Obtener datos del token desde TronScan
+    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contract=${currentToken}`;
+    const response = await fetch(tronScanURL);
+    const data = await response.json();
 
-    if (!tronScanData || !tronScanData.trc20_tokens || tronScanData.trc20_tokens.length === 0) {
-      return null; // No se encontró el token
+    if (!data || !data.trc20_tokens || data.trc20_tokens.length === 0) {
+      console.warn("⚠ Token no encontrado en TronScan.");
+      return null;
     }
 
-    const token = tronScanData.trc20_tokens[0];
+    const token = data.trc20_tokens[0]; // Tomar el primer resultado
 
-    // 2️⃣ Obtener el precio del token desde CoinGecko
-    const tokenSymbolLower = token.symbol.toLowerCase();
-    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/price?ids=${tokenSymbolLower}&vs_currencies=usd`;
-    const coingeckoResponse = await fetch(coingeckoURL);
-    const coingeckoData = await coingeckoResponse.json();
+    // 2️⃣ Extraer la información del token
+    const name = token.tokenName || "N/A";
+    const symbol = token.tokenAbbr || "N/A";
+    const priceUSD = token.price?.rate || "N/A";
+    const priceTRX = token.tokenPriceInTrx || "N/A";
 
-    const priceUSD = coingeckoData[tokenSymbolLower]?.usd || 0;
-
-    // 3️⃣ Obtener el precio de TRX en USD para calcular el equivalente
-    const trxPriceURL = `https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd`;
-    const trxResponse = await fetch(trxPriceURL);
-    const trxData = await trxResponse.json();
-    const trxPrice = trxData.tron?.usd || 0;
-
-    const priceTRX = trxPrice ? (priceUSD / trxPrice).toFixed(6) : "N/A";
+    console.log("📊 Token encontrado:", { name, symbol, priceUSD, priceTRX });
 
     return {
-      name: token.name,
-      symbol: token.symbol,
-      priceUSD: priceUSD.toFixed(6),
-      priceTRX,
+      name,
+      symbol,
+      priceUSD: priceUSD.toString(),
+      priceTRX: priceTRX.toString(),
     };
   } catch (error) {
-    console.error("Error obteniendo información del token:", error);
+    console.error("❌ Error obteniendo información del token:", error);
     return null;
   }
 }
+
 
 
 async function sniperComma(ctx) {
