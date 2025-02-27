@@ -124,9 +124,12 @@ async function fetchTokenInfo(currentToken) {
     const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
     // 1️⃣ Obtener datos del token desde TronScan
-    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contractAddress=${currentToken}`;
-    const response = await fetch(tronScanURL);
-    const data = await response.json();
+    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contract=${contractAddress}`;
+    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/token_price/tron?contract_addresses=${contractAddress}&vs_currencies=usd`;
+    const priceData = await coingeckoURL.json();
+    const tronScanData = await tronScanResponse.json();
+
+    const contractPriceInUSD = priceData.tron.usd;
 
     if (!data || !data.trc20_tokens || data.trc20_tokens.length === 0) {
       console.warn("⚠ Token no encontrado en TronScan.");
@@ -138,7 +141,7 @@ async function fetchTokenInfo(currentToken) {
     // 2️⃣ Extraer la información del token
     const name = token.tokenName || "Desconocido";
     const symbol = token.tokenAbbr || "Desconocido";
-    const priceUSD = token.price?.rate || "0";
+    const priceUSD = contractPriceInUSD.toFixed(6) || "0";
     const priceTRX = token.tokenPriceInTrx || "0";
     console.log("contrato",currentToken)
 
