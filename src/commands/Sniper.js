@@ -140,8 +140,8 @@ async function fetchTokenInfo(currentToken) {
     const token = tronScanData.trc20_tokens[0]; // Tomar el primer resultado
 
     // 2️⃣ Extraer la información del token
-    const name = token.tokenName || "Desconocido";
-    const symbol = token.tokenAbbr || "Desconocido";
+    const name = token.name || "Desconocido";
+    const symbol = token.symbol || "Desconocido";
     const priceUSD = contractPriceInUSD.toFixed(6) || "0";
     const priceTRX = token.tokenPriceInTrx || "0";
     console.log("contrato",currentToken)
