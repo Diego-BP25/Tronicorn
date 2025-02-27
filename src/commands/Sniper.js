@@ -124,8 +124,8 @@ async function fetchTokenInfo(currentToken) {
     const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
     // 1️⃣ Obtener datos del token desde TronScan
-    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contract=${contractAddress}`;
-    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/token_price/tron?contract_addresses=${contractAddress}&vs_currencies=usd`;
+    const tronScanURL = `https://apilist.tronscanapi.com/api/token_trc20?contract=${currentToken}`;
+    const coingeckoURL = `https://api.coingecko.com/api/v3/simple/token_price/tron?contract_addresses=${currentToken}&vs_currencies=usd`;
     const priceData = await coingeckoURL.json();
     const tronScanData = await tronScanResponse.json();
 
