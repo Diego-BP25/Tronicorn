@@ -140,6 +140,7 @@ async function fetchTokenInfo(currentToken) {
     const symbol = token.tokenAbbr || "N/A";
     const priceUSD = token.price?.rate || "N/A";
     const priceTRX = token.tokenPriceInTrx || "N/A";
+    console.log("contrato"currentToken)
 
     console.log("📊 Token encontrado:", { name, symbol, priceUSD, priceTRX });
 
