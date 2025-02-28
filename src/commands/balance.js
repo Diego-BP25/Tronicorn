@@ -25,10 +25,10 @@ async function getTRC20Balance(address) {
     const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd');
     const priceData = await priceResponse.json();
     const trxPriceInUSD = priceData.tron.usd;
-    const tronScanLink = `https://tronscan.org/#/address/${address}`;
+    const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${address})`;
 
 
-    let balanceReport = `💼 Wallet Address: ${address}:\n\n``[🌍 View on Tronscan](${tronScanLink})`;
+    let balanceReport = `💼 Wallet Address: ${address}:\n(${tronScanLink})`;
 
     
 
@@ -97,7 +97,7 @@ async function handleWalletBalance(ctx) {
     const trc20Balance = await getTRC20Balance(walletAddress);
 
     // Responder con la información de balance
-    await ctx.reply(`${trc20Balance}`);
+    await ctx.reply(`${trc20Balance}`, { parse_mode: "Markdown", disable_web_page_preview: true });
   } catch (error) {
     console.error("Error fetching wallet balance:", error);
     await ctx.reply("Sorry, an error occurred while fetching the balance for this wallet.");
