@@ -28,7 +28,7 @@ async function getTRC20Balance(address) {
     const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${address})`;
 
 
-    let balanceReport = `💼 Wallet Address: ${address}:\n${tronScanLink}`;
+    let balanceReport = `💼 *Wallet Address* • \n${address}\n${tronScanLink}`;
 
     
 
@@ -43,7 +43,7 @@ async function getTRC20Balance(address) {
         valueInTRX = roundedBalance; // Si es TRX, el valor en TRX es el mismo balance
       } else {
         valueInTRX = (parseFloat(asset.token_value_in_usd) / trxPriceInUSD).toFixed(6);
-      }      balanceReport += `\n\n------------------------------------------------------\n\nToken: ${TokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
+      }      balanceReport += `\n\n─────────────────────────────────────────────\n\nToken: ${TokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
     };
 
     return balanceReport;
