@@ -156,8 +156,6 @@ async function fetchTokenInfo(currentToken) {
     // Calcular el precio del token en TRX
     const priceTRX = priceTRXInUSD > 0 ? (priceUSD / priceTRXInUSD).toFixed(6) : "0";
 
-    console.log("📊 Token encontrado:", { name, symbol, priceUSD, priceTRX });
-
     return {
       name,
       symbol,
