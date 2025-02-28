@@ -25,8 +25,10 @@ async function getTRC20Balance(address) {
     const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd');
     const priceData = await priceResponse.json();
     const trxPriceInUSD = priceData.tron.usd;
+    const tronScanLink = `https://tronscan.org/#/address/${address}`;
 
-    let balanceReport = `💼 Wallet Address: ${address}:`;
+
+    let balanceReport = `💼 Wallet Address: ${address}:\n\n[🌍 View on Tronscan](${tronScanLink})`;
 
     
 
