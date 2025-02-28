@@ -28,7 +28,7 @@ async function getTRC20Balance(address) {
     const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${address})`;
 
 
-    let balanceReport = `💼 Wallet Address: ${address}:\n(${tronScanLink})`;
+    let balanceReport = `💼 Wallet Address: ${address}:\n${tronScanLink}`;
 
     
 
