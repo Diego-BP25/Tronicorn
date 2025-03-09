@@ -41,9 +41,9 @@ async function swapTokens(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `swap_wallet_${wallet.wallet_address}`)];
       });
 
-      await ctx.reply('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
+      await ctx.editMessageText('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
     } else {
-      await ctx.reply("You don't have any registered wallets. Please create one first.");
+      await ctx.editMessageText("You don't have any registered wallets. Please create one first.");
     }
   } catch (error) {
     console.error("Error fetching wallets for swap:", error);
@@ -70,7 +70,7 @@ async function handleSwapType(ctx) {
       walletAddress
     };
     
-    await ctx.reply("Please enter the token address you want to swap:");
+    await ctx.editMessageText("Please enter the token address you want to swap:");
     ctx.session.awaitingTokenAddress = true; // Marca que estamos esperando la dirección del token
   } else {
     await ctx.reply("Could not fetch the private key for this wallet. Please check your wallet details.");
@@ -82,7 +82,7 @@ async function handleTokenAddress(ctx) {
   if (ctx.session.awaitingTokenAddress) {
     ctx.session.swapData.tokenAddress = ctx.message.text;
     ctx.session.awaitingTokenAddress = false; // Resetea la espera
-    await ctx.reply("Please enter the amount of TRX to swap:");
+    await ctx.editMessageText("Please enter the amount of TRX to swap:");
     ctx.session.awaitingTrxAmount = true; // Marca que estamos esperando el monto
   }
 }
@@ -138,7 +138,7 @@ async function swapTRXForTokens(ctx) {
       shouldPollResponse: true
     });
 
-    await ctx.reply(`Transaction successful: ${transaction}`);
+    await ctx.editMessageText(`Transaction successful: ${transaction}`);
   } catch (error) {
     console.error('Error swapping TRX for tokens:', error);
     await ctx.reply("Error swapping TRX for tokens. Please check the details and try again.");

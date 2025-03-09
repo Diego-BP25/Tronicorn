@@ -35,9 +35,9 @@ async function sniperCommand(ctx) {
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.reply(`El contrato actual es: ${currentToken}\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`, { parse_mode: "Markdown" });
+      await ctx.editMessageText(`El contrato actual es: ${currentToken}\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`, { parse_mode: "Markdown" });
     } else {
-         await ctx.reply('No hay ningún token disponible en este momento.');
+         await ctx.editMessageText('No hay ningún token disponible en este momento.');
     }
   } catch (error) {
     console.error('Error en listenToken:', error);
@@ -50,15 +50,15 @@ async function sendToken(ctx) {
     const isAdmin = ctx.chat.id.toString() === ADMIN_ID;
 
     if (!isAdmin) {
-      await ctx.reply('No tienes permisos para realizar esta acción.');
+      await ctx.editMessageText('No tienes permisos para realizar esta acción.');
       return;
     }
 
     ctx.session.sniperState = 'waitingForAdminToken';
-    await ctx.reply('Por favor, ingresa el token que deseas enviar a todos los usuarios.');
+    await ctx.editMessageText('Por favor, ingresa el token que deseas enviar a todos los usuarios.');
   } catch (error) {
     console.error('Error en sendToken:', error);
-    await ctx.reply('Error al enviar el token.');
+    await ctx.editMessageText('Error al enviar el token.');
   }
 }
 
@@ -71,7 +71,7 @@ async function handleAdminToken(ctx) {
     // 1️⃣ Verificar si el contrato es válido y obtener información del token
     const tokenInfo = await fetchTokenInfo(tokenAddress);
     if (!tokenInfo) {
-      await ctx.reply("❌ No se pudo obtener información del token. Verifica la dirección del contrato.");
+      await ctx.editMessageText("❌ No se pudo obtener información del token. Verifica la dirección del contrato.");
       return;
     }
 
@@ -111,11 +111,11 @@ async function handleAdminToken(ctx) {
         }
       }
     } else {
-      await ctx.reply("No hay usuarios registrados en la base de datos.");
+      await ctx.editMessageText("No hay usuarios registrados en la base de datos.");
     }
   } catch (error) {
     console.error("Error al manejar el token del administrador:", error);
-    await ctx.reply("Error al procesar el token.");
+    await ctx.editMessageText("Error al procesar el token.");
   }
 }
 async function fetchTokenInfo(currentToken) {
@@ -185,9 +185,9 @@ async function sniperComma(ctx) {
         // Guardamos el estado de la transferencia
         ctx.session.sniperState = 'waitingForWallet';
         // Enviar el mensaje con los botones de selección
-        await ctx.reply('Selecciona una wallet para realizar el sniper:', Markup.inlineKeyboard(walletButtons));
+        await ctx.editMessageText('Selecciona una wallet para realizar el sniper:', Markup.inlineKeyboard(walletButtons));
       } else {
-        await ctx.reply("No tienes wallets registradas. Por favor, crea una primero.");
+        await ctx.editMessageText("No tienes wallets registradas. Por favor, crea una primero.");
       }
     } catch (error) {
       console.error('Error en SniperCommand:', error);
@@ -203,7 +203,7 @@ async function handleWallet(ctx) {
   ctx.session.fromWallet = walletAddress;
     ctx.session.sniperState = 'waitingForAmount';
     
-    await ctx.reply('Por favor, Ingresa la cantidad de trx a invertir en el pump.');
+    await ctx.editMessageText('Por favor, Ingresa la cantidad de trx a invertir en el pump.');
   }
 
   module.exports = {

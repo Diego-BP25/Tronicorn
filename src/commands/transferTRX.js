@@ -51,14 +51,14 @@ async function handleToAddress(ctx) {
   ctx.session.toAddress = ctx.message.text; // Guardamos la dirección en sesión
   ctx.session.transferState = 'waitingForAmount';
   
-  await ctx.reply('Por favor, ingresa el monto de TRX a transferir.');
+  await ctx.editMessageText('Por favor, ingresa el monto de TRX a transferir.');
 }
 
 // Manejador para ingresar el monto
 async function handleAmount(ctx) {
   const amount = parseFloat(ctx.message.text);
   if (isNaN(amount) || amount < 1) {
-    return ctx.reply('Por favor ingresa un monto válido mayor o igual a 1.');
+    return ctx.editMessageText('Por favor ingresa un monto válido mayor o igual a 1.');
   }
   ctx.session.amount = amount;
 
@@ -102,7 +102,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     // Validar el recibo
     if (receipt.result) {
-      await ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
+      await ctx.editMessageText(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
 
     }
 
@@ -111,7 +111,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
     }
     } catch (error) {
     console.error('Error en transferTRX:', error);
-    await ctx.reply(`Error al ejecutar la transferencia: ${error.message}`);
+    await ctx.editMessageText(`Error al ejecutar la transferencia: ${error.message}`);
   }
 }
 

@@ -78,7 +78,7 @@ async function walletCommand(ctx) {
         });
   
         if (saveResult.success) {
-          await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
+          await ctx.editMessageText(`Your wallet "${walletName}" has been successfully registered.`);
           await ctx.reply(`
             Your wallet has been created
         User id is: ${ctx.chat.id}
@@ -109,12 +109,12 @@ async function createNewWallet(ctx) {
   const walletResult = await fetchAllWallets(userId);
 
   if (walletResult.success && walletResult.wallets.length >= 3){
-    await ctx.reply("You can't have more than 3 wallets")
+    await ctx.editMessageText("You can't have more than 3 wallets")
   }
   else{
   try {
     await ctx.answerCbQuery();
-    await ctx.reply('Please send the name for your new wallet:');
+    await ctx.editMessageText('Please send the name for your new wallet:');
     ctx.session.waitingForWalletName = true;
     
   } catch (error) {
@@ -156,7 +156,7 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
       });
 
       if (saveResult.success) {
-        await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
+        await ctx.editMessageText(`Your wallet "${walletName}" has been successfully registered.`);
         await ctx.reply(`
           Your wallet has been created
       User id is: ${ctx.chat.id}
