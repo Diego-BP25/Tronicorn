@@ -82,7 +82,7 @@ async function handleTokenAddress(ctx) {
   if (ctx.session.awaitingTokenAddress) {
     ctx.session.swapData.tokenAddress = ctx.message.text;
     ctx.session.awaitingTokenAddress = false; // Resetea la espera
-    await ctx.editMessageText("Please enter the amount of TRX to swap:");
+    await ctx.reply("Please enter the amount of TRX to swap:");
     ctx.session.awaitingTrxAmount = true; // Marca que estamos esperando el monto
   }
 }
