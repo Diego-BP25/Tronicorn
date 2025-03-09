@@ -71,7 +71,7 @@ async function handleAdminToken(ctx) {
     // 1️⃣ Verificar si el contrato es válido y obtener información del token
     const tokenInfo = await fetchTokenInfo(tokenAddress);
     if (!tokenInfo) {
-      await ctx.editMessageText("❌ No se pudo obtener información del token. Verifica la dirección del contrato.");
+      await ctx.reply("❌ No se pudo obtener información del token. Verifica la dirección del contrato.");
       return;
     }
 
