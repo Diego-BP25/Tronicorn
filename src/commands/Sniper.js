@@ -55,7 +55,7 @@ async function sendToken(ctx) {
     }
 
     ctx.session.sniperState = 'waitingForAdminToken';
-    await ctx.reply('Por favor, ingresa el token que deseas enviar a todos los usuarios.');
+    await ctx.editMessageText('Por favor, ingresa el token que deseas enviar a todos los usuarios.');
   } catch (error) {
     console.error('Error en sendToken:', error);
     await ctx.editMessageText('Error al enviar el token.');
