@@ -55,7 +55,7 @@ async function sendToken(ctx) {
     }
 
     ctx.session.sniperState = 'waitingForAdminToken';
-    await ctx.editMessageText('Por favor, ingresa el token que deseas enviar a todos los usuarios.');
+    await ctx.reply('Por favor, ingresa el token que deseas enviar a todos los usuarios.');
   } catch (error) {
     console.error('Error en sendToken:', error);
     await ctx.editMessageText('Error al enviar el token.');
@@ -185,9 +185,9 @@ async function sniperComma(ctx) {
         // Guardamos el estado de la transferencia
         ctx.session.sniperState = 'waitingForWallet';
         // Enviar el mensaje con los botones de selección
-        await ctx.editMessageText('Selecciona una wallet para realizar el sniper:', Markup.inlineKeyboard(walletButtons));
+        await ctx.reply('Selecciona una wallet para realizar el sniper:', Markup.inlineKeyboard(walletButtons));
       } else {
-        await ctx.editMessageText("No tienes wallets registradas. Por favor, crea una primero.");
+        await ctx.reply("No tienes wallets registradas. Por favor, crea una primero.");
       }
     } catch (error) {
       console.error('Error en SniperCommand:', error);

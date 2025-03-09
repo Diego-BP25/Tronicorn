@@ -43,7 +43,7 @@ async function handleWalletSelection(ctx) {
   ctx.session.fromWallet = walletAddress;
   ctx.session.transferState = 'waitingForToAddress';
   
-  await ctx.reply('Por favor, ingresa la dirección de la wallet a la que deseas transferir.');
+  await ctx.editMessageText('Por favor, ingresa la dirección de la wallet a la que deseas transferir.');
 }
 
 // Manejador para ingresar la dirección de destino
@@ -51,7 +51,7 @@ async function handleToAddress(ctx) {
   ctx.session.toAddress = ctx.message.text; // Guardamos la dirección en sesión
   ctx.session.transferState = 'waitingForAmount';
   
-  await ctx.editMessageText('Por favor, ingresa el monto de TRX a transferir.');
+  await ctx.reply('Por favor, ingresa el monto de TRX a transferir.');
 }
 
 // Manejador para ingresar el monto
