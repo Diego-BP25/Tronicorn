@@ -43,7 +43,7 @@ async function getTRC20Balance(address) {
         valueInTRX = roundedBalance; // Si es TRX, el valor en TRX es el mismo balance
       } else {
         valueInTRX = (parseFloat(asset.token_value_in_usd) / trxPriceInUSD).toFixed(6);
-      }      balanceReport += `\n\n─────────────────────────────────────────────\n\nToken: ${TokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
+      }      balanceReport += `\n\n──────────────────────────────\n\nToken: ${TokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
     };
 
     return balanceReport;
@@ -97,7 +97,7 @@ async function handleWalletBalance(ctx) {
     const trc20Balance = await getTRC20Balance(walletAddress);
 
     // Responder con la información de balance
-    await ctx.reply(`${trc20Balance}`, { parse_mode: "Markdown", disable_web_page_preview: true });
+    await ctx.editMessageText(`${trc20Balance}`, { parse_mode: "Markdown", disable_web_page_preview: true });
   } catch (error) {
     console.error("Error fetching wallet balance:", error);
     await ctx.reply("Sorry, an error occurred while fetching the balance for this wallet.");
