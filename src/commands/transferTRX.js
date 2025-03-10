@@ -111,7 +111,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
     }
     } catch (error) {
     console.error('Error en transferTRX:', error);
-    await ctx.editMessageText(`Error al ejecutar la transferencia: ${error.message}`);
+    await ctx.reply(`Error al ejecutar la transferencia: ${error.message}`);
   }
 }
 
