@@ -7,7 +7,7 @@ const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
 const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
 const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
-const {sniperCommand, handleWallet, listenToken, sendToken, handleAdminToken} = require ('./src/commands/Sniper')
+const {sniperCommand, handleWallet, listenToken, sendToken, handleAdminToken, sniperManual} = require ('./src/commands/Sniper')
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -108,7 +108,7 @@ bot.action('sniper_listen', async (ctx) => {
 // Ingresar token manualmente
 bot.action('sniper_enter', async (ctx) => {
   await ctx.answerCbQuery();
-  return handleWallet(ctx);
+  return sniperManual(ctx);
 });
 
 // Enviar token a todos los usuarios

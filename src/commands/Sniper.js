@@ -169,9 +169,7 @@ async function fetchTokenInfo(currentToken) {
 }
 
 
-
-
-async function sniperComma(ctx) {
+async function sniperManual(ctx) {
     try {
       // Obtener todas las wallets del usuario
       const walletResult = await fetchAllWallets(ctx.chat.id);
@@ -211,6 +209,7 @@ async function handleWallet(ctx) {
     handleWallet,
     listenToken,
     sendToken,
-    handleAdminToken
+    handleAdminToken,
+    sniperManual
   }
 

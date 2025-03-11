@@ -102,7 +102,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     // Validar el recibo
     if (receipt.result) {
-      await ctx.editMessageText(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
+      await ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
 
     }
 
