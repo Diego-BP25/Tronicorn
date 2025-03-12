@@ -15,19 +15,49 @@ async function sniperCommand(ctx) {
     const isAdmin = ctx.chat.id.toString() === ADMIN_ID;
 
     // Opciones iniciales dependiendo si es admin o no
-    const buttons = [
-      [Markup.button.callback('Escuchar token admin', 'sniper_listen')],
-      [Markup.button.callback('Ingresar token', 'sniper_enter')],
-    ];
+
+    // botones para token
+    // const buttons = [
+    //   [Markup.button.callback('Escuchar token admin', 'sniper_listen')],
+    //   [Markup.button.callback('Ingresar token', 'sniper_enter')],
+    // ];
 
     if (isAdmin) {
       buttons.push([Markup.button.callback('Enviar token a usuarios', 'sniper_send')]);
     }
 
-    await ctx.reply('Selecciona una opción:', Markup.inlineKeyboard(buttons));
+    await ctx.reply(Markup.inlineKeyboard([Markup.button.callback('⚙ Configurar pump', 'ConfigPump')]));
   } catch (error) {
     console.error('Error en sniperCommand:', error);
     await ctx.reply('Error al ejecutar el comando sniper.');
+  }
+}
+
+  // Manejador para ingresar la cantidad de TRX a invertir en el pump
+async function amountTrx(ctx) {
+  try {
+    // Extraer la dirección de la wallet del callback_data
+    const callbackData = ctx.update.callback_query.data;
+    //const walletAddress = callbackData.replace('sniper_', '');
+
+    // Guardar la wallet en sesión y cambiar el estado
+    // ctx.session.fromWallet = walletAddress;
+    // ctx.session.sniperState = 'waitingForAmount';
+
+    // Crear los botones en el formato deseado
+    const buttons = Markup.inlineKeyboard([
+      [
+        Markup.button.callback('5 TRX', 'sniper_amount_5'),
+        Markup.button.callback('10 TRX', 'sniper_amount_10'),
+        Markup.button.callback('20 TRX', 'sniper_amount_20')
+      ],
+      [Markup.button.callback('✏️ Personalizar', 'sniper_amount_custom')] // Botón debajo
+    ]);
+
+    await ctx.editMessageText(buttons);
+  } catch (error) {
+    console.error('Error en amountTrx:', error);
+    await ctx.reply('Ocurrió un error al solicitar la cantidad de TRX.');
   }
 }
 
@@ -193,20 +223,10 @@ async function sniperManual(ctx) {
     }
   }
 
-  // Manejador para ingresar la dirección de destino
-async function handleWallet(ctx) {
-    // Extraer la dirección de la wallet del callback_data
-  const walletAddress = callbackData.replace('sniper_', '');
-  // Guardar la wallet en sesión y cambiar el estado
-  ctx.session.fromWallet = walletAddress;
-    ctx.session.sniperState = 'waitingForAmount';
-    
-    await ctx.editMessageText('Por favor, Ingresa la cantidad de trx a invertir en el pump.');
-  }
 
   module.exports = {
     sniperCommand,
-    handleWallet,
+    amountTrx,
     listenToken,
     sendToken,
     handleAdminToken,
