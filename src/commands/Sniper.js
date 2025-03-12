@@ -17,16 +17,17 @@ async function sniperCommand(ctx) {
     // Opciones iniciales dependiendo si es admin o no
 
     // botones para token
-    // const buttons = [
+    const buttons = [
     //   [Markup.button.callback('Escuchar token admin', 'sniper_listen')],
     //   [Markup.button.callback('Ingresar token', 'sniper_enter')],
-    // ];
+    [Markup.button.callback('⚙ Configurar pump', 'ConfigPump')]
+  ];
 
     if (isAdmin) {
       buttons.push([Markup.button.callback('Enviar token a usuarios', 'sniper_send')]);
     }
 
-    await ctx.reply(Markup.inlineKeyboard([Markup.button.callback('⚙ Configurar pump', 'ConfigPump')]));
+    await ctx.reply(Markup.inlineKeyboard(buttons));
   } catch (error) {
     console.error('Error en sniperCommand:', error);
     await ctx.reply('Error al ejecutar el comando sniper.');
