@@ -55,7 +55,7 @@ async function amountTrx(ctx) {
       [Markup.button.callback('✏️ Personalizar', 'sniper_amount_custom')] // Botón debajo
     ]);
 
-    await ctx.editMessageText(buttons);
+    await ctx.editMessageText('Elija el monto en trx con el que desa hacer el pump',buttons);
   } catch (error) {
     console.error('Error en amountTrx:', error);
     await ctx.reply('Ocurrió un error al solicitar la cantidad de TRX.');
