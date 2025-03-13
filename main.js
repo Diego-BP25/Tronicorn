@@ -7,7 +7,7 @@ const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
 const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
 const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
-const {sniperCommand, amountTrx, listenToken, sendToken, handleAdminToken, sniperManual} = require ('./src/commands/Sniper')
+const {sniperCommand, amountTrx, listenToken, sendToken, handleAdminToken, sniperManual, handleAmountSelection, handleSlippageSelection, handleCustomAmount,handleCustomSlippage } = require ('./src/commands/Sniper')
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -93,7 +93,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await ctx.answerCbQuery();
       return handleAskToken(ctx);
     });
-
+//--------------sniper-----------------------
     bot.action('sniper', async (ctx) => {
       await ctx.answerCbQuery();
       return sniperCommand(ctx);
@@ -117,7 +117,11 @@ bot.action('sniper_send', async (ctx) => {
   return sendToken(ctx);
 });
 
-    bot.action(/^sniper_.+$/, amountTrx);
+bot.action(/^sniper_.+$/, amountTrx);
+
+bot.action(/sniper_amount_.+$/, handleAmountSelection);
+
+bot.action(/sniper_slippage_.+$/, handleSlippageSelection);
 
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
@@ -158,6 +162,16 @@ bot.on('text', async (ctx) => {
     await ctx.reply(`Token ingresado: ${ctx.message.text}`);
     ctx.session.sniperState = null; // Limpiar estado
   }
+
+  if (ctx.session.sniperState === 'waitingForCustomAmount') {
+    return handleCustomAmount(ctx);
+  }
+
+  if (ctx.session.sniperState === 'waitingForCustomSlippage') {
+    return handleCustomSlippage(ctx);
+  }
+
+
 });
 
 

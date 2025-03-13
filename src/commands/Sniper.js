@@ -38,7 +38,7 @@ async function sniperCommand(ctx) {
 async function amountTrx(ctx) {
   try {
     // Extraer la dirección de la wallet del callback_data
-    const callbackData = ctx.update.callback_query.data;
+    //const callbackData = ctx.update.callback_query.data;
     //const walletAddress = callbackData.replace('sniper_', '');
 
     // Guardar la wallet en sesión y cambiar el estado
@@ -55,12 +55,74 @@ async function amountTrx(ctx) {
       [Markup.button.callback('✏️ Personalizar', 'sniper_amount_custom')] // Botón debajo
     ]);
 
-    await ctx.editMessageText('Elija el monto en trx con el que desa hacer el pump',buttons);
+    await ctx.editMessageText('Elija el monto en trx con el que desea hacer el pump',buttons);
   } catch (error) {
     console.error('Error en amountTrx:', error);
     await ctx.reply('Ocurrió un error al solicitar la cantidad de TRX.');
   }
 }
+
+
+// Manejador para la selección del monto
+async function handleAmountSelection(ctx) {
+  const selectedAmount = ctx.match[0].replace('sniper_amount_', '');
+
+  if (selectedAmount === 'custom') {
+    // Si elige personalizar, pedir el monto
+    ctx.session.sniperState = 'waitingForCustomAmount';
+    await ctx.editMessageText('Por favor, ingresa la cantidad de TRX a invertir en el pump:');
+  } else {
+    // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
+    ctx.session.sniperAmount = selectedAmount;
+    await showSlippageOptions(ctx);
+  }
+}
+
+// Función para mostrar opciones de deslizamiento
+async function showSlippageOptions(ctx) {
+  const buttons = Markup.inlineKeyboard([
+    [
+      Markup.button.callback('5%', 'sniper_slippage_5'),
+      Markup.button.callback('10%', 'sniper_slippage_10'),
+      Markup.button.callback('20%', 'sniper_slippage_20')
+    ],
+    [Markup.button.callback('✏️ Personalizar', 'sniper_slippage_custom')]
+  ]);
+
+  await ctx.reply('Selecciona el porcentaje de deslizamiento:', buttons);
+}
+
+// Manejador para la entrada de monto personalizado
+async function handleCustomAmount(ctx) {
+  if (ctx.session.sniperState === 'waitingForCustomAmount') {
+    ctx.session.sniperAmount = ctx.message.text; // Guardar el monto ingresado
+    ctx.session.sniperState = null; // Resetear estado
+    await showSlippageOptions(ctx); // Pasar al siguiente paso
+  }
+}
+
+// Manejador para la selección del deslizamiento
+async function handleSlippageSelection(ctx) {
+  const selectedSlippage = ctx.match[0].replace('sniper_slippage_', '');
+
+  if (selectedSlippage === 'custom') {
+    ctx.session.sniperState = 'waitingForCustomSlippage';
+    await ctx.editMessageText('Por favor, ingresa el porcentaje de deslizamiento:');
+  } else {
+    ctx.session.sniperSlippage = selectedSlippage;
+    await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${selectedSlippage}%`);
+  }
+}
+
+// Manejador para la entrada de deslizamiento personalizado
+async function  handleCustomSlippage(ctx) {
+  if (ctx.session.sniperState === 'waitingForCustomSlippage') {
+    ctx.session.sniperSlippage = ctx.message.text;
+    ctx.session.sniperState = null;
+    await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${ctx.session.sniperSlippage}%`);
+  }
+}
+
 
 // Escuchar token enviado por el administrador
 async function listenToken(ctx) {
@@ -231,6 +293,10 @@ async function sniperManual(ctx) {
     listenToken,
     sendToken,
     handleAdminToken,
-    sniperManual
+    sniperManual,
+    handleAmountSelection,
+    handleCustomAmount,
+    handleSlippageSelection,
+    handleCustomSlippage
   }
 
