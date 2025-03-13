@@ -27,7 +27,7 @@ async function sniperCommand(ctx) {
       buttons.push([Markup.button.callback('Enviar token a usuarios', 'sniper_send')]);
     }
 
-    await ctx.reply(Markup.inlineKeyboard(buttons));
+    await ctx.reply('Configura los parametros de tu pump',Markup.inlineKeyboard(buttons));
   } catch (error) {
     console.error('Error en sniperCommand:', error);
     await ctx.reply('Error al ejecutar el comando sniper.');
