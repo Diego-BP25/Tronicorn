@@ -74,6 +74,7 @@ async function handleAmountSelection(ctx) {
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
     ctx.session.sniperAmount = selectedAmount;
+    ctx.session.sniperState = 'waitingForSlippage'; 
     await showSlippageOptions(ctx);
   }
 }
