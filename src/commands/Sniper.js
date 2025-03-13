@@ -70,7 +70,7 @@ async function handleAmountSelection(ctx) {
   if (selectedAmount === 'custom') {
     // Si elige personalizar, pedir el monto
     ctx.session.sniperState = 'waitingForCustomAmount';
-    await ctx.editMessageText('Por favor, ingresa la cantidad de TRX a invertir en el pump:');
+    await ctx.reply('Por favor, ingresa la cantidad de TRX a invertir en el pump:');
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
     ctx.session.sniperAmount = selectedAmount;
@@ -107,7 +107,7 @@ async function handleSlippageSelection(ctx) {
 
   if (selectedSlippage === 'custom') {
     ctx.session.sniperState = 'waitingForCustomSlippage';
-    await ctx.editMessageText('Por favor, ingresa el porcentaje de deslizamiento:');
+    await ctx.reply('Por favor, ingresa el porcentaje de deslizamiento:');
   } else {
     ctx.session.sniperSlippage = selectedSlippage;
     await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${selectedSlippage}%`);
