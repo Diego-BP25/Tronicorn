@@ -138,7 +138,8 @@ async function selectWallet(ctx) {
 
       // Enviar el mensaje con los botones de selección
       await ctx.reply('Select a wallet to perform the sniper:', Markup.inlineKeyboard(walletButtons));
-      ctx.session.wallet = walletButtons;
+      const selectedWallet = ctx.match[0].replace('sniper_wallet_', '');
+      ctx.session.wallet = selectedWallet;
       ctx.session.sniperState = null;
 
 
