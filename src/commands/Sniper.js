@@ -113,7 +113,6 @@ async function handleSlippageSelection(ctx) {
     ctx.session.sniperSlippage = selectedSlippage;
     ctx.session.sniperState = null;
   }
-  await selectWallet(ctx);
 }
 
 // Manejador para la entrada de deslizamiento personalizado
