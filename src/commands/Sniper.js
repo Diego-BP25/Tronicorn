@@ -112,8 +112,8 @@ async function handleSlippageSelection(ctx) {
   } else {
     ctx.session.sniperSlippage = selectedSlippage;
     ctx.session.sniperState = null;
-    await selectWallet(ctx);
   }
+  await selectWallet(ctx);
 }
 
 // Manejador para la entrada de deslizamiento personalizado
@@ -137,12 +137,12 @@ async function selectWallet(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `sniper_${wallet.wallet_address}`)];
       });
 
-      // Guardamos el estado de la transferencia
-      ctx.session.sniperState = 'waitingForWallet';
-
       // Enviar el mensaje con los botones de selección
       await ctx.reply('Select a wallet to perform the sniper:', Markup.inlineKeyboard(walletButtons));
       ctx.session.wallet = walletButtons;
+      ctx.session.sniperState = null;
+
+
     } else {
       await ctx.reply("You don't have any registered wallets. Please create one first..");
     }
@@ -150,6 +150,7 @@ async function selectWallet(ctx) {
     console.error('Error en SniperCommand:', error);
     await ctx.reply('Error al obtener wallets.');
   }
+  await selectWallet(ctx);
 }
 
 async function typePump(ctx) {
