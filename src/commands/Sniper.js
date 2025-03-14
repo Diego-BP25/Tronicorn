@@ -79,6 +79,15 @@ async function handleAmountSelection(ctx) {
   }
 }
 
+// Manejador para la entrada de monto personalizado
+async function handleCustomAmount(ctx) {
+  if (ctx.session.sniperState === 'waitingForCustomAmount') {
+    ctx.session.sniperAmount = ctx.message.text; // Guardar el monto ingresado
+    ctx.session.sniperState = null; // Resetear estado
+    await showSlippageOptions(ctx); // Pasar al siguiente paso
+  }
+}
+
 // Función para mostrar opciones de deslizamiento
 async function showSlippageOptions(ctx) {
   const buttons = Markup.inlineKeyboard([
@@ -93,14 +102,6 @@ async function showSlippageOptions(ctx) {
   await ctx.reply('Select the sliding percentage:', buttons);
 }
 
-// Manejador para la entrada de monto personalizado
-async function handleCustomAmount(ctx) {
-  if (ctx.session.sniperState === 'waitingForCustomAmount') {
-    ctx.session.sniperAmount = ctx.message.text; // Guardar el monto ingresado
-    ctx.session.sniperState = null; // Resetear estado
-    await showSlippageOptions(ctx); // Pasar al siguiente paso
-  }
-}
 
 // Manejador para la selección del deslizamiento
 async function handleSlippageSelection(ctx) {
@@ -112,6 +113,7 @@ async function handleSlippageSelection(ctx) {
   } else {
     ctx.session.sniperSlippage = selectedSlippage;
     ctx.session.sniperState = null;
+    await selectWallet(ctx);
   }
 }
 
@@ -138,8 +140,6 @@ async function selectWallet(ctx) {
 
       // Enviar el mensaje con los botones de selección
       await ctx.reply('Select a wallet to perform the sniper:', Markup.inlineKeyboard(walletButtons));
-      const selectedWallet = ctx.match[0].replace('sniper_wallet_', '');
-      ctx.session.wallet = selectedWallet;
       ctx.session.sniperState = null;
 
 
@@ -150,6 +150,17 @@ async function selectWallet(ctx) {
     console.error('Error en SniperCommand:', error);
     await ctx.reply('Error al obtener wallets.');
   }
+}
+
+async function handlewalletSelection(ctx) {
+  const selectedWallet = ctx.match[0].replace('sniper_wallet_', '');
+
+  // Guardar la wallet en la sesión
+  ctx.session.wallet = selectedWallet;
+  ctx.session.sniperState = null;
+  // Continuar con el siguiente paso (typePump)
+  await typePump(ctx);
+  
 }
 
 async function typePump(ctx) {
@@ -317,6 +328,6 @@ async function fetchTokenInfo(currentToken) {
     handleCustomAmount,
     handleSlippageSelection,
     handleCustomSlippage,
-    typePump
+    handlewalletSelection
   }
 
