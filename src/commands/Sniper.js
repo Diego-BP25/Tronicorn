@@ -237,7 +237,7 @@ async function handleAdminToken(ctx) {
     }
 
     // 2️⃣ Configurar el tiempo de disponibilidad (30 min desde ahora)
-    tokenAvailableTime = new Date(Date.now() + 30 * 60 * 1000);
+    tokenAvailableTime = new Date(Date.now() + 3 * 60 * 1000);
 
     // 3️⃣ Guardar la información del token
     TokenName = tokenInfo.name;
