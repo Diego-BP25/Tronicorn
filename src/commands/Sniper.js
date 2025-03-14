@@ -111,6 +111,7 @@ async function handleSlippageSelection(ctx) {
     await ctx.reply('Please enter the slip percentage:');
   } else {
     ctx.session.sniperSlippage = selectedSlippage;
+    ctx.session.sniperState = null;
     await selectWallet(ctx);
     //await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${selectedSlippage}%`);
   }
