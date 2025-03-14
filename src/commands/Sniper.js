@@ -149,7 +149,6 @@ async function selectWallet(ctx) {
     console.error('Error en SniperCommand:', error);
     await ctx.reply('Error al obtener wallets.');
   }
-  await selectWallet(ctx);
 }
 
 async function typePump(ctx) {
