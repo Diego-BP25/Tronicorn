@@ -4,6 +4,7 @@ const { Markup } = require('telegraf');
 
 const ADMIN_ID = process.env.ADMIN_ID 
 let currentToken = null; // Variable global para almacenar el token actual
+let tokenAvailableTime = null; //almacenar la hora exacta en la que será visible el token.
 let tokenExpirationTimer = null; // Temporizador para la expiración del token
 let TokenName= null;
 let TokenSymbol= null
@@ -179,19 +180,30 @@ async function typePump(ctx) {
   }
 }
 
-
-// Escuchar token enviado por el administrador
+// ✅ Función para que los usuarios escuchen el token cuando ya está disponible
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.editMessageText(`El contrato actual es: ${currentToken}\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX`, { parse_mode: "Markdown" });
+      await ctx.editMessageText(
+        `📢 *Nuevo Token Disponible*\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX\n\n📜 *Contrato:* ${currentToken}`,
+        { parse_mode: "Markdown" }
+      );
+    } else if (tokenAvailableTime) {
+      // Mostrar la hora programada si el token aún no es visible
+      const formattedTime = tokenAvailableTime.toLocaleTimeString("es-ES", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+      await ctx.editMessageText(`⏳ No hay ningún token disponible en este momento.\n\n📢 Un nuevo token estará disponible a las *${formattedTime}*.`);
     } else {
-         await ctx.editMessageText('No hay ningún token disponible en este momento.');
+      await ctx.editMessageText("🚫 No hay ningún token programado en este momento.");
     }
   } catch (error) {
-    console.error('Error en listenToken:', error);
-    await ctx.reply('Error al mostrar el token.');
-  }}
+    console.error("Error en listenToken:", error);
+    await ctx.reply("Error al mostrar el token.");
+  }
+}
 
 // Enviar token a todos los usuarios registrados
 async function sendToken(ctx) {
@@ -212,61 +224,63 @@ async function sendToken(ctx) {
 }
 
 
-// Manejar token enviado por el administrador
+// ✅ Función para manejar el token enviado por el administrador
 async function handleAdminToken(ctx) {
   try {
-    const tokenAddress = ctx.message.text.trim(); // Dirección del contrato
+    const tokenAddress = ctx.message.text.trim();
 
-    // 1️⃣ Verificar si el contrato es válido y obtener información del token
+    // 1️⃣ Verificar si el contrato es válido
     const tokenInfo = await fetchTokenInfo(tokenAddress);
     if (!tokenInfo) {
       await ctx.reply("❌ No se pudo obtener información del token. Verifica la dirección del contrato.");
       return;
     }
 
-    // 2️⃣ Guardamos el token en la variable global
-    currentToken = tokenAddress;
+    // 2️⃣ Configurar el tiempo de disponibilidad (30 min desde ahora)
+    tokenAvailableTime = new Date(Date.now() + 30 * 60 * 1000);
 
-    // 3️⃣ Cancelamos cualquier temporizador de expiración previo
-    if (tokenExpirationTimer) {
-      clearTimeout(tokenExpirationTimer);
-    }
+    // 3️⃣ Guardar la información del token
+    TokenName = tokenInfo.name;
+    TokenSymbol = tokenInfo.symbol;
+    TokenUsdt = tokenInfo.priceUSD;
+    TokenTrx = tokenInfo.priceTRX;
 
-    // 4️⃣ Configurar la expiración del token después de 20 minutos
-    tokenExpirationTimer = setTimeout(() => {
-      currentToken = null;
-    }, 20 * 60 * 1000);
-
-    // 5️⃣ Mensaje de confirmación al admin con los detalles del token
-    const tokenMessage = `✅ Nuevo Token Ingresado:\n\n📌 *Nombre:* ${tokenInfo.name} (${tokenInfo.symbol})\n💰 *Precio:* $${tokenInfo.priceUSD} USD\n🔄 *Equivalente en TRX:* ${tokenInfo.priceTRX} TRX\n\n📢 Este token estará disponible para los usuarios por 20 minutos.`;
-    TokenName = tokenInfo.name
-    TokenSymbol = tokenInfo.symbol
-    TokenUsdt = tokenInfo.priceUSD
-    TokenTrx = tokenInfo.priceTRX
+    // 4️⃣ Notificar al admin
+    const tokenMessage = `✅ Nuevo Token Programado:\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX\n\n⏳ *Este token será visible para los usuarios en 30 minutos.*`;
     await ctx.replyWithMarkdown(tokenMessage);
 
-    // 6️⃣ Notificar a los usuarios
+    // 5️⃣ Notificar a los usuarios con la hora exacta
+    const formattedTime = tokenAvailableTime.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+
     const usersResult = await fetchAllUsers();
     if (usersResult.success && usersResult.users.length > 0) {
       for (const user of usersResult.users) {
         try {
           await ctx.telegram.sendMessage(
             user.userId,
-            `🔔 *Nuevo Token Disponible*\n\n📢 Ve al menú "Sniper" y presiona "Escuchar token admin" para verlo.`,
+            `🔔 *Nuevo Token Programado*\n\n📢 Un nuevo token estará disponible a las *${formattedTime}*.\n\nMantente atento!`,
             { parse_mode: "Markdown" }
           );
         } catch (sendError) {
           console.error(`Error notificando al usuario ${user.userId}:`, sendError);
         }
       }
-    } else {
-      await ctx.editMessageText("No hay usuarios registrados en la base de datos.");
     }
+
+    // 6️⃣ Configurar el temporizador para hacer visible el token después de 30 min
+    setTimeout(() => {
+      currentToken = tokenAddress;
+    }, 30 * 60 * 1000);
   } catch (error) {
     console.error("Error al manejar el token del administrador:", error);
     await ctx.editMessageText("Error al procesar el token.");
   }
 }
+
 async function fetchTokenInfo(currentToken) {
   try {
     const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
