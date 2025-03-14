@@ -117,7 +117,7 @@ bot.action('sniper_send', async (ctx) => {
   return sendToken(ctx);
 });
 
-bot.action(/^sniper_.+$/, typePump);
+bot.action(/^sniper_wallet_.+$/, typePump);
 
 bot.action(/sniper_amount_.+$/, handleAmountSelection);
 

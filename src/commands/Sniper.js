@@ -133,7 +133,7 @@ async function selectWallet(ctx) {
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Listar las wallets del usuario como botones con el nombre de la wallet
       const walletButtons = walletResult.wallets.map(wallet => {
-        return [Markup.button.callback(wallet.wallet_name, `sniper_${wallet.wallet_address}`)];
+        return [Markup.button.callback(wallet.wallet_name, `sniper_wallet_${wallet.wallet_address}`)];
       });
 
       // Enviar el mensaje con los botones de selección
