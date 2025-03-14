@@ -111,7 +111,8 @@ async function handleSlippageSelection(ctx) {
     await ctx.reply('Please enter the slip percentage:');
   } else {
     ctx.session.sniperSlippage = selectedSlippage;
-    await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${selectedSlippage}%`);
+    await selectWallet(ctx);
+    //await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${selectedSlippage}%`);
   }
 }
 
@@ -120,7 +121,32 @@ async function  handleCustomSlippage(ctx) {
   if (ctx.session.sniperState === 'waitingForCustomSlippage') {
     ctx.session.sniperSlippage = ctx.message.text;
     ctx.session.sniperState = null;
-    await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${ctx.session.sniperSlippage}%`);
+    await selectWallet(ctx);
+    //await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${ctx.session.sniperSlippage}%`);
+  }
+}
+
+async function selectWallet(ctx) {
+  try {
+    // Obtener todas las wallets del usuario
+    const walletResult = await fetchAllWallets(ctx.chat.id);
+
+    if (walletResult.success && walletResult.wallets.length > 0) {
+      // Listar las wallets del usuario como botones con el nombre de la wallet
+      const walletButtons = walletResult.wallets.map(wallet => {
+        return [Markup.button.callback(wallet.wallet_name, `sniper_${wallet.wallet_address}`)];
+      });
+
+      // Guardamos el estado de la transferencia
+      ctx.session.sniperState = 'waitingForWallet';
+      // Enviar el mensaje con los botones de selección
+      await ctx.reply('Select a wallet to perform the sniper:', Markup.inlineKeyboard(walletButtons));
+    } else {
+      await ctx.reply("You don't have any registered wallets. Please create one first..");
+    }
+  } catch (error) {
+    console.error('Error en SniperCommand:', error);
+    await ctx.reply('Error al obtener wallets.');
   }
 }
 
@@ -263,38 +289,13 @@ async function fetchTokenInfo(currentToken) {
 }
 
 
-async function sniperManual(ctx) {
-    try {
-      // Obtener todas las wallets del usuario
-      const walletResult = await fetchAllWallets(ctx.chat.id);
-  
-      if (walletResult.success && walletResult.wallets.length > 0) {
-        // Listar las wallets del usuario como botones con el nombre de la wallet
-        const walletButtons = walletResult.wallets.map(wallet => {
-          return [Markup.button.callback(wallet.wallet_name, `sniper_${wallet.wallet_address}`)];
-        });
-  
-        // Guardamos el estado de la transferencia
-        ctx.session.sniperState = 'waitingForWallet';
-        // Enviar el mensaje con los botones de selección
-        await ctx.reply('Selecciona una wallet para realizar el sniper:', Markup.inlineKeyboard(walletButtons));
-      } else {
-        await ctx.reply("No tienes wallets registradas. Por favor, crea una primero.");
-      }
-    } catch (error) {
-      console.error('Error en SniperCommand:', error);
-      await ctx.reply('Error al obtener wallets.');
-    }
-  }
-
-
   module.exports = {
     sniperCommand,
     amountTrx,
     listenToken,
     sendToken,
     handleAdminToken,
-    sniperManual,
+    selectWallet,
     handleAmountSelection,
     handleCustomAmount,
     handleSlippageSelection,
