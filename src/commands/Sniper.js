@@ -20,14 +20,14 @@ async function sniperCommand(ctx) {
     const buttons = [
     //   [Markup.button.callback('Escuchar token admin', 'sniper_listen')],
     //   [Markup.button.callback('Ingresar token', 'sniper_enter')],
-    [Markup.button.callback('⚙ Configurar pump', 'ConfigPump')]
+    [Markup.button.callback('⚙ Configure pump', 'ConfigPump')]
   ];
 
     if (isAdmin) {
       buttons.push([Markup.button.callback('Enviar token a usuarios', 'sniper_send')]);
     }
 
-    await ctx.reply('Configura los parametros de tu pump',Markup.inlineKeyboard(buttons));
+    await ctx.reply('Configure your pump parameters',Markup.inlineKeyboard(buttons));
   } catch (error) {
     console.error('Error en sniperCommand:', error);
     await ctx.reply('Error al ejecutar el comando sniper.');
@@ -52,12 +52,12 @@ async function amountTrx(ctx) {
         Markup.button.callback('10 TRX', 'sniper_amount_10'),
         Markup.button.callback('20 TRX', 'sniper_amount_20')
       ],
-      [Markup.button.callback('✏️ Personalizar', 'sniper_amount_custom')] // Botón debajo
+      [Markup.button.callback('✏️ Personalize', 'sniper_amount_custom')] // Botón debajo
     ]);
 
-    await ctx.reply('Elija el monto en trx con el que desea hacer el pump',buttons);
+    await ctx.reply('Choose the amount in TRX you want to pump with',buttons);
   } catch (error) {
-    console.error('Error en amountTrx:', error);
+    console.error('Error in amountTrx:', error);
     await ctx.reply('Ocurrió un error al solicitar la cantidad de TRX.');
   }
 }
@@ -70,7 +70,7 @@ async function handleAmountSelection(ctx) {
   if (selectedAmount === 'custom') {
     // Si elige personalizar, pedir el monto
     ctx.session.sniperState = 'waitingForCustomAmount';
-    await ctx.reply('Por favor, ingresa la cantidad de TRX a invertir en el pump:');
+    await ctx.reply('Please enter the amount of TRX to invest in the pump:');
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
     ctx.session.sniperAmount = selectedAmount;
@@ -87,10 +87,10 @@ async function showSlippageOptions(ctx) {
       Markup.button.callback('10%', 'sniper_slippage_10'),
       Markup.button.callback('20%', 'sniper_slippage_20')
     ],
-    [Markup.button.callback('✏️ Personalizar', 'sniper_slippage_custom')]
+    [Markup.button.callback('✏️ Personalize', 'sniper_slippage_custom')]
   ]);
 
-  await ctx.reply('Selecciona el porcentaje de deslizamiento:', buttons);
+  await ctx.reply('Select the sliding percentage:', buttons);
 }
 
 // Manejador para la entrada de monto personalizado
@@ -108,7 +108,7 @@ async function handleSlippageSelection(ctx) {
 
   if (selectedSlippage === 'custom') {
     ctx.session.sniperState = 'waitingForCustomSlippage';
-    await ctx.reply('Por favor, ingresa el porcentaje de deslizamiento:');
+    await ctx.reply('Please enter the slip percentage:');
   } else {
     ctx.session.sniperSlippage = selectedSlippage;
     await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${selectedSlippage}%`);

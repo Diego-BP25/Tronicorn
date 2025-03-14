@@ -21,9 +21,9 @@ async function transferCommand(ctx) {
       ctx.session.transferState = 'waitingForWallet';
 
       // Enviar el mensaje con los botones de selección
-      await ctx.reply('Selecciona una wallet para transferir:', Markup.inlineKeyboard(walletButtons));
+      await ctx.reply('Select a wallet to transfer:', Markup.inlineKeyboard(walletButtons));
     } else {
-      await ctx.reply("No tienes wallets registradas. Por favor, crea una primero.");
+      await ctx.reply("You don't have any registered wallets. Please create one first..");
     }
   } catch (error) {
     console.error('Error en transferCommand:', error);
@@ -43,7 +43,7 @@ async function handleWalletSelection(ctx) {
   ctx.session.fromWallet = walletAddress;
   ctx.session.transferState = 'waitingForToAddress';
   
-  await ctx.editMessageText('Por favor, ingresa la dirección de la wallet a la que deseas transferir.');
+  await ctx.editMessageText('Please enter the wallet address you wish to transfer to..');
 }
 
 // Manejador para ingresar la dirección de destino
@@ -51,14 +51,14 @@ async function handleToAddress(ctx) {
   ctx.session.toAddress = ctx.message.text; // Guardamos la dirección en sesión
   ctx.session.transferState = 'waitingForAmount';
   
-  await ctx.reply('Por favor, ingresa el monto de TRX a transferir.');
+  await ctx.reply('Please enter the amount of TRX to transfer.');
 }
 
 // Manejador para ingresar el monto
 async function handleAmount(ctx) {
   const amount = parseFloat(ctx.message.text);
   if (isNaN(amount) || amount < 1) {
-    return ctx.reply('Por favor ingresa un monto válido mayor o igual a 1.');
+    return ctx.reply('Please enter a valid amount greater than or equal to 1.');
   }
   ctx.session.amount = amount;
 
@@ -102,12 +102,12 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     // Validar el recibo
     if (receipt.result) {
-      await ctx.reply(`Transferencia de ${amount} TRX a ${toAddress} exitosa. ID de transacción: ${receipt.txid}`);
+      await ctx.reply(`Transfer of ${amount} TRX a ${toAddress} was successful. Transaction ID: ${receipt.txid}`);
 
     }
 
  else {
-      throw new Error(`Transacción fallida.`);
+      throw new Error(`Transaction failed.`);
     }
     } catch (error) {
     console.error('Error en transferTRX:', error);
