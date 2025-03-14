@@ -237,8 +237,7 @@ async function handleAdminToken(ctx) {
     }
 
     // 2️⃣ Configurar el tiempo de disponibilidad (30 min desde ahora)
-    const timeZone = "America/Bogota"; // Cambia esto según tu zona horaria
-    tokenAvailableTime = new Date(Date.now() + 3 * 60 * 1000).toLocaleString("es-CO", { timeZone });
+    tokenAvailableTime = new Date(Date.now() + 3 * 60 * 1000);
 
     // 3️⃣ Guardar la información del token
     TokenName = tokenInfo.name;
@@ -251,7 +250,7 @@ async function handleAdminToken(ctx) {
     await ctx.replyWithMarkdown(tokenMessage);
 
     // 5️⃣ Notificar a los usuarios con la hora exacta
-    const formattedTime = tokenAvailableTime.toLocaleTimeString("es-ES", {
+    const formattedTime = tokenAvailableTime.toLocaleTimeString("es-CO", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit"
