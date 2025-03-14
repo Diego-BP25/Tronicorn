@@ -113,7 +113,6 @@ async function handleSlippageSelection(ctx) {
     ctx.session.sniperSlippage = selectedSlippage;
     ctx.session.sniperState = null;
     await selectWallet(ctx);
-    //await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${selectedSlippage}%`);
   }
 }
 
@@ -123,7 +122,7 @@ async function  handleCustomSlippage(ctx) {
     ctx.session.sniperSlippage = ctx.message.text;
     ctx.session.sniperState = null;
     await selectWallet(ctx);
-    //await ctx.reply(`Configuración completada ✅\n\n🔹 Monto: ${ctx.session.sniperAmount} TRX\n🔹 Deslizamiento: ${ctx.session.sniperSlippage}%`);
+    
   }
 }
 
@@ -140,14 +139,32 @@ async function selectWallet(ctx) {
 
       // Guardamos el estado de la transferencia
       ctx.session.sniperState = 'waitingForWallet';
+
       // Enviar el mensaje con los botones de selección
       await ctx.reply('Select a wallet to perform the sniper:', Markup.inlineKeyboard(walletButtons));
+      ctx.session.wallet = walletButtons;
     } else {
       await ctx.reply("You don't have any registered wallets. Please create one first..");
     }
   } catch (error) {
     console.error('Error en SniperCommand:', error);
     await ctx.reply('Error al obtener wallets.');
+  }
+}
+
+async function typePump(ctx) {
+  try {
+
+    // botones para token
+    const buttons = [
+       [Markup.button.callback('Escuchar token admin', 'sniper_listen')],
+       [Markup.button.callback('Ingresar token', 'sniper_enter')],
+  ];
+
+    await ctx.reply(`Configuración completada ✅\n🔹 amount: ${ctx.session.sniperAmount} TRX\n🔹 Slippage: ${ctx.session.sniperSlippage}%\n🔹 Wallet: ${ctx.session.wallet}\n\nNow select what type of contract you want to pump with.`,Markup.inlineKeyboard(buttons));
+  } catch (error) {
+    console.error('Error en sniperCommand:', error);
+    await ctx.reply('Error al ejecutar el comando sniper.');
   }
 }
 
@@ -296,10 +313,10 @@ async function fetchTokenInfo(currentToken) {
     listenToken,
     sendToken,
     handleAdminToken,
-    selectWallet,
     handleAmountSelection,
     handleCustomAmount,
     handleSlippageSelection,
-    handleCustomSlippage
+    handleCustomSlippage,
+    typePump
   }
 
