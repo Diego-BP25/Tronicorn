@@ -184,7 +184,7 @@ async function typePump(ctx) {
 async function listenToken(ctx) {
   try {
     if (currentToken) {
-      await ctx.editMessageText(
+      await ctx.reply(
         `📢 *Nuevo Token Disponible*\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX\n\n📜 *Contrato:* ${currentToken}`,
         { parse_mode: "Markdown" }
       );
@@ -237,7 +237,8 @@ async function handleAdminToken(ctx) {
     }
 
     // 2️⃣ Configurar el tiempo de disponibilidad (30 min desde ahora)
-    tokenAvailableTime = new Date(Date.now() + 3 * 60 * 1000);
+    const timeZone = "America/Bogota"; // Cambia esto según tu zona horaria
+    tokenAvailableTime = new Date(Date.now() + 3 * 60 * 1000).toLocaleString("es-CO", { timeZone });
 
     // 3️⃣ Guardar la información del token
     TokenName = tokenInfo.name;
