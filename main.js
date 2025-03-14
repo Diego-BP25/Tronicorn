@@ -111,6 +111,12 @@ bot.action('sniper_enter', async (ctx) => {
   return sniperManual(ctx);
 });
 
+// escuchar token de admin
+bot.action('sniper_listen', async (ctx) => {
+  await ctx.answerCbQuery();
+  return listenToken(ctx);
+});
+
 // Enviar token a todos los usuarios
 bot.action('sniper_send', async (ctx) => {
   await ctx.answerCbQuery();

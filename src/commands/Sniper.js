@@ -190,11 +190,12 @@ async function listenToken(ctx) {
       );
     } else if (tokenAvailableTime) {
       // Mostrar la hora programada si el token aún no es visible
-      const formattedTime = tokenAvailableTime.toLocaleTimeString("es-ES", {
+      const formattedTime = new Intl.DateTimeFormat("es-CO", {
+        timeZone: "America/Bogota",
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit"
-      });
+      }).format(tokenAvailableTime);
       await ctx.editMessageText(`⏳ No hay ningún token disponible en este momento.\n\n📢 Un nuevo token estará disponible a las *${formattedTime}*.`);
     } else {
       await ctx.editMessageText("🚫 No hay ningún token programado en este momento.");
@@ -235,6 +236,8 @@ async function handleAdminToken(ctx) {
       await ctx.reply("❌ No se pudo obtener información del token. Verifica la dirección del contrato.");
       return;
     }
+    console.log("Token Info:", tokenInfo);
+
 
     // 2️⃣ Configurar el tiempo de disponibilidad (30 min desde ahora)
     tokenAvailableTime = new Date(Date.now() + 3 * 60 * 1000);
@@ -250,11 +253,12 @@ async function handleAdminToken(ctx) {
     await ctx.replyWithMarkdown(tokenMessage);
 
     // 5️⃣ Notificar a los usuarios con la hora exacta
-    const formattedTime = tokenAvailableTime.toLocaleTimeString("es-CO", {
+    const formattedTime = new Intl.DateTimeFormat("es-CO", {
+      timeZone: "America/Bogota",
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit"
-    });
+    }).format(tokenAvailableTime);
 
     const usersResult = await fetchAllUsers();
     if (usersResult.success && usersResult.users.length > 0) {
