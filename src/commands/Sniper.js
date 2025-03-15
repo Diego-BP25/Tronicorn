@@ -240,7 +240,7 @@ async function handleAdminToken(ctx) {
 
 
     // 2️⃣ Configurar el tiempo de disponibilidad (30 min desde ahora)
-    tokenAvailableTime = new Date(Date.now() + 3 * 60 * 1000);
+    tokenAvailableTime = new Date(Date.now() + 1 * 60 * 1000);
 
     // 3️⃣ Guardar la información del token
     TokenName = tokenInfo.name;
@@ -278,14 +278,14 @@ async function handleAdminToken(ctx) {
     // Hacer visible el token después de 30 min y eliminarlo después de 2 min
     setTimeout(() => {
       currentToken = tokenAddress;
+      tokenAvailableTime = null;
 
       // ⏳ Configurar eliminación del token en 2 minutos
       setTimeout(() => {
         currentToken = null;
-        console.log("🚫 Token ELIMINADO después de 2 minutos.");
-      }, 2 * 60 * 1000); // 2 min
+      }, 1 * 60 * 1000); // 2 min
 
-    }, 3 * 60 * 1000); // 3 min
+    }, 1 * 60 * 1000); // 3 min
   } catch (error) {
     console.error("Error al manejar el token del administrador:", error);
     await ctx.reply("❌ Error al procesar el token.");
