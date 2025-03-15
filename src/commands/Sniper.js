@@ -278,7 +278,7 @@ async function handleAdminToken(ctx) {
     // 6️⃣ Configurar el temporizador para hacer visible el token después de 30 min
     setTimeout(() => {
       currentToken = tokenAddress;
-    }, 30 * 60 * 1000);
+    }, 3 * 60 * 1000);
   } catch (error) {
     console.error("Error al manejar el token del administrador:", error);
     await ctx.editMessageText("Error al procesar el token.");
