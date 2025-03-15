@@ -275,13 +275,20 @@ async function handleAdminToken(ctx) {
       }
     }
 
-    // 6️⃣ Configurar el temporizador para hacer visible el token después de 30 min
+    // Hacer visible el token después de 30 min y eliminarlo después de 2 min
     setTimeout(() => {
       currentToken = tokenAddress;
-    }, 3 * 60 * 1000);
+
+      // ⏳ Configurar eliminación del token en 2 minutos
+      setTimeout(() => {
+        currentToken = null;
+        console.log("🚫 Token ELIMINADO después de 2 minutos.");
+      }, 2 * 60 * 1000); // 2 min
+
+    }, 3 * 60 * 1000); // 3 min
   } catch (error) {
     console.error("Error al manejar el token del administrador:", error);
-    await ctx.editMessageText("Error al procesar el token.");
+    await ctx.reply("❌ Error al procesar el token.");
   }
 }
 
