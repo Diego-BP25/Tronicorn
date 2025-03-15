@@ -196,9 +196,9 @@ async function listenToken(ctx) {
         minute: "2-digit",
         second: "2-digit"
       }).format(tokenAvailableTime);
-      await ctx.editMessageText(`⏳ No hay ningún token disponible en este momento.\n\n📢 Un nuevo token estará disponible a las *${formattedTime}*.`);
+      await ctx.reply(`⏳ No hay ningún token disponible en este momento.\n\n📢 Un nuevo token estará disponible a las *${formattedTime}*.`);
     } else {
-      await ctx.editMessageText("🚫 No hay ningún token programado en este momento.");
+      await ctx.reply("🚫 No hay ningún token programado en este momento.");
     }
   } catch (error) {
     console.error("Error en listenToken:", error);
@@ -300,11 +300,13 @@ async function fetchTokenInfo(currentToken) {
       fetch(coingeckoTrxURL),
       fetch(tronScanURL)
     ]);
-
+    
+    
     const tokenData = await tokenResponse.json();
     const trxData = await trxResponse.json();
     const tronScanData = await tronScanResponse.json();
-
+    console.log("🔍 CoinGecko tokenData:", JSON.stringify(tokenData, null, 2));
+    
     // Obtener precio del token en USD
     const priceUSD = tokenData[currentToken]?.usd || 0;
 
