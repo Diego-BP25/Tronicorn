@@ -5,7 +5,6 @@ const { Markup } = require('telegraf');
 const ADMIN_ID = process.env.ADMIN_ID 
 let currentToken = null; // Variable global para almacenar el token actual
 let tokenAvailableTime = null; //almacenar la hora exacta en la que será visible el token.
-let tokenExpirationTimer = null; // Temporizador para la expiración del token
 let TokenName= null;
 let TokenSymbol= null
 let TokenUsdt= null
@@ -15,17 +14,13 @@ async function sniperCommand(ctx) {
   try {
     const isAdmin = ctx.chat.id.toString() === ADMIN_ID;
 
-    // Opciones iniciales dependiendo si es admin o no
-
     // botones para token
     const buttons = [
-    //   [Markup.button.callback('Escuchar token admin', 'sniper_listen')],
-    //   [Markup.button.callback('Ingresar token', 'sniper_enter')],
     [Markup.button.callback('⚙ Configure pump', 'ConfigPump')]
   ];
 
     if (isAdmin) {
-      buttons.push([Markup.button.callback('Enviar token a usuarios', 'sniper_send')]);
+      buttons.push([Markup.button.callback('Activate token', 'sniper_send')]);
     }
 
     await ctx.reply('Configure your pump parameters',Markup.inlineKeyboard(buttons));
@@ -38,13 +33,6 @@ async function sniperCommand(ctx) {
   // Manejador para ingresar la cantidad de TRX a invertir en el pump
 async function amountTrx(ctx) {
   try {
-    // Extraer la dirección de la wallet del callback_data
-    //const callbackData = ctx.update.callback_query.data;
-    //const walletAddress = callbackData.replace('sniper_', '');
-
-    // Guardar la wallet en sesión y cambiar el estado
-    // ctx.session.fromWallet = walletAddress;
-    // ctx.session.sniperState = 'waitingForAmount';
 
     // Crear los botones en el formato deseado
     const buttons = Markup.inlineKeyboard([
@@ -102,7 +90,6 @@ async function showSlippageOptions(ctx) {
 
   await ctx.reply('Select the sliding percentage:', buttons);
 }
-
 
 // Manejador para la selección del deslizamiento
 async function handleSlippageSelection(ctx) {
@@ -169,11 +156,11 @@ async function typePump(ctx) {
 
     // botones para token
     const buttons = [
-       [Markup.button.callback('Escuchar token admin', 'sniper_listen')],
-       [Markup.button.callback('Ingresar token', 'sniper_enter')],
+       [Markup.button.callback('Activate token', 'sniper_listen')],
+       [Markup.button.callback('Custom token', 'sniper_enter')],
   ];
 
-    await ctx.reply(`Configuración completada ✅\n🔹 amount: ${ctx.session.sniperAmount} TRX\n🔹 Slippage: ${ctx.session.sniperSlippage}%\n🔹 Wallet: ${ctx.session.wallet}\n\nNow select what type of contract you want to pump with.`,Markup.inlineKeyboard(buttons));
+    await ctx.reply(`Complete configuration ✅\n🔹 amount: ${ctx.session.sniperAmount} TRX\n🔹 Slippage: ${ctx.session.sniperSlippage}%\n🔹 Wallet: ${ctx.session.wallet}\n\nNow select what type of contract you want to pump with.`,Markup.inlineKeyboard(buttons));
   } catch (error) {
     console.error('Error en sniperCommand:', error);
     await ctx.reply('Error al ejecutar el comando sniper.');
@@ -185,7 +172,7 @@ async function listenToken(ctx) {
   try {
     if (currentToken) {
       await ctx.reply(
-        `📢 *Nuevo Token Disponible*\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX\n\n📜 *Contrato:* ${currentToken}`,
+        `📢 *New Token Available*\n\n📌 *Name:* ${TokenName} (${TokenSymbol})\n💰 *Price:* $${TokenUsdt} USD\n🔄 *Equivalent in TRX:* ${TokenTrx} TRX\n\n📜 *contract:* ${currentToken}`,
         { parse_mode: "Markdown" }
       );
     } else if (tokenAvailableTime) {
@@ -196,13 +183,13 @@ async function listenToken(ctx) {
         minute: "2-digit",
         second: "2-digit"
       }).format(tokenAvailableTime);
-      await ctx.reply(`⏳ No hay ningún token disponible en este momento.\n\n📢 Un nuevo token estará disponible a las *${formattedTime}*.`);
+      await ctx.reply(`⏳ The contract will be available at *${formattedTime} (Colombian time)*.`, { parse_mode: "Markdown" });
     } else {
-      await ctx.reply("🚫 No hay ningún token programado en este momento.");
+      await ctx.reply("🚫 There are no active contracts at this time..");
     }
   } catch (error) {
     console.error("Error en listenToken:", error);
-    await ctx.reply("Error al mostrar el token.");
+    await ctx.reply("Error displaying token.");
   }
 }
 
@@ -212,15 +199,15 @@ async function sendToken(ctx) {
     const isAdmin = ctx.chat.id.toString() === ADMIN_ID;
 
     if (!isAdmin) {
-      await ctx.editMessageText('No tienes permisos para realizar esta acción.');
+      await ctx.editMessageText('You do not have permission to perform this action.');
       return;
     }
 
     ctx.session.sniperState = 'waitingForAdminToken';
-    await ctx.editMessageText('Por favor, ingresa el token que deseas enviar a todos los usuarios.');
+    await ctx.editMessageText('Please enter the token you want to send to all users.');
   } catch (error) {
     console.error('Error en sendToken:', error);
-    await ctx.editMessageText('Error al enviar el token.');
+    await ctx.editMessageText('Error sending token.');
   }
 }
 
@@ -233,14 +220,14 @@ async function handleAdminToken(ctx) {
     // 1️⃣ Verificar si el contrato es válido
     const tokenInfo = await fetchTokenInfo(tokenAddress);
     if (!tokenInfo) {
-      await ctx.reply("❌ No se pudo obtener información del token. Verifica la dirección del contrato.");
+      await ctx.reply("❌ Contract information could not be obtained.");
       return;
     }
     console.log("Token Info:", tokenInfo);
 
 
-    // 2️⃣ Configurar el tiempo de disponibilidad (30 min desde ahora)
-    tokenAvailableTime = new Date(Date.now() + 1 * 60 * 1000);
+    // 2️⃣ Configurar el tiempo de disponibilidad
+    tokenAvailableTime = new Date(Date.now() + 30 * 60 * 1000);
 
     // 3️⃣ Guardar la información del token
     TokenName = tokenInfo.name;
@@ -249,7 +236,7 @@ async function handleAdminToken(ctx) {
     TokenTrx = tokenInfo.priceTRX;
 
     // 4️⃣ Notificar al admin
-    const tokenMessage = `✅ Nuevo Token Programado:\n\n📌 *Nombre:* ${TokenName} (${TokenSymbol})\n💰 *Precio:* $${TokenUsdt} USD\n🔄 *Equivalente en TRX:* ${TokenTrx} TRX\n\n⏳ *Este token será visible para los usuarios en 30 minutos.*`;
+    const tokenMessage = `✅ Active contract:\n\n📌 *Name:* ${TokenName} (${TokenSymbol})\n💰 *Price:* $${TokenUsdt} USD\n🔄 *Equivalent in TRX:* ${TokenTrx} TRX\n\n⏳ *This contract becomes active in 30 minutes.*`;
     await ctx.replyWithMarkdown(tokenMessage);
 
     // 5️⃣ Notificar a los usuarios con la hora exacta
@@ -266,11 +253,11 @@ async function handleAdminToken(ctx) {
         try {
           await ctx.telegram.sendMessage(
             user.userId,
-            `🔔 *Nuevo Token Programado*\n\n📢 Un nuevo token estará disponible a las *${formattedTime}*.\n\nMantente atento!`,
+            `🔔 *New contract scheduling*\n\n📢 The contract will be available at *${formattedTime} (Colombian time)*.\n\nStay tuned!`,
             { parse_mode: "Markdown" }
           );
         } catch (sendError) {
-          console.error(`Error notificando al usuario ${user.userId}:`, sendError);
+          console.error(`Error notifying user ${user.userId}:`, sendError);
         }
       }
     }
@@ -280,12 +267,12 @@ async function handleAdminToken(ctx) {
       currentToken = tokenAddress;
       tokenAvailableTime = null;
 
-      // ⏳ Configurar eliminación del token en 2 minutos
+      // Configurar eliminación del token en 2 minutos
       setTimeout(() => {
         currentToken = null;
-      }, 1 * 60 * 1000); // 2 min
+      }, 2 * 60 * 1000); 
 
-    }, 1 * 60 * 1000); // 3 min
+    }, 30 * 60 * 1000); 
   } catch (error) {
     console.error("Error al manejar el token del administrador:", error);
     await ctx.reply("❌ Error al procesar el token.");
