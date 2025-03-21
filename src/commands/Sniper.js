@@ -9,6 +9,8 @@ let TokenName= null;
 let TokenSymbol= null
 let TokenUsdt= null
 let TokenTrx= null
+let tronScanLink = null;
+
 
 async function sniperCommand(ctx) {
   try {
@@ -159,8 +161,9 @@ async function typePump(ctx) {
        [Markup.button.callback('Activate token', 'sniper_listen')],
        [Markup.button.callback('Custom token', 'sniper_enter')],
   ];
+   tronScanLink = `https://tronscan.org/#/address/${ctx.session.wallet}`;
 
-    await ctx.reply(`Complete configuration ✅\n🔹 amount: ${ctx.session.sniperAmount} TRX\n🔹 Slippage: ${ctx.session.sniperSlippage}%\n🔹 Wallet: ${ctx.session.wallet}\n\nNow select what type of contract you want to pump with.`,Markup.inlineKeyboard(buttons));
+    await ctx.reply(`Complete configuration ✅\n🔹 amount: ${ctx.session.sniperAmount} TRX\n🔹 Slippage: ${ctx.session.sniperSlippage}%\n🔹 Wallet: ${ctx.session.wallet}\n[🌍 View on Tronscan](${tronScanLink})\n\nNow select what type of contract you want to pump with.`,Markup.inlineKeyboard(buttons));
   } catch (error) {
     console.error('Error en sniperCommand:', error);
     await ctx.reply('Error al ejecutar el comando sniper.');
