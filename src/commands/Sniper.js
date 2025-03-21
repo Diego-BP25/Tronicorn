@@ -237,9 +237,11 @@ async function handleAdminToken(ctx) {
     TokenSymbol = tokenInfo.symbol;
     TokenUsdt = tokenInfo.priceUSD;
     TokenTrx = tokenInfo.priceTRX;
+    tronScanLink = `https://tronscan.org/#/address/${ctx.session.wallet}`;
+
 
     // 4️⃣ Notificar al admin
-    const tokenMessage = `✅ Active contract:\n\n📌 *Name:* ${TokenName} (${TokenSymbol})\n💰 *Price:* $${TokenUsdt} USD\n🔄 *Equivalent in TRX:* ${TokenTrx} TRX\n\n⏳ *This contract becomes active in 30 minutes.*`;
+    const tokenMessage = `✅ Active contract:\n\n📌 *Name:* ${TokenName} (${TokenSymbol})\n💰 *Price:* $${TokenUsdt} USD\n🔄 *Equivalent in TRX:* ${TokenTrx} TRX\n[🌍 View on Tronscan](${tronScanLink})\n\n⏳ *This contract becomes active in 30 minutes.*`;
     await ctx.replyWithMarkdown(tokenMessage);
 
     // 5️⃣ Notificar a los usuarios con la hora exacta
