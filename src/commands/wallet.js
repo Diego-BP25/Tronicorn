@@ -78,7 +78,7 @@ async function walletCommand(ctx) {
         });
   
         if (saveResult.success) {
-          await ctx.editMessageText(`Your wallet "${walletName}" has been successfully registered.`);
+          await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
           await ctx.reply(`
             Your wallet has been created
         User id is: ${ctx.chat.id}
