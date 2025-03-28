@@ -128,6 +128,14 @@ async function handleWalletName(ctx) {
   if (ctx.session.waitingForWalletName) {
     const walletName = ctx.message.text;
 
+    // Validar que el nombre solo contenga letras y números, sin espacios y tenga máximo 9 caracteres
+    const validName = /^[a-zA-Z0-9]{1,9}$/.test(walletName);
+
+    if (!isValid) {
+      await ctx.reply("⚠️ The wallet name must be 1-9 characters long, containing only letters and numbers, with no spaces.\n\nPlease enter a valid name:");
+      return; // Volvemos a esperar otro mensaje sin salir del flujo
+    }
+
     try {
       // Generar la cuenta TRON (dirección y clave privada)
       const account = await tronWeb.createAccount();
