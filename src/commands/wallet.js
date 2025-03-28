@@ -131,7 +131,7 @@ async function handleWalletName(ctx) {
     // Validar que el nombre solo contenga letras y números, sin espacios y tenga máximo 9 caracteres
     const validName = /^[a-zA-Z0-9]{1,9}$/.test(walletName);
 
-    if (!isValid) {
+    if (!validName) {
       await ctx.reply("⚠️ The wallet name must be 1-9 characters long, containing only letters and numbers, with no spaces.\n\nPlease enter a valid name:");
       return; // Volvemos a esperar otro mensaje sin salir del flujo
     }
