@@ -24,7 +24,7 @@ async function getTRC20Balance(address) {
     // Obtener el precio de 1 TRX en USD desde CoinGecko
     const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd');
     const priceData = await priceResponse.json();
-    const trxPriceInUSD = priceData.tron.usd;
+    const trxPriceInUSD = priceData.tron;
     const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${address})`;
 
 
