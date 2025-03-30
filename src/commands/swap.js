@@ -63,7 +63,10 @@ async function handleSwapType(ctx) {
   const userId = ctx.chat.id;
   const privateKeyResult = await fetch_Private_key(userId, walletAddress);
 
+  console.log("privateKeyResult:", privateKeyResult);
+
   if (privateKeyResult.success) { 
+    console.log("Encrypted Private Key:", privateKeyResult.encryptedPrivateKey);
     // Almacena la clave privada cifrada en la sesión
     ctx.session.swapData = {
       encryptedPrivateKey: privateKeyResult.encryptedPrivateKey,

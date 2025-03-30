@@ -26,8 +26,8 @@ async function transferCommand(ctx) {
       await ctx.reply("You don't have any registered wallets. Please create one first..");
     }
   } catch (error) {
-    console.error('Error en transferCommand:', error);
-    await ctx.reply('Error al obtener wallets.');
+    console.error('Error in transferCommand:', error);
+    await ctx.reply('Error getting wallets.');
   }
 }
 
@@ -79,14 +79,14 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
     const privateKeyResult = await fetch_Private_key(ctx.chat.id, fromAddress); // Cambia el argumento para usar la dirección de la wallet
     console.log(`privatekey: ${privateKeyResult}`);
     if (!privateKeyResult.success) {
-      throw new Error('No se pudo obtener la clave privada');
+      throw new Error('Could not obtain private key');
     }
     const decryptedPrivateKey = decrypt(privateKeyResult.encryptedPrivateKey);
 
     // Verificar que la clave privada coincida con la dirección
     const addressFromPrivateKey = tronWeb.address.fromPrivateKey(decryptedPrivateKey);
     if (addressFromPrivateKey !== fromAddress) {
-      throw new Error(`Error de coincidencia de direcciones: ${addressFromPrivateKey} != ${fromAddress}`);
+      throw new Error(`Address mismatch error: ${addressFromPrivateKey} != ${fromAddress}`);
     }
 
     // Convertir el monto a sun (1 TRX = 1,000,000 sun)
@@ -102,7 +102,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     // Validar el recibo
     if (receipt.result) {
-      await ctx.reply(`Transfer of ${amount} TRX a ${toAddress} was successful. Transaction ID: ${receipt.txid}`);
+      await ctx.reply(`Transfer of ${amount} TRX a ${toAddress} was successful.\n\n Transaction Txn Hash: ${receipt.txid}`);
 
     }
 
@@ -110,8 +110,8 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
       throw new Error(`Transaction failed.`);
     }
     } catch (error) {
-    console.error('Error en transferTRX:', error);
-    await ctx.reply(`Error al ejecutar la transferencia: ${error.message}`);
+    console.error('Error in transferTRX:', error);
+    await ctx.reply(`Error executing transfer: ${error.message}`);
   }
 }
 

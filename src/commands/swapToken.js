@@ -139,7 +139,7 @@ async function listWallets(ctx) {
         await swapTokenForTRX(ctx);
         
     } catch (error) {
-        console.error("Error en la aprobación de tokens:", error);
+        console.error("Token approval error:", error);
     }
   }
   

@@ -114,7 +114,7 @@ async function createNewWallet(ctx) {
   else{
   try {
     await ctx.answerCbQuery();
-    await ctx.editMessageText('Please send the name for your new wallet:');
+    await ctx.editMessageText('Please type the name for your new wallet:');
     ctx.session.waitingForWalletName = true;
     
   } catch (error) {
