@@ -23,7 +23,7 @@ async function transferCommand(ctx) {
       // Enviar el mensaje con los botones de selección
       await ctx.reply('Select a wallet to transfer:', Markup.inlineKeyboard(walletButtons));
     } else {
-      await ctx.reply("You don't have any registered wallets. Please create one first..");
+      await ctx.reply("You don't have any registered wallets. Please create one first.");
     }
   } catch (error) {
     console.error('Error in transferCommand:', error);
@@ -43,7 +43,7 @@ async function handleWalletSelection(ctx) {
   ctx.session.fromWallet = walletAddress;
   ctx.session.transferState = 'waitingForToAddress';
   
-  await ctx.editMessageText('Please enter the wallet address you wish to transfer to..');
+  await ctx.editMessageText('Please enter the wallet address you wish to transfer to:');
 }
 
 // Manejador para ingresar la dirección de destino
@@ -51,7 +51,7 @@ async function handleToAddress(ctx) {
   ctx.session.toAddress = ctx.message.text; // Guardamos la dirección en sesión
   ctx.session.transferState = 'waitingForAmount';
   
-  await ctx.reply('Please enter the amount of TRX to transfer.');
+  await ctx.reply('Please enter the amount of TRX to transfer:');
 }
 
 // Manejador para ingresar el monto
@@ -102,7 +102,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     // Validar el recibo
     if (receipt.result) {
-      await ctx.reply(`Transfer of ${amount} TRX a ${toAddress} was successful.\n\n Transaction Txn Hash: ${receipt.txid}`);
+      await ctx.reply(`Transfer of ${amount} TRX to ${toAddress} was successful.\n\n Txn Hash: ${receipt.txid}`);
 
     }
 
