@@ -19,7 +19,7 @@ async function handleWalletSwap(ctx) {
   try {
     // Opciones de tipo de swap como botones
     const swapOptions = [
-      [Markup.button.callback("TRXarr➡️Tokens", `swap_type_TRX_TOKENS`)],
+      [Markup.button.callback("TRX➡️Tokens", `swap_type_TRX_TOKENS`)],
       [Markup.button.callback("Tokens➡️TRX", `swap_type_TOKENS_TRX`)]
     ];
     await ctx.reply('Please select the type of swap:', Markup.inlineKeyboard(swapOptions));
@@ -125,8 +125,8 @@ async function swapTRXForTokens(ctx) {
       { "constant": true, "inputs": [], "name": "symbol", "outputs": [{ "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }
     ];
     const tokenContract = await tronWeb.contract(tokenDetailsABI, tokenAddress);
-    const decimals = tokenContract.decimals().call();
-    const symbol = tokenContract.symbol().call();
+    const decimals = await tokenContract.decimals().call();
+    const symbol = await tokenContract.symbol().call();
 
     console.log(`✅ Token: ${symbol} (${decimals} decimals)`);
     
