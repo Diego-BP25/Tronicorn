@@ -3,6 +3,8 @@ const { Markup } = require('telegraf');
 const { decrypt } = require('../utils/tron');
 const TronWeb = require('tronweb');
 const BigNumber = require('bignumber.js');
+const axios = require('axios');
+
 
 
 const fullNode = 'https://api.trongrid.io';
@@ -128,7 +130,7 @@ async function swapTRXForTokens(ctx) {
     const decimals = await tokenContract.decimals().call();
     const symbol = await tokenContract.symbol().call();
 
-    console.log(`✅ Token: ${symbol} (${decimals} decimals)`);
+    await ctx.reply (`✅ Token: ${symbol} (${decimals} decimals)`);
     
 
     // Transferir la comisión a la billetera del bot
@@ -146,7 +148,8 @@ async function swapTRXForTokens(ctx) {
 
 
     let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(decimals));
-        console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${symbol}`);
+    console.log(`${amountsOut}`)
+    await ctx.reply(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${symbol}`);
 
     // Realiza el swap
     const transaction = await routerContract.methods.swapExactETHForTokens(
