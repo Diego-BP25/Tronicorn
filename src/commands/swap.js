@@ -43,9 +43,9 @@ async function swapTokens(ctx) {
         return [Markup.button.callback(wallet.wallet_name, `swap_wallet_${wallet.wallet_address}`)];
       });
 
-      await ctx.editMessageText('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
+      await ctx.reply('Please select a wallet to perform the swap:', Markup.inlineKeyboard(walletButtons));
     } else {
-      await ctx.editMessageText("You don't have any registered wallets. Please create one first.");
+      await ctx.reply("You don't have any registered wallets. Please create one first.");
     }
   } catch (error) {
     console.error("Error fetching wallets for swap:", error);
@@ -75,7 +75,7 @@ async function handleSwapType(ctx) {
       walletAddress
     };
     
-    await ctx.editMessageText("Enter the token address you want to swap (not TRX)");
+    await ctx.reply("Enter the token address you want to swap (not TRX)");
     ctx.session.awaitingTokenAddress = true; // Marca que estamos esperando la dirección del token
   } else {
     await ctx.reply("Could not fetch the private key for this wallet. Please check your wallet details.");
