@@ -17,14 +17,6 @@ const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
 const commissionRate = 0.01; // Comisión del 1%
 const botAddress = 'TPB27eRk4gPcYqSh4ihqXmdWZWidB87quR'; // Dirección para recibir la comisión
 
-const { encryptedPrivateKey } = ctx.session.swapData;
-
-
-const decryptedPrivateKey = decrypt(encryptedPrivateKey);
-
-
-const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
-
 
  // ABI for fetching token decimals & symbol
  const tokenDetailsABI = [
@@ -205,7 +197,13 @@ async function handleTrxAmount(ctx) {
 }
 
 // Function to fetch token decimals and symbol
-async function getTokenDetails(tokenAddress) {
+async function getTokenDetails(tokenAddress, ctx) {
+  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey } = ctx.session.swapData;
+
+  const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
+
+    // Desencripta la clave privada
+    const decryptedPrivateKey = decrypt(encryptedPrivateKey);
   try {
       console.log(`🔍 Fetching details for token: ${tokenAddress}...`);
       const tokenContract = await tronWeb.contract(tokenDetailsABI, tokenAddress);
@@ -239,6 +237,13 @@ async function executeSwap(trxAmount, tokenAddress, slippageTolerance) {
 
 // Swap function for 18-decimal tokens
 async function swapTRXForTokens18(trxAmount, tokenAddress, tokenDecimals, tokenSymbol, slippageTolerance) {
+
+  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey } = ctx.session.swapData;
+
+  const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
+
+    // Desencripta la clave privada
+    const decryptedPrivateKey = decrypt(encryptedPrivateKey);
   try {
       const trxAmountInSun = tronWeb.toSun(trxAmount);
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
