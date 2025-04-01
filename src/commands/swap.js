@@ -70,13 +70,13 @@ async function handleAmountSelectionSwap(ctx) {
 
   if (selectedAmount === 'custom') {
     // Si elige personalizar, pedir el monto
-    ctx.session.sniperState = 'waitingForCustomAmount';
+    ctx.session.sniperState = 'waitingForCustomAmountSwap';
     await ctx.reply('Please enter the amount of TRX to invest in the pump:');
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
     ctx.session.sniperAmount = selectedAmount;
     ctx.session.sniperState = 'waitingForSlippage'; 
-    await showSlippageOptions(ctx);
+    await showSlippageOptionsSwap(ctx);
   }
 }
 
@@ -85,12 +85,12 @@ async function handleCustomAmountSwap(ctx) {
   if (ctx.session.sniperState === 'waitingForCustomAmount') {
     ctx.session.sniperAmount = ctx.message.text; // Guardar el monto ingresado
     ctx.session.sniperState = null; // Resetear estado
-    await showSlippageOptions(ctx); // Pasar al siguiente paso
+    await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
   }
 }
 
 // Función para mostrar opciones de deslizamiento
-async function showSlippageOptions(ctx) {
+async function showSlippageOptionsSwap(ctx) {
   const buttons = Markup.inlineKeyboard([
     [
       Markup.button.callback('5%', 'sniper_slippage_5'),
@@ -537,6 +537,8 @@ function formatSwapResult(result, tokenDecimals, tokenSymbol) {
 
 
 module.exports = {
+  handleSlippageSelectionSwap,
+  handleCustomAmountSwap,
   handleAmountSelectionSwap,
   amountTrxSwap,
   swapTokens,
