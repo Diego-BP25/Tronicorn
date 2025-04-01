@@ -1,20 +1,30 @@
 const { fetchAllWallets, fetch_Private_key } = require("../service/user.service");
 const { Markup } = require('telegraf');
 const { decrypt } = require('../utils/tron');
-const TronWeb = require('tronweb');
+const TronWeb = require('tronweb').TronWeb;
 const BigNumber = require('bignumber.js');
 const axios = require('axios');
 
 
-
-const fullNode = 'https://api.trongrid.io';
-const solidityNode = 'https://api.trongrid.io';
-const eventServer = 'https://api.trongrid.io';
-const routerAddress = 'TXF1xDbVGdxFGbovmmmXvBGu8ZiE3Lq4mR'; // SunSwap V2 Router
+const FULL_NODE = 'https://api.trongrid.io';
+const SOLIDITY_NODE = 'https://api.trongrid.io';
+const EVENT_SERVER = 'https://api.trongrid.io';
+const ROUTER_ADDRESS = 'TXF1xDbVGdxFGbovmmmXvBGu8ZiE3Lq4mR'; // SunSwap V2 Router
+const WTRX = 'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR'; // Wrapped TRX
+const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
 
 // Definir el porcentaje de comisión
 const commissionRate = 0.01; // Comisión del 1%
 const botAddress = 'TPB27eRk4gPcYqSh4ihqXmdWZWidB87quR'; // Dirección para recibir la comisión
+
+const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, PRIVATE_KEY);
+
+
+ // ABI for fetching token decimals & symbol
+ const tokenDetailsABI = [
+  { "constant": true, "inputs": [], "name": "decimals", "outputs": [{ "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" },
+  { "constant": true, "inputs": [], "name": "symbol", "outputs": [{ "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }
+];
 
 // Función para manejar el comando inicial de swap
 async function handleWalletSwap(ctx) {
@@ -28,6 +38,92 @@ async function handleWalletSwap(ctx) {
   } catch (error) {
     console.error("Error handling wallet swap:", error);
     await ctx.reply("Sorry, an error occurred while setting up the swap options.");
+  }
+}
+
+
+  // Manejador para ingresar la cantidad de TRX a invertir en el pump
+async function amountTrxSwap(ctx) {
+  try {
+
+    // Crear los botones en el formato deseado
+    const buttons = Markup.inlineKeyboard([
+      [
+        Markup.button.callback('5 TRX', 'sniper_amount_5'),
+        Markup.button.callback('10 TRX', 'sniper_amount_10'),
+        Markup.button.callback('20 TRX', 'sniper_amount_20')
+      ],
+      [Markup.button.callback('✏️ Personalize', 'sniper_amount_custom')] // Botón debajo
+    ]);
+
+    await ctx.reply('Choose the amount in TRX you want to pump with',buttons);
+  } catch (error) {
+    console.error('Error in amountTrx:', error);
+    await ctx.reply('Ocurrió un error al solicitar la cantidad de TRX.');
+  }
+}
+
+
+// Manejador para la selección del monto
+async function handleAmountSelectionSwap(ctx) {
+  const selectedAmount = ctx.match[0].replace('sniper_amount_', '');
+
+  if (selectedAmount === 'custom') {
+    // Si elige personalizar, pedir el monto
+    ctx.session.sniperState = 'waitingForCustomAmount';
+    await ctx.reply('Please enter the amount of TRX to invest in the pump:');
+  } else {
+    // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
+    ctx.session.sniperAmount = selectedAmount;
+    ctx.session.sniperState = 'waitingForSlippage'; 
+    await showSlippageOptions(ctx);
+  }
+}
+
+// Manejador para la entrada de monto personalizado
+async function handleCustomAmountSwap(ctx) {
+  if (ctx.session.sniperState === 'waitingForCustomAmount') {
+    ctx.session.sniperAmount = ctx.message.text; // Guardar el monto ingresado
+    ctx.session.sniperState = null; // Resetear estado
+    await showSlippageOptions(ctx); // Pasar al siguiente paso
+  }
+}
+
+// Función para mostrar opciones de deslizamiento
+async function showSlippageOptions(ctx) {
+  const buttons = Markup.inlineKeyboard([
+    [
+      Markup.button.callback('5%', 'sniper_slippage_5'),
+      Markup.button.callback('10%', 'sniper_slippage_10'),
+      Markup.button.callback('20%', 'sniper_slippage_20')
+    ],
+    [Markup.button.callback('✏️ Personalize', 'sniper_slippage_custom')]
+  ]);
+
+  await ctx.reply('Select the sliding percentage:', buttons);
+}
+
+// Manejador para la selección del deslizamiento
+async function handleSlippageSelectionSwap(ctx) {
+  const selectedSlippage = ctx.match[0].replace('sniper_slippage_', '');
+
+  if (selectedSlippage === 'custom') {
+    ctx.session.sniperState = 'waitingForCustomSlippage';
+    await ctx.reply('Please enter the slip percentage:');
+  } else {
+    ctx.session.sniperSlippage = selectedSlippage;
+    ctx.session.sniperState = null;
+    await selectWallet(ctx);
+  }
+}
+
+// Manejador para la entrada de deslizamiento personalizado
+async function  handleCustomSlippageSwap(ctx) {
+  if (ctx.session.sniperState === 'waitingForCustomSlippage') {
+    ctx.session.sniperSlippage = ctx.message.text;
+    ctx.session.sniperState = null;
+    await selectWallet(ctx);
+    
   }
 }
 
@@ -102,6 +198,221 @@ async function handleTrxAmount(ctx) {
   }
 }
 
+// Function to fetch token decimals and symbol
+async function getTokenDetails(tokenAddress) {
+  try {
+      console.log(`🔍 Fetching details for token: ${tokenAddress}...`);
+      const tokenContract = await tronWeb.contract(tokenDetailsABI, tokenAddress);
+      const [decimals, symbol] = await Promise.all([
+          tokenContract.decimals().call(),
+          tokenContract.symbol().call()
+      ]);
+      console.log(`✅ Token: ${symbol} (${decimals} decimals)`);
+      return { decimals: parseInt(decimals), symbol };
+  } catch (error) {
+      console.error("⚠️ Error fetching token details, defaulting to 6 decimals & UNKNOWN symbol:", error);
+      return { decimals: 6, symbol: "UNKNOWN" };
+  }
+}
+
+// Execute swap
+async function executeSwap(trxAmount, tokenAddress, slippageTolerance) {
+  const { decimals, symbol } = await getTokenDetails(tokenAddress);
+
+  if (symbol === "UNKNOWN") {
+      console.log(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
+      return;
+  }
+
+  if (decimals === 18) {
+      await swapTRXForTokens18(trxAmount, tokenAddress, decimals, symbol, slippageTolerance);
+  } else {
+      await swapTRXForTokens6(trxAmount, tokenAddress, symbol, slippageTolerance);
+  }
+}
+
+// Swap function for 18-decimal tokens
+async function swapTRXForTokens18(trxAmount, tokenAddress, tokenDecimals, tokenSymbol, slippageTolerance) {
+  try {
+      const trxAmountInSun = tronWeb.toSun(trxAmount);
+      const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
+      const path = [WTRX, tokenAddress];
+
+      console.log(`🚀 Attempting to swap ${trxAmount.toFixed(6)} TRX for ${tokenSymbol} with ${slippageTolerance}% slippage tolerance...`);
+
+      let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
+      console.log(`📊 Raw Amounts Out:`, amountsOut);
+
+      if (!amountsOut.amounts || amountsOut.amounts.length < 2) {
+          throw new Error("Invalid output from router: amountsOut is malformed.");
+      }
+
+      let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(tokenDecimals));
+      console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
+
+      const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - slippageTolerance / 100);
+      console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.dividedBy(new BigNumber(10).pow(tokenDecimals)).toString()}`);
+
+      if (slippageTolerance === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
+          console.log("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
+          return;
+      }
+
+      const transaction = await routerContract.swapExactETHForTokens(
+          minAmountOut.toFixed(0),
+          path,
+          tronWeb.defaultAddress.base58,
+          DEADLINE
+      ).send({ callValue: trxAmountInSun });
+
+      console.log(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
+      await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol);
+
+  } catch (error) {
+      console.error(`❌ Swap failed: ${error.message}`);
+  }
+}
+
+// Fetch event logs with retries
+async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
+  let attempts = 0;
+
+  while (attempts < maxRetries) {
+      try {
+          const eventUrl = `${FULL_NODE}/v1/transactions/${txID}/events`;
+          const eventResponse = await axios.get(eventUrl);
+          const events = eventResponse.data.data;
+
+          if (events.length > 0) {
+              for (const event of events) {
+                  if (event.event_name === 'Swap') {
+
+                      formatSwapResult(event.result, tokenDecimals, tokenSymbol);
+                      return;
+                  }
+              }
+          }
+      } catch (err) {
+          console.error(`⚠️ Error retrieving swap events for ${tokenSymbol}:`, err);
+      }
+
+      attempts++;
+      await new Promise(resolve => setTimeout(resolve, delay));
+  }
+
+  console.log(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
+}
+
+// Format swap results
+function formatSwapResult(result, tokenDecimals, tokenSymbol) {
+  const amount0In = parseInt(result.amount0In);
+  const amount1Out = parseInt(result.amount1Out);
+
+  let trxAmount, tokenAmount;
+
+  if (BigInt(result.amount0In) > 0 && BigInt(result.amount1Out) > 0) {
+      // Caso: TRX en amount0In → Token en amount1Out
+      trxAmount = Number(BigInt(result.amount0In)) / 1_000_000; // Sun → TRX
+      tokenAmount = Number(BigInt(result.amount1Out)) / (10 ** tokenDecimals);
+  } else if (BigInt(result.amount1In) > 0 && BigInt(result.amount0Out) > 0) {
+      // Caso: TRX en amount1In → Token en amount0Out
+      trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
+      tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
+  } else {
+      console.log(`❌ Invalid swap data for ${tokenSymbol}.`);
+      return;
+  }
+
+  const entryPrice = trxAmount / tokenAmount;
+
+  console.log(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
+  console.log(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
+}
+
+// Swap function for 6-decimal tokens
+async function swapTRXForTokens6(trxAmount, tokenAddress, tokenSymbol, slippageTolerance) {
+  try {
+      const trxAmountInSun = tronWeb.toSun(trxAmount);
+      const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
+      const path = [WTRX, tokenAddress];
+
+      console.log(`🚀 Swapping ${trxAmount.toFixed(6)} TRX for ${tokenSymbol} with ${slippageTolerance}% slippage tolerance...`);
+
+      let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
+      if (!amountsOut || !amountsOut.amounts || amountsOut.amounts.length < 2) {
+          throw new Error("Invalid output from router: amountsOut is malformed.");
+      }
+
+      console.log(`📊 Raw Amounts Out:`, amountsOut);
+
+      let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(6));
+      console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
+
+      // ✅ FIX: Ensure minAmountOut is an integer (no decimals)
+      const minAmountOut = new BigNumber(amountsOut.amounts[1])
+          .multipliedBy(1 - slippageTolerance / 100)
+          .integerValue(BigNumber.ROUND_FLOOR);  // ✅ No decimals, prevents BigInt error
+
+      console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.toFixed(0)}`);
+
+      if (slippageTolerance === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
+          console.log("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
+          return;
+      }
+
+      const transaction = await routerContract.swapExactETHForTokens(
+          minAmountOut.toFixed(0),  // ✅ Ensures integer format
+          path,
+          tronWeb.defaultAddress.base58,
+          DEADLINE
+      ).send({ callValue: trxAmountInSun });
+
+      console.log(`✅ Swap executed! Transaction Hash: ${transaction}`);
+
+      // ✅ Correct event tracking for 6-decimal tokens
+      await listenForSwapEvents(transaction, tokenAddress, trxAmount, 6, tokenSymbol);
+
+  } catch (error) {
+      console.error(`❌ Swap failed for ${tokenSymbol}:`, error.message || error);
+  }
+}
+
+// Fetch swap logs for 6-decimal tokens
+async function listenForSwapEvents(txID, tokenAddress, trxAmount, tokenDecimals, tokenSymbol) {
+  const eventUrl = `https://api.trongrid.io/v1/transactions/${txID}/events`;
+
+  for (let i = 0; i < 10; i++) {
+      try {
+          const response = await axios.get(eventUrl);
+          const events = response.data.data;
+
+          if (events.length > 0) {
+              for (const event of events) {
+                  if (
+                      event.event_name === 'Transfer' &&
+                      event.result &&
+                      (event.result.value || event.result._amount) // ✅ Detects both log formats
+                  ) {
+                      const tokenReceived = parseInt(event.result.value || event.result._amount) / Math.pow(10, tokenDecimals);
+                      const entryPrice = trxAmount / tokenReceived;
+
+                      console.log(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenReceived.toFixed(tokenDecimals)} ${tokenSymbol}`);
+                      console.log(`💰 Entry price: ${entryPrice.toFixed(6)} TRX per ${tokenSymbol}`);
+                      return;
+                  }
+              }
+          }
+      } catch (err) {
+          console.error(`⚠️ Error retrieving swap events for ${tokenSymbol}:`, err);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+
+  console.log(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
+}
+
+
 // Función de swap final usando los datos recopilados y clave privada desencriptada
 async function swapTRXForTokens(ctx) {
   const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey } = ctx.session.swapData;
@@ -113,16 +424,12 @@ async function swapTRXForTokens(ctx) {
 
 
     // Inicializa TronWeb con la clave privada específica de la wallet
-    const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, decryptedPrivateKey);
+    const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
     const trxAmountInSun = tronWeb.toSun(trxAmount); // Convierte el monto a SUN
     const commissionAmount = trxAmountInSun * commissionRate;
     const netTrxAmount = trxAmountInSun - commissionAmount;
-    // ABI for fetching token decimals & symbol
-    const tokenDetailsABI = [
-      { "constant": true, "inputs": [], "name": "decimals", "outputs": [{ "name": "", "type": "uint8" }], "stateMutability": "view", "type": "function" },
-      { "constant": true, "inputs": [], "name": "symbol", "outputs": [{ "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }
-    ];
+  
     const tokenContract = await tronWeb.contract(tokenDetailsABI, tokenAddress);
     const decimals = await tokenContract.decimals().call();
     const symbol = await tokenContract.symbol().call();
@@ -133,7 +440,7 @@ async function swapTRXForTokens(ctx) {
     // Transferir la comisión a la billetera del bot
     await tronWeb.trx.sendTransaction(botAddress, commissionAmount);
 
-    const routerContract = await tronWeb.contract().at(routerAddress);
+    const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
     const path = [
       'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR', // Dirección de WTRX (para swaps de TRX a tokens)
       tokenAddress // Dirección del token objetivo proporcionado por el usuario
@@ -178,7 +485,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 
     while (attempts < maxRetries) {
         try {
-            const eventUrl = `${fullNode}/v1/transactions/${txID}/events`;
+            const eventUrl = `${FULL_NODE}/v1/transactions/${txID}/events`;
             const eventResponse = await axios.get(eventUrl);
             const events = eventResponse.data.data;
 
@@ -230,7 +537,8 @@ function formatSwapResult(result, tokenDecimals, tokenSymbol) {
 
 
 module.exports = {
-  
+  handleAmountSelectionSwap,
+  amountTrxSwap,
   swapTokens,
   handleWalletSwap,
   handleTokenAddress,

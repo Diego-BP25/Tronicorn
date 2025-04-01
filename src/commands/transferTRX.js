@@ -73,45 +73,45 @@ async function handleAmount(ctx) {
 }
 
 // Función encargada de realizar la transferencia de TRX
+// Execute TRX transfer
 async function transferTRX(ctx, fromAddress, toAddress, amount) {
   try {
-    // Obtener y desencriptar la clave privada de la wallet seleccionada
-    const privateKeyResult = await fetch_Private_key(ctx.chat.id, fromAddress); // Cambia el argumento para usar la dirección de la wallet
-    console.log(`privatekey: ${privateKeyResult}`);
+    // Fetch & decrypt private key
+    const privateKeyResult = await fetch_Private_key(ctx.chat.id, fromAddress);
     if (!privateKeyResult.success) {
-      throw new Error('Could not obtain private key');
+      throw new Error(ERROR_MESSAGES.PRIVATE_KEY_FAIL); // ✅ User-friendly
     }
+
     const decryptedPrivateKey = decrypt(privateKeyResult.encryptedPrivateKey);
-
-    // Verificar que la clave privada coincida con la dirección
     const addressFromPrivateKey = tronWeb.address.fromPrivateKey(decryptedPrivateKey);
+
     if (addressFromPrivateKey !== fromAddress) {
-      throw new Error(`Address mismatch error: ${addressFromPrivateKey} != ${fromAddress}`);
+      throw new Error(ERROR_MESSAGES.ADDRESS_MISMATCH); // ✅ User-friendly
     }
 
-    // Convertir el monto a sun (1 TRX = 1,000,000 sun)
+    // Send transaction
     const amountInSun = tronWeb.toSun(amount);
-
-    // Crear la transacción
     const tradeobj = await tronWeb.transactionBuilder.sendTrx(toAddress, amountInSun, fromAddress);
     const signedtxn = await tronWeb.trx.sign(tradeobj, decryptedPrivateKey);
-
-    // Enviar la transacción
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
 
-
-    // Validar el recibo
     if (receipt.result) {
-      await ctx.reply(`Transfer of ${amount} TRX to ${toAddress} was successful.\n\n Txn Hash: ${receipt.txid}`);
-
+      await ctx.reply(
+        `✅ Sent ${amount} TRX to ${toAddress}\n\n` +
+        `📌 TX Hash: ${receipt.txid}`
+      );
+    } else {
+      throw new Error("Network rejected the transaction.");
     }
-
- else {
-      throw new Error(`Transaction failed.`);
-    }
-    } catch (error) {
-    console.error('Error in transferTRX:', error);
-    await ctx.reply(`Error executing transfer: ${error.message}`);
+  } catch (error) {
+    console.error("[ERROR] transferTRX failed:", error);
+    await ctx.reply(`${ERROR_MESSAGES.TRANSACTION_FAILED} ${error.message}`); // ✅ Detailed yet clean
+  } finally {
+    // Clear session
+    ctx.session.transferState = null;
+    ctx.session.fromWallet = null;
+    ctx.session.toAddress = null;
+    ctx.session.amount = null;
   }
 }
 
