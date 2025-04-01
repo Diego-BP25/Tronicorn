@@ -17,6 +17,12 @@ const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
 const commissionRate = 0.01; // Comisión del 1%
 const botAddress = 'TPB27eRk4gPcYqSh4ihqXmdWZWidB87quR'; // Dirección para recibir la comisión
 
+const { encryptedPrivateKey } = ctx.session.swapData;
+
+
+const decryptedPrivateKey = decrypt(encryptedPrivateKey);
+
+
 const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
 
