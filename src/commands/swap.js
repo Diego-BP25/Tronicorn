@@ -144,7 +144,7 @@ async function swapTRXForTokens(ctx) {
     let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
 
 
-    let formattedTokenAmount = new BigNumber(amountsOut[1]).dividedBy(new BigNumber(10).pow(decimals));
+    let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(decimals));
     console.log(`${amountsOut}`)
     await ctx.reply(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${symbol}`);
 
@@ -160,7 +160,7 @@ async function swapTRXForTokens(ctx) {
     });
 
     // Generar el enlace de Tronscan con el hash de la transacción
-    const tronScanLink = `https://tronscan.org/#/transaction/${transaction}`;
+    const tronScanLink = `https://tronscan.org/#/transaction/${transaction.txid}`;
 
     // Esperar y obtener los logs del swap
     await fetchEventLogsWithRetries(transaction, 10, 5000, decimals, symbol);
@@ -173,12 +173,12 @@ async function swapTRXForTokens(ctx) {
 }
 
 // Función para obtener logs de la transacción con reintentos
-async function fetchEventLogsWithRetries(transaction, maxRetries, delay, tokenDecimals, tokenSymbol) {
+async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
     let attempts = 0;
 
     while (attempts < maxRetries) {
         try {
-            const eventUrl = `${fullNode}/v1/transactions/${transaction}/events`;
+            const eventUrl = `${fullNode}/v1/transactions/${txID}/events`;
             const eventResponse = await axios.get(eventUrl);
             const events = eventResponse.data.data;
 
