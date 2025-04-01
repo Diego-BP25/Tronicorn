@@ -147,7 +147,7 @@ async function swapTRXForTokens(ctx) {
     let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
 
 
-    let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(decimals));
+    let formattedTokenAmount = new BigNumber(amountsOut[1]).dividedBy(new BigNumber(10).pow(decimals));
     console.log(`${amountsOut}`)
     await ctx.reply(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${symbol}`);
 
@@ -166,7 +166,7 @@ async function swapTRXForTokens(ctx) {
     const tronScanLink = `https://tronscan.org/#/transaction/${transaction}`;
 
     // Esperar y obtener los logs del swap
-    await fetchEventLogsWithRetries(transaction, 10, 3000, decimals, symbol);
+    await fetchEventLogsWithRetries(transaction, 10, 5000, decimals, symbol);
 
     await ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}\n\n🔗 [view in Tronscan](${tronScanLink}`);
   } catch (error) {
