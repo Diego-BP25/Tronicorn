@@ -67,10 +67,7 @@ async function handleSwapType(ctx) {
   const userId = ctx.chat.id;
   const privateKeyResult = await fetch_Private_key(userId, walletAddress);
 
-  console.log("privateKeyResult:", privateKeyResult);
-
   if (privateKeyResult.success) { 
-    console.log("Encrypted Private Key:", privateKeyResult.encryptedPrivateKey);
     // Almacena la clave privada cifrada en la sesión
     ctx.session.swapData = {
       encryptedPrivateKey: privateKeyResult.encryptedPrivateKey,
@@ -176,12 +173,12 @@ async function swapTRXForTokens(ctx) {
 }
 
 // Función para obtener logs de la transacción con reintentos
-async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
+async function fetchEventLogsWithRetries(transaction, maxRetries, delay, tokenDecimals, tokenSymbol) {
     let attempts = 0;
 
     while (attempts < maxRetries) {
         try {
-            const eventUrl = `${fullNode}/v1/transactions/${txID}/events`;
+            const eventUrl = `${fullNode}/v1/transactions/${transaction}/events`;
             const eventResponse = await axios.get(eventUrl);
             const events = eventResponse.data.data;
 
