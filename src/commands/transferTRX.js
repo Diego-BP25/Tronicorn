@@ -2,6 +2,18 @@ const { fetchAllWallets, fetch_Private_key } = require('../service/user.service'
 const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
 
+// ✅ Centralized error messages (for easy updates)
+const ERROR_MESSAGES = {
+  WALLET_LOAD_FAILED: "❌ Failed to load your wallets. Please try again later.",
+  NO_WALLETS: "⚠️ You have no registered wallets. Create one first.",
+  INVALID_TRON_ADDRESS: "🔍 Invalid TRON address. Please check and re-enter.",
+  INVALID_AMOUNT: "💸 Amount must be a number ≥ 1 TRX.",
+  PRIVATE_KEY_FAIL: "🔐 Failed to access this wallet's private key.",
+  ADDRESS_MISMATCH: "🚨 Private key does not match the selected wallet.",
+  TRANSACTION_FAILED: "⚡ Transaction failed. Reason:",
+  GENERIC_ERROR: "❌ Something went wrong. Please retry.",
+};
+
 // Comando transfer modificado para iniciar el proceso de transferencia
 async function transferCommand(ctx) {
   try {
