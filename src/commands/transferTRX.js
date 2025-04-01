@@ -127,7 +127,6 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
   }
 }
 
-
 module.exports = {
   transferCommand,
   handleWalletSelection,
