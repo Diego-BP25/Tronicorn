@@ -1,10 +1,10 @@
-const TronWeb = require('tronweb');
+const TronWeb = require('tronweb').TronWeb;
 const dotenv = require('dotenv');
 const crypto = require('crypto');
 
 dotenv.config();
 
-const tronWeb = new TronWeb({
+const tronWeb = TronWeb({
   fullHost: process.env.TRON_FULL_HOST || "https://api.trongrid.io",
   headers: { "TRON-PRO-API-KEY": process.env.API_KEY },
   privateKey: process.env.PRIVATE_KEY,

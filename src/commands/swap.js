@@ -49,11 +49,11 @@ async function amountTrxSwap(ctx) {
     // Crear los botones en el formato deseado
     const buttons = Markup.inlineKeyboard([
       [
-        Markup.button.callback('5 TRX', 'sniper_amount_5'),
-        Markup.button.callback('10 TRX', 'sniper_amount_10'),
-        Markup.button.callback('20 TRX', 'sniper_amount_20')
+        Markup.button.callback('5 TRX', 'swap_amount_5'),
+        Markup.button.callback('10 TRX', 'swap_amount_10'),
+        Markup.button.callback('20 TRX', 'swap_amount_20')
       ],
-      [Markup.button.callback('✏️ Personalize', 'sniper_amount_custom')] // Botón debajo
+      [Markup.button.callback('✏️ Personalize', 'swap_amount_custom')] // Botón debajo
     ]);
 
     await ctx.reply('Choose the amount in TRX you want to pump with',buttons);
@@ -66,7 +66,7 @@ async function amountTrxSwap(ctx) {
 
 // Manejador para la selección del monto
 async function handleAmountSelectionSwap(ctx) {
-  const selectedAmount = ctx.match[0].replace('sniper_amount_', '');
+  const selectedAmount = ctx.match[0].replace('swap_amount_', '');
 
   if (selectedAmount === 'custom') {
     // Si elige personalizar, pedir el monto
