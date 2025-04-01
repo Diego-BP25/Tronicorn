@@ -197,8 +197,8 @@ async function handleTrxAmount(ctx) {
 }
 
 // Function to fetch token decimals and symbol
-async function getTokenDetails(tokenAddress, ctx) {
-  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey } = ctx.session.swapData;
+async function getTokenDetails(ctx) {
+  const { tokenAddress, encryptedPrivateKey } = ctx.session.swapData;
 
   const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
