@@ -17,7 +17,7 @@ const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
 const commissionRate = 0.01; // Comisión del 1%
 const botAddress = 'TPB27eRk4gPcYqSh4ihqXmdWZWidB87quR'; // Dirección para recibir la comisión
 
-const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, PRIVATE_KEY);
+const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
 
  // ABI for fetching token decimals & symbol
@@ -70,21 +70,21 @@ async function handleAmountSelectionSwap(ctx) {
 
   if (selectedAmount === 'custom') {
     // Si elige personalizar, pedir el monto
-    ctx.session.sniperState = 'waitingForCustomAmountSwap';
+    ctx.session.swapState = 'waitingForCustomAmountSwap';
     await ctx.reply('Please enter the amount of TRX to invest in the pump:');
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
-    ctx.session.sniperAmount = selectedAmount;
-    ctx.session.sniperState = 'waitingForSlippage'; 
+    ctx.session.swapAmount = selectedAmount;
+    ctx.session.swapState = 'waitingForSlippage'; 
     await showSlippageOptionsSwap(ctx);
   }
 }
 
 // Manejador para la entrada de monto personalizado
 async function handleCustomAmountSwap(ctx) {
-  if (ctx.session.sniperState === 'waitingForCustomAmount') {
-    ctx.session.sniperAmount = ctx.message.text; // Guardar el monto ingresado
-    ctx.session.sniperState = null; // Resetear estado
+  if (ctx.session.swapState === 'waitingForCustomAmount') {
+    ctx.session.swapAmount = ctx.message.text; // Guardar el monto ingresado
+    ctx.session.swapState = null; // Resetear estado
     await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
   }
 }
@@ -93,11 +93,11 @@ async function handleCustomAmountSwap(ctx) {
 async function showSlippageOptionsSwap(ctx) {
   const buttons = Markup.inlineKeyboard([
     [
-      Markup.button.callback('5%', 'sniper_slippage_5'),
-      Markup.button.callback('10%', 'sniper_slippage_10'),
-      Markup.button.callback('20%', 'sniper_slippage_20')
+      Markup.button.callback('5%', 'swap_slippage_5'),
+      Markup.button.callback('10%', 'swap_slippage_10'),
+      Markup.button.callback('20%', 'swap_slippage_20')
     ],
-    [Markup.button.callback('✏️ Personalize', 'sniper_slippage_custom')]
+    [Markup.button.callback('✏️ Personalize', 'swap_slippage_custom')]
   ]);
 
   await ctx.reply('Select the sliding percentage:', buttons);
@@ -105,23 +105,23 @@ async function showSlippageOptionsSwap(ctx) {
 
 // Manejador para la selección del deslizamiento
 async function handleSlippageSelectionSwap(ctx) {
-  const selectedSlippage = ctx.match[0].replace('sniper_slippage_', '');
+  const selectedSlippage = ctx.match[0].replace('swap_slippage_', '');
 
   if (selectedSlippage === 'custom') {
-    ctx.session.sniperState = 'waitingForCustomSlippage';
+    ctx.session.swapState = 'waitingForCustomSlippageSwap';
     await ctx.reply('Please enter the slip percentage:');
   } else {
-    ctx.session.sniperSlippage = selectedSlippage;
-    ctx.session.sniperState = null;
+    ctx.session.swapSlippage = selectedSlippage;
+    ctx.session.swapState = null;
     await selectWallet(ctx);
   }
 }
 
 // Manejador para la entrada de deslizamiento personalizado
 async function  handleCustomSlippageSwap(ctx) {
-  if (ctx.session.sniperState === 'waitingForCustomSlippage') {
-    ctx.session.sniperSlippage = ctx.message.text;
-    ctx.session.sniperState = null;
+  if (ctx.session.swapState === 'waitingForCustomSlippage') {
+    ctx.session.swapSlippage = ctx.message.text;
+    ctx.session.swapState = null;
     await selectWallet(ctx);
     
   }
@@ -537,6 +537,7 @@ function formatSwapResult(result, tokenDecimals, tokenSymbol) {
 
 
 module.exports = {
+  handleCustomSlippageSwap,
   handleSlippageSelectionSwap,
   handleCustomAmountSwap,
   handleAmountSelectionSwap,
