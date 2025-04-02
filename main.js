@@ -155,7 +155,7 @@ bot.on('text', async (ctx) => {
   }
 
   if (ctx.session.awaitingTokenAddress) {
-    return handleTokenAddress(ctx);
+    return executeSwap(ctx);
   }
 
   if (ctx.session.awaitingTrxAmount) {

@@ -175,17 +175,6 @@ async function handleSwapType(ctx) {
   }
 }
 
-// Función para procesar el token de destino
-async function handleTokenAddress(ctx) {
-  if (ctx.session.awaitingTokenAddress) {
-    ctx.session.swapData.tokenAddress = ctx.message.text;
-    ctx.session.awaitingTokenAddress = false; // Resetea la espera
-    await ctx.reply("Please enter the amount of TRX to swap:");
-    ctx.session.awaitingTrxAmount = true; // Marca que estamos esperando el monto
-    console.log(ctx.session.swapAmount, ctx.session.swapSlippage, ctx.session.swapData.tokenAddress)
-  }
-}
-
 // Función para procesar el monto de TRX
 async function handleTrxAmount(ctx) {
   if (ctx.session.awaitingTrxAmount) {
@@ -224,22 +213,27 @@ async function getTokenDetails(ctx) {
 async function executeSwap(trxAmount, tokenAddress, slippageTolerance) {
   const { decimals, symbol } = await getTokenDetails(tokenAddress);
 
+  if (ctx.session.awaitingTokenAddress) {
+    ctx.session.swapData.tokenAddress = ctx.message.text;
+    ctx.session.awaitingTokenAddress = false; // Resetea la espera
+    }
+
   if (symbol === "UNKNOWN") {
       console.log(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
       return;
   }
 
   if (decimals === 18) {
-      await swapTRXForTokens18(trxAmount, tokenAddress, decimals, symbol, slippageTolerance);
+      await swapTRXForTokens18(trxAmount, tokenAddress, decimals, symbol);
   } else {
-      await swapTRXForTokens6(trxAmount, tokenAddress, symbol, slippageTolerance);
+      await swapTRXForTokens6(trxAmount, tokenAddress, symbol);
   }
 }
 
 // Swap function for 18-decimal tokens
-async function swapTRXForTokens18( tokenDecimals, tokenSymbol, slippageTolerance) {
+async function swapTRXForTokens18( tokenDecimals, tokenSymbol) {
 
-  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey } = ctx.session.swapData;
+  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
 
   const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
@@ -250,10 +244,9 @@ async function swapTRXForTokens18( tokenDecimals, tokenSymbol, slippageTolerance
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
 
-      console.log(`🚀 Attempting to swap ${trxAmount.toFixed(6)} TRX for ${tokenSymbol} with ${slippageTolerance}% slippage tolerance...`);
+      await retry(`🚀 Attempting to swap ${trxAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
       let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
-      console.log(`📊 Raw Amounts Out:`, amountsOut);
 
       if (!amountsOut.amounts || amountsOut.amounts.length < 2) {
           throw new Error("Invalid output from router: amountsOut is malformed.");
@@ -549,6 +542,7 @@ function formatSwapResult(result, tokenDecimals, tokenSymbol) {
 
 
 module.exports = {
+  executeSwap,
   handleCustomSlippageSwap,
   handleSlippageSelectionSwap,
   handleCustomAmountSwap,
