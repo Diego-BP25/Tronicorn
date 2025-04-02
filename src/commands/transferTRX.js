@@ -88,53 +88,38 @@ async function handleAmount(ctx) {
 // Execute TRX transfer
 async function transferTRX(ctx, fromAddress, toAddress, amount) {
   try {
-    // 1. Obtener clave privada
+    // Fetch & decrypt private key
     const privateKeyResult = await fetch_Private_key(ctx.chat.id, fromAddress);
     if (!privateKeyResult.success) {
-      throw new Error(ERROR_MESSAGES.PRIVATE_KEY_FAIL);
+      throw new Error(ERROR_MESSAGES.PRIVATE_KEY_FAIL); // ✅ User-friendly
     }
 
-    // 2. Desencriptar y verificar coincidencia
     const decryptedPrivateKey = decrypt(privateKeyResult.encryptedPrivateKey);
     const addressFromPrivateKey = tronWeb.address.fromPrivateKey(decryptedPrivateKey);
+
     if (addressFromPrivateKey !== fromAddress) {
-      throw new Error(ERROR_MESSAGES.ADDRESS_MISMATCH);
+      throw new Error(ERROR_MESSAGES.ADDRESS_MISMATCH); // ✅ User-friendly
     }
 
-    // 3. Preparar transacción
+    // Send transaction
     const amountInSun = tronWeb.toSun(amount);
     const tradeobj = await tronWeb.transactionBuilder.sendTrx(toAddress, amountInSun, fromAddress);
     const signedtxn = await tronWeb.trx.sign(tradeobj, decryptedPrivateKey);
-
-    // 4. Enviar transacción
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
-    if (receipt.result) {
-      await ctx.reply(`✅ Sent ${amount} TRX to ${toAddress}\n\n📌 TX Hash: ${receipt.txid}`);
-    } else {
-      throw new Error("Network rejected the transaction");
-    }
 
-  } catch (error) {
-    console.error("[ERROR] transferTRX:", error);
-    
-    // Manejo específico de saldo insuficiente
-    if (/balance is not sufficient|insufficient balance|not enough/i.test(error.message)) {
-      const balance = await tronWeb.trx.getBalance(fromAddress); // Obtener balance actual
-      const balanceInTRX = tronWeb.fromSun(balance);
-      
+    if (receipt.result) {
       await ctx.reply(
-        `❌ Saldo insuficiente!\n` +
-        `Intentaste enviar: ${amount} TRX\n` +
-        `Saldo disponible: ${balanceInTRX} TRX\n\n` +
-        `Recuerda considerar la comisión de red (≈0.1 TRX)`
+        `✅ Sent ${amount} TRX to ${toAddress}\n\n` +
+        `📌 TX Hash: ${receipt.txid}`
       );
-    } 
-    // Otros errores
-    else {
-      await ctx.reply(`${ERROR_MESSAGES.TRANSACTION_FAILED} ${error.message.replace("Error:", "").trim()}`);
+    } else {
+      throw new Error("Network rejected the transaction.");
     }
+  } catch (error) {
+    console.error("[ERROR] transferTRX failed:", error);
+    await ctx.reply(`${ERROR_MESSAGES.TRANSACTION_FAILED} ${error.message}`); // ✅ Detailed yet clean
   } finally {
-    // Limpiar sesión
+    // Clear session
     ctx.session.transferState = null;
     ctx.session.fromWallet = null;
     ctx.session.toAddress = null;
