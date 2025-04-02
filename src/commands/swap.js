@@ -195,13 +195,13 @@ async function getTokenDetails(ctx) {
 
   const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
   try {
-      console.log(`🔍 Fetching details for token: ${tokenAddress}...`);
+      await reply(`🔍 Fetching details for token: ${tokenAddress}...`);
       const tokenContract = await tronWeb.contract(tokenDetailsABI, tokenAddress);
       const [decimals, symbol] = await Promise.all([
           tokenContract.decimals().call(),
           tokenContract.symbol().call()
       ]);
-      console.log(`✅ Token: ${symbol} (${decimals} decimals)`);
+      await reply(`✅ Token: ${symbol}`);
       return { decimals: parseInt(decimals), symbol };
   } catch (error) {
       console.error("⚠️ Error fetching token details, defaulting to 6 decimals & UNKNOWN symbol:", error);
