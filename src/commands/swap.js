@@ -213,7 +213,7 @@ async function getTokenDetails(ctx) {
 async function executeSwap(ctx) {
   const { swapAmount,tokenAddress, swapSlippage} = ctx.session.swapData;
 
-  const { decimals, symbol } = await getTokenDetails(tokenAddress);
+  const { decimals, symbol } = await getTokenDetails(ctx);
 
   if (ctx.session.awaitingTokenAddress) {
     ctx.session.swapData.tokenAddress = ctx.message.text;

@@ -111,9 +111,12 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
     const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
 
     if (receipt.result) {
+      const tronScanTxLink = `https://tronscan.org/#/transaction/${receipt.txid}`;
       await ctx.reply(
         `✅ Sent ${amount} TRX to ${toAddress}\n\n` +
-        `📌 TX Hash: ${receipt.txid}`
+        `📌 Txn Hash: ${receipt.txid}`+
+        `[🌍 View on Tronscan](${tronScanTxLink})`,
+  { parse_mode: "MarkdownV2" } // Habilita Markdown para los enlaces
       );
     } else {
       throw new Error("Network rejected the transaction.");
