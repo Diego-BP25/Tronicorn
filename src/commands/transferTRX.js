@@ -46,7 +46,7 @@ async function handleWalletSelection(ctx) {
 
     ctx.session.fromWallet = walletAddress;
     ctx.session.transferState = 'waitingForToAddress';
-    await ctx.editMessageText('Enter the recipient\'s TRON address:');
+    await ctx.reply('Enter the recipient\'s TRON address:');
       } catch (error) {
     console.error("[ERROR] Wallet selection failed:", error);
     await ctx.reply(ERROR_MESSAGES.GENERIC_ERROR);
@@ -113,7 +113,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
     if (receipt.result) {
       const tronScanTxLink = `https://tronscan.org/#/transaction/${receipt.txid}`;
       await ctx.reply(
-        `✅ Sent ${amount} TRX to ${toAddress}\n\n` +
+        `✅ Sent ${amount} TRX to ${toAddress}\n\n`+
         `📌 Txn Hash: ${receipt.txid}\n`+
         `[🌍 View on Tronscan](${tronScanTxLink})`,
   { parse_mode: "MarkdownV2", disable_web_page_preview: true } // Habilita Markdown para los enlaces

@@ -233,7 +233,7 @@ async function executeSwap(ctx) {
 }
 
 // Swap function for 18-decimal tokens
-async function swapTRXForTokens18( tokenDecimals, tokenSymbol) {
+async function swapTRXForTokens18( tokenDecimals, tokenSymbol, ctx) {
 
   const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
   
