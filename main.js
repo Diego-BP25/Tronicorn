@@ -72,7 +72,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
 
   bot.action(/swap_amount_.+$/, handleAmountSelectionSwap);
 
-  bot.action(/sniper_slippage_.+$/, handleSlippageSelectionSwap);
+  bot.action(/swap_slippage_.+$/, handleSlippageSelectionSwap);
 
   // Acción para el tipo de swap TRX a Tokens
   bot.action(/^swap_type_TRX_TOKENS$/, async (ctx) => {
