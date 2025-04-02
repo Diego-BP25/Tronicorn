@@ -111,7 +111,7 @@ async function handleSlippageSelectionSwap(ctx) {
   } else {
     ctx.session.swapSlippage = selectedSlippage;
     ctx.session.swapState = null;
-    await selectWallet(ctx);
+    await selectWalletswap(ctx);
   }
 }
 
@@ -120,7 +120,7 @@ async function  handleCustomSlippageSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomSlippage') {
     ctx.session.swapSlippage = ctx.message.text;
     ctx.session.swapState = null;
-    await selectWallet(ctx);
+    await selectWalletswap(ctx);
     
   }
 }

@@ -70,7 +70,7 @@ async function balanceCommand(ctx) {
       walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
 
       await ctx.reply(
-        'arr Please select a wallet to view its balance:',
+        'Please select a wallet to view its balance:',
         Markup.inlineKeyboard(walletButtons)
       );
     } else {

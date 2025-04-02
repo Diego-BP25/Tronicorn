@@ -77,7 +77,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
   // Acción para el tipo de swap TRX a Tokens
   bot.action(/^swap_type_TRX_TOKENS$/, async (ctx) => {
     await ctx.answerCbQuery();
-    return swapTokens(ctx);
+    return amountTrxSwap(ctx);
   });
 
   bot.action('swap_type_TRX_TOKENS', async (ctx) => {
