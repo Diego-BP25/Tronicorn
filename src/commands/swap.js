@@ -189,11 +189,11 @@ async function handleTrxAmount(ctx) {
 // Function to fetch token decimals and symbol
 async function getTokenDetails(ctx) {
   const { tokenAddress, encryptedPrivateKey } = ctx.session.swapData;
+  
+      // Desencripta la clave privada
+      const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
   const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
-
-    // Desencripta la clave privada
-    const decryptedPrivateKey = decrypt(encryptedPrivateKey);
   try {
       console.log(`🔍 Fetching details for token: ${tokenAddress}...`);
       const tokenContract = await tronWeb.contract(tokenDetailsABI, tokenAddress);
@@ -236,11 +236,11 @@ async function executeSwap(ctx) {
 async function swapTRXForTokens18( tokenDecimals, tokenSymbol) {
 
   const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
+  
+      // Desencripta la clave privada
+      const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
   const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
-
-    // Desencripta la clave privada
-    const decryptedPrivateKey = decrypt(encryptedPrivateKey);
   try {
       const trxAmountInSun = tronWeb.toSun(trxAmount);
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
@@ -428,10 +428,10 @@ async function swapTRXForTokens(ctx) {
 
     // Desencripta la clave privada
     const decryptedPrivateKey = decrypt(encryptedPrivateKey);
+    
+        // Inicializa TronWeb con la clave privada específica de la wallet
+        const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
-
-    // Inicializa TronWeb con la clave privada específica de la wallet
-    const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
     const trxAmountInSun = tronWeb.toSun(trxAmount); // Convierte el monto a SUN
     const commissionAmount = trxAmountInSun * commissionRate;
