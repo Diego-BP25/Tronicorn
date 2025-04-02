@@ -112,11 +112,16 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
 
     if (receipt.result) {
       const tronScanTxLink = `https://tronscan.org/#/transaction/${receipt.txid}`;
+      
+      function escapeMarkdownV2(text) {
+        return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
+      }
+      
       await ctx.reply(
-        `✅ Sent ${amount} TRX to ${toAddress}\n\n`+
-        `📌 Txn Hash: ${receipt.txid}\n`+
-        `[🌍 View on Tronscan](${tronScanTxLink})`,
-  {parse_mode: "MarkdownV2", disable_web_page_preview: true} // Habilita Markdown para los enlaces
+        `✅ Sent ${escapeMarkdownV2(amount.toString())} TRX to ${escapeMarkdownV2(toAddress)}\n\n` +
+        `📌 Txn Hash: ${escapeMarkdownV2(receipt.txid)}\n` +
+        `[🌍 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
+        { parse_mode: "MarkdownV2", disable_web_page_preview: true }
       );
     } else {
       throw new Error("Network rejected the transaction.");
