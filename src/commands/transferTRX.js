@@ -1,4 +1,4 @@
-const { fetchAllWallets, fetch_Private_key } = require('./user.service');
+const { fetchAllWallets, fetch_Private_key } = require('../service/user.service');
 const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
 
