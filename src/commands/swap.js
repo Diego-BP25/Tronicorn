@@ -103,13 +103,13 @@ async function showSlippageOptionsSwap(ctx) {
 
 // Manejador para la selección del deslizamiento
 async function handleSlippageSelectionSwap(ctx) {
-  const selectedSlippage = ctx.match[0].replace('swap_slippage_', '');
+  const selectedSlippageSwap = ctx.match[0].replace('swap_slippage_', '');
 
-  if (selectedSlippage === 'custom') {
+  if (selectedSlippageSwap === 'custom') {
     ctx.session.swapState = 'waitingForCustomSlippageSwap';
     await ctx.reply('Please enter the slip percentage:');
   } else {
-    ctx.session.swapSlippage = selectedSlippage;
+    ctx.session.swapSlippage = selectedSlippageSwap;
     ctx.session.swapState = null;
     await swapTokens(ctx);
   }
@@ -117,7 +117,7 @@ async function handleSlippageSelectionSwap(ctx) {
 
 // Manejador para la entrada de deslizamiento personalizado
 async function  handleCustomSlippageSwap(ctx) {
-  if (ctx.session.swapState === 'waitingForCustomSlippage') {
+  if (ctx.session.swapState === 'waitingForCustomSlippageSwap') {
     ctx.session.swapSlippage = ctx.message.text;
     ctx.session.swapState = null;
     await swapTokens(ctx);
