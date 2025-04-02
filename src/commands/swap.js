@@ -210,7 +210,9 @@ async function getTokenDetails(ctx) {
 }
 
 // Execute swap
-async function executeSwap(trxAmount, tokenAddress, slippageTolerance) {
+async function executeSwap(ctx) {
+  const { swapAmount,tokenAddress, swapSlippage} = ctx.session.swapData;
+
   const { decimals, symbol } = await getTokenDetails(tokenAddress);
 
   if (ctx.session.awaitingTokenAddress) {
@@ -224,9 +226,9 @@ async function executeSwap(trxAmount, tokenAddress, slippageTolerance) {
   }
 
   if (decimals === 18) {
-      await swapTRXForTokens18(trxAmount, tokenAddress, decimals, symbol);
+      await swapTRXForTokens18(swapAmount, tokenAddress, decimals, symbol, swapSlippage);
   } else {
-      await swapTRXForTokens6(trxAmount, tokenAddress, symbol);
+      await swapTRXForTokens6(swapAmount, tokenAddress, symbol, swapSlippage);
   }
 }
 
