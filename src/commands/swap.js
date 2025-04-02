@@ -550,7 +550,6 @@ module.exports = {
   amountTrxSwap,
   swapTokens,
   handleWalletSwap,
-  handleTokenAddress,
   handleTrxAmount,
   handleSwapType
 
