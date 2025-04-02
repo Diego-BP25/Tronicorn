@@ -54,7 +54,7 @@ async function amountTrxSwap(ctx) {
       [Markup.button.callback('✏️ Personalize', 'swap_amount_custom')] // Botón debajo
     ]);
 
-    await ctx.reply('Choose the amount in TRX you want to pump with',buttons);
+    await ctx.reply('Please enter the amount of TRX to swap',buttons);
   } catch (error) {
     console.error('Error in amountTrx:', error);
     await ctx.reply('Ocurrió un error al solicitar la cantidad de TRX.');
@@ -69,7 +69,7 @@ async function handleAmountSelectionSwap(ctx) {
   if (selectedAmount === 'custom') {
     // Si elige personalizar, pedir el monto
     ctx.session.swapState = 'waitingForCustomAmountSwap';
-    await ctx.reply('Please enter the amount of TRX to invest in the pump:');
+    await ctx.reply('Please enter the amount of TRX to invest in the swap:');
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
     ctx.session.swapAmount = selectedAmount;
@@ -93,7 +93,7 @@ async function showSlippageOptionsSwap(ctx) {
     [
       Markup.button.callback('5%', 'swap_slippage_5'),
       Markup.button.callback('10%', 'swap_slippage_10'),
-      Markup.button.callback('200%', 'swap_slippage_20')
+      Markup.button.callback('20%', 'swap_slippage_20')
     ],
     [Markup.button.callback('✏️ Personalize', 'swap_slippage_custom')]
   ]);
@@ -182,6 +182,7 @@ async function handleTokenAddress(ctx) {
     ctx.session.awaitingTokenAddress = false; // Resetea la espera
     await ctx.reply("Please enter the amount of TRX to swap:");
     ctx.session.awaitingTrxAmount = true; // Marca que estamos esperando el monto
+    console.log(ctx.session.swapAmount, ctx.session.swapSlippage, ctx.session.swapData.tokenAddress)
   }
 }
 
