@@ -93,7 +93,7 @@ async function showSlippageOptionsSwap(ctx) {
     [
       Markup.button.callback('5%', 'swap_slippage_5'),
       Markup.button.callback('10%', 'swap_slippage_10'),
-      Markup.button.callback('20%', 'swap_slippage_20')
+      Markup.button.callback('200%', 'swap_slippage_20')
     ],
     [Markup.button.callback('✏️ Personalize', 'swap_slippage_custom')]
   ]);
