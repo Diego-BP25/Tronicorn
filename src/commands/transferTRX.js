@@ -1,4 +1,4 @@
-const { fetchAllWallets, fetch_Private_key } = require('../service/user.service');
+const { fetchAllWallets, fetch_Private_key } = require('./user.service');
 const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
 
@@ -14,77 +14,72 @@ const ERROR_MESSAGES = {
   GENERIC_ERROR: "❌ Something went wrong. Please retry.",
 };
 
-// Comando transfer modificado para iniciar el proceso de transferencia
+// --- CORE FUNCTIONS (with improved errors) ---
+
+// Initiate transfer
 async function transferCommand(ctx) {
   try {
-    // Obtener todas las wallets del usuario
     const walletResult = await fetchAllWallets(ctx.chat.id);
 
     if (walletResult.success && walletResult.wallets.length > 0) {
-      // Listar las wallets del usuario como botones con el nombre de la wallet
-      const walletButtons = walletResult.wallets.map(wallet => {
-        return [Markup.button.callback(wallet.wallet_name, `transfer_wallet_${wallet.wallet_address}`)];
-      });
-
-      // Agregar botón de cerrar al final de la lista
+      const walletButtons = walletResult.wallets.map(wallet => [
+        Markup.button.callback(wallet.wallet_name, `transfer_wallet_${wallet.wallet_address}`)
+      ]);
       walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
 
-      // Guardamos el estado de la transferencia
       ctx.session.transferState = 'waitingForWallet';
-
-      // Enviar el mensaje con los botones de selección
-      await ctx.reply('Select a wallet to transfer:', Markup.inlineKeyboard(walletButtons));
+      await ctx.reply('Select a wallet to transfer from:', Markup.inlineKeyboard(walletButtons));
     } else {
-      await ctx.reply("You don't have any registered wallets. Please create one first.");
+      await ctx.reply(ERROR_MESSAGES.NO_WALLETS); // ✅ Clear feedback
     }
   } catch (error) {
-    console.error('Error in transferCommand:', error);
-    await ctx.reply('Error getting wallets.');
+    console.error("[ERROR] fetchAllWallets failed:", error);
+    await ctx.reply(ERROR_MESSAGES.WALLET_LOAD_FAILED);
   }
 }
 
-
-// Manejador para seleccionar la wallet
+// Handle wallet selection
 async function handleWalletSelection(ctx) {
-  const callbackData = ctx.update.callback_query.data;
+  try {
+    const callbackData = ctx.update.callback_query.data;
+    const walletAddress = callbackData.replace('transfer_wallet_', '');
 
-  // Extraer la dirección de la wallet del callback_data
-  const walletAddress = callbackData.replace('transfer_wallet_', '');
-
-  // Guardar la wallet en sesión y cambiar el estado
-  ctx.session.fromWallet = walletAddress;
-  ctx.session.transferState = 'waitingForToAddress';
-  
-  await ctx.editMessageText('Please enter the wallet address you wish to transfer to:');
+    ctx.session.fromWallet = walletAddress;
+    ctx.session.transferState = 'waitingForToAddress';
+    await ctx.editMessageText('Enter the recipient’s TRON address:');
+  } catch (error) {
+    console.error("[ERROR] Wallet selection failed:", error);
+    await ctx.reply(ERROR_MESSAGES.GENERIC_ERROR);
+  }
 }
 
-// Manejador para ingresar la dirección de destino
+// Validate recipient address
 async function handleToAddress(ctx) {
-  ctx.session.toAddress = ctx.message.text; // Guardamos la dirección en sesión
+  const address = ctx.message.text.trim();
+
+  if (!tronWeb.isAddress(address)) {
+    console.error("[ERROR] Invalid TRON address:", address);
+    return ctx.reply(ERROR_MESSAGES.INVALID_TRON_ADDRESS); // ✅ Specific error
+  }
+
+  ctx.session.toAddress = address;
   ctx.session.transferState = 'waitingForAmount';
-  
-  await ctx.reply('Please enter the amount of TRX to transfer:');
+  await ctx.reply('Enter the TRX amount to send:');
 }
 
-// Manejador para ingresar el monto
+// Validate amount
 async function handleAmount(ctx) {
   const amount = parseFloat(ctx.message.text);
-  if (isNaN(amount) || amount < 1) {
-    return ctx.reply('Please enter a valid amount greater than or equal to 1.');
-  }
-  ctx.session.amount = amount;
 
-  // Realizamos la transferencia
+  if (isNaN(amount) || amount < 1) {
+    console.error("[ERROR] Invalid amount:", ctx.message.text);
+    return ctx.reply(ERROR_MESSAGES.INVALID_AMOUNT); // ✅ Specific error
+  }
+
+  ctx.session.amount = amount;
   await transferTRX(ctx, ctx.session.fromWallet, ctx.session.toAddress, ctx.session.amount);
-  
-  // Limpiar la sesión después de la transferencia
-  ctx.session.transferState = null;
-  ctx.session.fromWallet = null;
-  ctx.session.toAddress = null;
-  ctx.session.amount = null;
 }
 
-// Función encargada de realizar la transferencia de TRX
 // Execute TRX transfer
 async function transferTRX(ctx, fromAddress, toAddress, amount) {
   try {
