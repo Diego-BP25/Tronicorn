@@ -73,7 +73,7 @@ async function handleAmountSelectionSwap(ctx) {
     await ctx.reply('Please enter the amount of TRX to invest in the swap:');
     ctx.session.awaitingTrxAmount = true;
   } else {
-    ctx.session.swapData.swapAmount = parseFloat(selectedAmount); // Guardar siempre el monto seleccionado
+    ctx.session.swapAmount = parseFloat(selectedAmount); // Guardar siempre el monto seleccionado
     await showSlippageOptionsSwap(ctx);
   }
 }
