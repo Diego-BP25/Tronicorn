@@ -230,7 +230,7 @@ async function executeSwap(ctx) {
   }
 
   if (decimals === 18) {
-      await swapTRXForTokens18(swapAmount, tokenAddress, decimals, symbol, swapSlippage);
+      await swapTRXForTokens18(ctx,swapAmount, tokenAddress, decimals, symbol, swapSlippage);
   } else {
       await swapTRXForTokens6(swapAmount, tokenAddress, symbol, swapSlippage);
   }
