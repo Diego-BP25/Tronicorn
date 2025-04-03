@@ -74,7 +74,7 @@ async function handleAmountSelectionSwap(ctx) {
     ctx.session.awaitingTrxAmount = true
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
-    ctx.session.swapAmount = selectedAmount;
+    ctx.session.swapData.swapAmount = selectedAmount;
     ctx.session.swapState = 'waitingForSlippage'; 
     await showSlippageOptionsSwap(ctx);
   }
