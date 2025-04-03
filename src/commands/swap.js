@@ -55,6 +55,7 @@ async function amountTrxSwap(ctx) {
     ]);
 
     await ctx.reply('Please enter the amount of TRX to swap',buttons);
+    ctx.session.awaitingTrxAmount = true
   } catch (error) {
     console.error('Error in amountTrx:', error);
     await ctx.reply('Ocurrió un error al solicitar la cantidad de TRX.');
@@ -70,6 +71,7 @@ async function handleAmountSelectionSwap(ctx) {
     // Si elige personalizar, pedir el monto
     ctx.session.swapState = 'waitingForCustomAmountSwap';
     await ctx.reply('Please enter the amount of TRX to invest in the swap:');
+    ctx.session.awaitingTrxAmount = true
   } else {
     // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
     ctx.session.swapAmount = selectedAmount;
@@ -82,7 +84,7 @@ async function handleAmountSelectionSwap(ctx) {
 async function handleCustomAmountSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomAmount') {
     ctx.session.swapData.swapAmount = ctx.message.text; // Guardar el monto ingresado
-    ctx.session.swapState = null; // Resetear estado
+    ctx.session.awaitingTrxAmount = false; // Resetear estado
     await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
   }
 }
@@ -234,12 +236,7 @@ async function executeSwap(ctx) {
 
 // Swap function for 18-decimal tokens
 async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
-  if (!ctx.session) {
-    ctx.session = {};
-}
-if (!ctx.session.swapData) {
-    ctx.session.swapData = {};
-}
+
   const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
 
       // Desencripta la clave privada
