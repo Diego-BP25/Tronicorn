@@ -19,6 +19,18 @@ const tokenPairABI = [
   }
 ];
 
+const tokenABI = [
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{ "name": "", "type": "uint8" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
 async function findPairOnDexScreener(tokenAddress) {
   try {
     const url = `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`;
@@ -31,6 +43,16 @@ async function findPairOnDexScreener(tokenAddress) {
   }
 }
 
+async function getTokenDecimals(tokenAddress) {
+  try {
+    const tokenContract = await tronWeb.contract(tokenABI, tokenAddress);
+    return await tokenContract.decimals().call();
+  } catch (error) {
+    console.error("Error fetching token decimals:", error);
+    return 6; // Default to 6 if unknown
+  }
+}
+
 async function getTokenPriceInTRX(tokenAddress) {
   try {
     const pairAddress = await findPairOnDexScreener(tokenAddress);
@@ -38,7 +60,6 @@ async function getTokenPriceInTRX(tokenAddress) {
 
     const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
     const reserves = await pairContract.getReserves().call();
-    
     if (Number(reserves.reserve0) === 0 || Number(reserves.reserve1) === 0) {
       return null;
     }
@@ -67,7 +88,9 @@ async function getTRC20Balance(address) {
     let balanceReport = `💼 *Wallet Address* • \n${address}\n${tronScanLink}`;
 
     for (const asset of assets) {
-      const roundedBalance = parseFloat(asset.balance).toFixed(6);
+      const decimals = await getTokenDecimals(asset.token_address);
+      const adjustedBalance = parseFloat(asset.balance) / (10 ** decimals);
+      const roundedBalance = adjustedBalance.toFixed(6);
       const tokenSymbol = asset.token_abbr || "";
       const tokenName = asset.token_name;
       const roundedValueInUSD = parseFloat(asset.token_value_in_usd || 0).toFixed(6);
@@ -77,7 +100,7 @@ async function getTRC20Balance(address) {
         valueInTRX = roundedBalance;
       } else {
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_address);
-        valueInTRX = tokenPriceInTRX ? (roundedBalance * tokenPriceInTRX).toFixed(6) : "0.000000";
+        valueInTRX = tokenPriceInTRX ? (adjustedBalance * tokenPriceInTRX).toFixed(6) : "0.000000";
       }
 
       balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
