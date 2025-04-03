@@ -73,11 +73,13 @@ async function handleAmountSelectionSwap(ctx) {
     await ctx.reply('Please enter the amount of TRX to invest in the swap:');
     ctx.session.awaitingTrxAmount = true
   } else {
-    // Guardar el monto seleccionado en sesión y pasar a la selección del deslizamiento
-    ctx.session.swapData.swapAmount = selectedAmount;
-    ctx.session.swapState = 'waitingForSlippage'; 
-    await showSlippageOptionsSwap(ctx);
+    if (ctx.session.awaitingTokenAddress) {
+      ctx.session.swapData.swapAmount = selectedAmount;
+      ctx.session.awaitingTokenAddress = false; // Resetea la espera
+      }
+        await showSlippageOptionsSwap(ctx);
   }
+  
 }
 
 // Manejador para la entrada de monto personalizado
