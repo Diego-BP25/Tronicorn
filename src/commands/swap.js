@@ -66,26 +66,23 @@ async function amountTrxSwap(ctx) {
 // Manejador para la selección del monto
 async function handleAmountSelectionSwap(ctx) {
   const selectedAmount = ctx.match[0].replace('swap_amount_', '');
-  ctx.session.swapData = {}
+  ctx.session.swapData = ctx.session.swapData || {}; // Asegurar que swapData existe
+
   if (selectedAmount === 'custom') {
-    // Si elige personalizar, pedir el monto
     ctx.session.swapState = 'waitingForCustomAmountSwap';
     await ctx.reply('Please enter the amount of TRX to invest in the swap:');
-    ctx.session.awaitingTrxAmount = true
+    ctx.session.awaitingTrxAmount = true;
   } else {
-    if (ctx.session.awaitingTokenAddress) {
-      ctx.session.swapData.swapAmount = selectedAmount;
-      ctx.session.awaitingTokenAddress = false; // Resetea la espera
-      }
-        await showSlippageOptionsSwap(ctx);
+    ctx.session.swapData.swapAmount = parseFloat(selectedAmount); // Guardar siempre el monto seleccionado
+    await showSlippageOptionsSwap(ctx);
   }
-  
 }
+
 
 // Manejador para la entrada de monto personalizado
 async function handleCustomAmountSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomAmountSwap') {
-    ctx.session.swapData.swapAmount = ctx.message.text; // Guardar el monto ingresado
+    ctx.session.swapData.swapAmount = parseFloat(ctx.message.text); // Guardar el monto ingresado
     ctx.session.awaitingTrxAmount = false; // Resetear estado
     await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
   }
@@ -193,7 +190,6 @@ async function handleTrxAmount(ctx) {
 // Function to fetch token decimals and symbol
 async function getTokenDetails(ctx) {
   const { tokenAddress, encryptedPrivateKey } = ctx.session.swapData;
-  console.log(ctx.session.swapData)
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
@@ -252,7 +248,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
 
-      await retry(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
+      await ctx.retry(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
       let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
 
