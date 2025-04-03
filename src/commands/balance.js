@@ -3,48 +3,80 @@ const { fetchAllWallets } = require("../service/user.service");
 const { Markup } = require('telegraf');
 const axios = require('axios');
 
-// Función para obtener el balance de TRC20 tokens
+const tokenPairABI = [
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getReserves",
+    "outputs": [
+      { "name": "reserve0", "type": "uint112" },
+      { "name": "reserve1", "type": "uint112" },
+      { "name": "blockTimestampLast", "type": "uint32" }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
+
+async function findPairOnDexScreener(tokenAddress) {
+  try {
+    const url = `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`;
+    const response = await axios.get(url);
+    const pairs = response.data.pairs;
+    return pairs.length > 0 ? pairs[0].pairAddress : null;
+  } catch (error) {
+    console.error('Error fetching pair from DexScreener:', error);
+    return null;
+  }
+}
+
+async function getTokenPriceInTRX(tokenAddress) {
+  try {
+    const pairAddress = await findPairOnDexScreener(tokenAddress);
+    if (!pairAddress) return null;
+
+    const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
+    const reserves = await pairContract.getReserves().call();
+    return Number(reserves.reserve1) / Number(reserves.reserve0);
+  } catch (error) {
+    console.error("Error fetching token price in TRX:", error);
+    return null;
+  }
+}
+
 async function getTRC20Balance(address) {
   try {
     const fetch = (...args) =>
       import('node-fetch').then(({ default: fetch }) => fetch(...args));
-  
-  // Obtener los activos de la billetera usando la API adecuada
-  const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${address}&asset_type=1`)
 
-
-  const data = await response.json();
-
-  const assets = data.data;
+    const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${address}&asset_type=1`);
+    const data = await response.json();
+    const assets = data.data;
 
     if (!data || !data.data || data.data.length === 0) {
       return `No tokens found for address: ${address}`;
     }
 
-    // Obtener el precio de 1 TRX en USD desde CoinGecko
-    const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tron&vs_currencies=usd');
-    const priceData = await priceResponse.json();
-    const trxPriceInUSD = priceData.tron;
     const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${address})`;
-
-
     let balanceReport = `💼 *Wallet Address* • \n${address}\n${tronScanLink}`;
 
-    
-
-    for (const asset of assets)  {
+    for (const asset of assets) {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
+      const tokenSymbol = asset.token_abbr || "";
+      const tokenName = asset.token_name;
       const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
-      const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
-      const TokenName= asset.token_name
       let valueInTRX;
 
-      if (TokenName === "trx") {
-        valueInTRX = roundedBalance; // Si es TRX, el valor en TRX es el mismo balance
+      if (tokenName.toLowerCase() === "trx") {
+        valueInTRX = roundedBalance;
       } else {
-        valueInTRX = (parseFloat(asset.token_value_in_usd) / trxPriceInUSD).toFixed(6);
-      }      balanceReport += `\n\n──────────────────────────────\n\nToken: ${TokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
-    };
+        const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
+        valueInTRX = tokenPriceInTRX ? (roundedBalance * tokenPriceInTRX).toFixed(6) : "NaN";
+      }
+
+      balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
+    }
 
     return balanceReport;
   } catch (error) {
@@ -56,17 +88,13 @@ async function getTRC20Balance(address) {
 async function balanceCommand(ctx) {
   try {
     const userId = ctx.chat.id;
-
-    // Obtener todas las wallets del usuario
     const walletResult = await fetchAllWallets(userId);
 
     if (walletResult.success && walletResult.wallets.length > 0) {
-      // Listar las wallets del usuario como botones
       const walletButtons = walletResult.wallets.map(wallet => {
         return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)];
       });
 
-      // Agregar botón de "Close" al final
       walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
 
       await ctx.reply(
@@ -82,21 +110,12 @@ async function balanceCommand(ctx) {
   }
 }
 
-
-// Manejador para obtener el balance de la wallet seleccionada
 async function handleWalletBalance(ctx) {
   const callbackData = ctx.update.callback_query.data;
-
-  // Extraer la dirección de la wallet del callback_data
   const walletAddress = callbackData.replace('wallet_balance_', '');
 
   try {
-
-    
-    // Obtener el balance de los tokens TRC20
     const trc20Balance = await getTRC20Balance(walletAddress);
-
-    // Responder con la información de balance
     await ctx.editMessageText(`${trc20Balance}`, { parse_mode: "Markdown", disable_web_page_preview: true });
   } catch (error) {
     console.error("Error fetching wallet balance:", error);
