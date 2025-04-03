@@ -32,45 +32,81 @@ const tokenABI = [
 ];
 
 async function findPairOnDexScreener(tokenAddress) {
-  try {
-    const url = `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`;
-    const response = await axios.get(url);
-    const pairs = response.data.pairs;
-    return pairs.length > 0 ? pairs[0].pairAddress : null;
-  } catch (error) {
-    console.error('Error fetching pair from DexScreener:', error);
-    return null;
-  }
-}
-
-async function getTokenDecimals(tokenAddress) {
-  try {
-    const tokenContract = await tronWeb.contract(tokenABI, tokenAddress);
-    return await tokenContract.decimals().call();
-  } catch (error) {
-    console.error("Error fetching token decimals:", error);
-    return 6; // Default to 6 if unknown
-  }
-}
-
-async function getTokenPriceInTRX(tokenAddress) {
-  try {
-    const pairAddress = await findPairOnDexScreener(tokenAddress);
-    if (!pairAddress) return null;
-
-    const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
-    const reserves = await pairContract.getReserves().call();
-    if (Number(reserves.reserve0) === 0 || Number(reserves.reserve1) === 0) {
+    try {
+      const url = `https://api.dexscreener.com/latest/dex/tokens/${tokenAddress}`;
+      const response = await axios.get(url);
+      
+      if (!response.data || !response.data.pairs || response.data.pairs.length === 0) {
+        console.error(`❌ No pair found on DexScreener for token: ${tokenAddress}`);
+        return null;
+      }
+  
+      const pair = response.data.pairs[0]; // Get first available pair
+      console.log(`✅ Pair found: ${pair.baseToken.symbol} / ${pair.quoteToken.symbol}`);
+      console.log(`Pair Address: ${pair.pairAddress}`);
+  
+      return pair.pairAddress;
+    } catch (error) {
+      console.error('Error fetching pair from DexScreener:', error);
       return null;
     }
+  }  
 
-    return Number(reserves.reserve1) / Number(reserves.reserve0);
-  } catch (error) {
-    console.error("Error fetching token price in TRX:", error);
-    return null;
+  async function getTokenDecimals(tokenAddress) {
+    try {
+      if (!tronWeb || !tronWeb.ready) {
+        throw new Error("TronWeb is not initialized properly.");
+      }
+  
+      const tokenContract = await tronWeb.contract(tokenABI, tokenAddress);
+      if (!tokenContract) {
+        throw new Error(`❌ Failed to get contract for token: ${tokenAddress}`);
+      }
+  
+      const decimals = await tokenContract.decimals().call();
+      console.log(`✅ Decimals for ${tokenAddress}: ${decimals}`);
+      
+      return decimals;
+    } catch (error) {
+      console.error("Error fetching token decimals:", error.message);
+      return 6; // Default to 6 if unknown
+    }
   }
-}
-
+  
+  async function getTokenPriceInTRX(tokenAddress) {
+    try {
+      const pairAddress = await findPairOnDexScreener(tokenAddress);
+      if (!pairAddress) {
+        console.error(`❌ No valid pair found for token: ${tokenAddress}`);
+        return null;
+      }
+  
+      console.log(`Fetching price for pair contract: ${pairAddress}`);
+      const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
+      const reserves = await pairContract.getReserves().call();
+  
+      if (!reserves || reserves.length < 2) {
+        console.error(`❌ Invalid reserves for pair: ${pairAddress}`);
+        return null;
+      }
+  
+      const reserve0 = BigInt(reserves.reserve0.toString());
+      const reserve1 = BigInt(reserves.reserve1.toString());
+  
+      if (reserve0 === 0n || reserve1 === 0n) {
+        console.error(`⚠️ Reserves are zero for ${pairAddress}`);
+        return null;
+      }
+  
+      const price = Number(reserve1) / Number(reserve0);
+      console.log(`✅ Price: 1 Token = ${price} TRX`);
+      return price;
+    } catch (error) {
+      console.error("Error fetching token price in TRX:", error);
+      return null;
+    }
+  }
+  
 async function getTRC20Balance(address) {
   try {
     const fetch = (...args) =>
