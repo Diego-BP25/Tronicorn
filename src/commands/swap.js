@@ -189,7 +189,7 @@ async function handleTrxAmount(ctx) {
 // Function to fetch token decimals and symbol
 async function getTokenDetails(ctx) {
   const { tokenAddress, encryptedPrivateKey } = ctx.session.swapData;
-  
+  console.log(ctx.session.swapData)
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
