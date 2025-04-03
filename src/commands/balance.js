@@ -38,6 +38,11 @@ async function getTokenPriceInTRX(tokenAddress) {
 
     const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
     const reserves = await pairContract.getReserves().call();
+    
+    if (Number(reserves.reserve0) === 0 || Number(reserves.reserve1) === 0) {
+      return null;
+    }
+
     return Number(reserves.reserve1) / Number(reserves.reserve0);
   } catch (error) {
     console.error("Error fetching token price in TRX:", error);
@@ -65,14 +70,14 @@ async function getTRC20Balance(address) {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
       const tokenSymbol = asset.token_abbr || "";
       const tokenName = asset.token_name;
-      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
-      let valueInTRX;
+      const roundedValueInUSD = parseFloat(asset.token_value_in_usd || 0).toFixed(6);
+      let valueInTRX = "0.000000";
 
       if (tokenName.toLowerCase() === "trx") {
         valueInTRX = roundedBalance;
       } else {
-        const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
-        valueInTRX = tokenPriceInTRX ? (roundedBalance * tokenPriceInTRX).toFixed(6) : "NaN";
+        const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_address);
+        valueInTRX = tokenPriceInTRX ? (roundedBalance * tokenPriceInTRX).toFixed(6) : "0.000000";
       }
 
       balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
