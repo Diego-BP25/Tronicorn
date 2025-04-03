@@ -81,7 +81,7 @@ async function handleAmountSelectionSwap(ctx) {
 // Manejador para la entrada de monto personalizado
 async function handleCustomAmountSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomAmount') {
-    ctx.session.swapAmount = ctx.message.text; // Guardar el monto ingresado
+    ctx.session.swapData.swapAmount = ctx.message.text; // Guardar el monto ingresado
     ctx.session.swapState = null; // Resetear estado
     await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
   }
@@ -118,7 +118,7 @@ async function handleSlippageSelectionSwap(ctx) {
 // Manejador para la entrada de deslizamiento personalizado
 async function  handleCustomSlippageSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomSlippageSwap') {
-    ctx.session.swapSlippage = ctx.message.text;
+    ctx.session.swapData.swapSlippage = ctx.message.text;
     ctx.session.swapState = null;
     await swapTokens(ctx);
     
@@ -233,10 +233,15 @@ async function executeSwap(ctx) {
 }
 
 // Swap function for 18-decimal tokens
-async function swapTRXForTokens18( tokenDecimals, tokenSymbol, ctx) {
+async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 
   const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
-  
+  if (!ctx.session) {
+    ctx.session = {};
+}
+if (!ctx.session.swapData) {
+    ctx.session.swapData = {};
+}
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
