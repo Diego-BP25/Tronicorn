@@ -98,8 +98,24 @@ async function findPairOnDexScreener(tokenAddress) {
         return null;
       }
   
-      const price = Number(reserve1) / Number(reserve0);
-      console.log(`✅ Price: 1 Token = ${price} TRX`);
+      // Get pair info to determine which token is TRX
+      const pairInfo = await axios.get(`https://api.dexscreener.com/latest/dex/pairs/tron/${pairAddress}`);
+      const baseToken = pairInfo.data.pair.baseToken;
+      const quoteToken = pairInfo.data.pair.quoteToken;
+  
+      let price;
+      if (baseToken.symbol === 'TRX') {
+        // If base token is TRX, price is reserve0/reserve1
+        price = Number(reserve0) / Number(reserve1);
+      } else if (quoteToken.symbol === 'TRX') {
+        // If quote token is TRX, price is reserve1/reserve0
+        price = Number(reserve1) / Number(reserve0);
+      } else {
+        console.error(`❌ Pair doesn't contain TRX: ${baseToken.symbol}/${quoteToken.symbol}`);
+        return null;
+      }
+  
+      console.log(`✅ Price: 1 ${baseToken.symbol === 'TRX' ? quoteToken.symbol : baseToken.symbol} = ${price} TRX`);
       return price;
     } catch (error) {
       console.error("Error fetching token price in TRX:", error);
