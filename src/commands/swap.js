@@ -66,7 +66,7 @@ async function amountTrxSwap(ctx) {
 // Manejador para la selección del monto
 async function handleAmountSelectionSwap(ctx) {
   const selectedAmount = ctx.match[0].replace('swap_amount_', '');
-
+  ctx.session.swapData = {}
   if (selectedAmount === 'custom') {
     // Si elige personalizar, pedir el monto
     ctx.session.swapState = 'waitingForCustomAmountSwap';
@@ -84,7 +84,7 @@ async function handleAmountSelectionSwap(ctx) {
 
 // Manejador para la entrada de monto personalizado
 async function handleCustomAmountSwap(ctx) {
-  if (ctx.session.swapState === 'waitingForCustomAmount') {
+  if (ctx.session.swapState === 'waitingForCustomAmountSwap') {
     ctx.session.swapData.swapAmount = ctx.message.text; // Guardar el monto ingresado
     ctx.session.awaitingTrxAmount = false; // Resetear estado
     await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
@@ -217,10 +217,10 @@ async function getTokenDetails(ctx) {
 async function executeSwap(ctx) {
   const { swapAmount,tokenAddress, swapSlippage} = ctx.session.swapData;
 
-  if (ctx.session.awaitingTokenAddress) {
+  if (ctx.session.awaitingTokenAddress && !ctx.session.swapData.tokenAddress) {
     ctx.session.swapData.tokenAddress = ctx.message.text;
-    ctx.session.awaitingTokenAddress = false; // Resetea la espera
-    }
+    ctx.session.awaitingTokenAddress = false;
+  }
   const { decimals, symbol } = await getTokenDetails(ctx);
 
 
@@ -238,19 +238,21 @@ async function executeSwap(ctx) {
 
 // Swap function for 18-decimal tokens
 async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
+  ctx.session.swapData = ctx.session.swapData || {}
+  console.log("SESSION DATA:", ctx.session);
 
-  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
+  const { walletAddress, tokenAddress, swapAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
 
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
   const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
   try {
-      const trxAmountInSun = tronWeb.toSun(trxAmount);
+      const trxAmountInSun = tronWeb.toSun(swapAmount);
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
 
-      await retry(`🚀 Attempting to swap ${trxAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
+      await retry(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
       let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
 
