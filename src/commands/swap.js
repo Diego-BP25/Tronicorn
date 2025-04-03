@@ -234,14 +234,14 @@ async function executeSwap(ctx) {
 
 // Swap function for 18-decimal tokens
 async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
-
-  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
   if (!ctx.session) {
     ctx.session = {};
 }
 if (!ctx.session.swapData) {
     ctx.session.swapData = {};
 }
+  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
+
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
