@@ -1,6 +1,6 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { swapTokens, handleWalletSwap, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap, showSlippageOptionsSwap} = require('./src/commands/swap');
+const { handleWalletSwap, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap, } = require('./src/commands/swap');
 const {handleAskAmount, handleAskToken, handleProcessData, listWallets} = require('./src/commands/swapToken')
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
@@ -33,9 +33,6 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
 
     // Comando /balance
     bot.command('balance', balanceCommand);
-
-    // Comando de swap
-    bot.command('swap', swapTokens);
 
     // Manejadores para botones de callback
     bot.action('wallet', async (ctx) => {

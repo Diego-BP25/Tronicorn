@@ -236,7 +236,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
 
-      await ctx.retry(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
+      await ctx.reply(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
       let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
 
@@ -251,7 +251,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.dividedBy(new BigNumber(10).pow(tokenDecimals)).toString()}`);
 
       if (slippageTolerance === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
-          ctx.retry("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
+          ctx.reply("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
           return;
       }
 
@@ -262,11 +262,11 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           DEADLINE
       ).send({ callValue: trxAmountInSun });
 
-      ctx.retry(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
+      ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
       await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol);
 
   } catch (error) {
-      ctx.retry(`❌ Swap failed: ${error.message}`);
+      ctx.reply(`❌ Swap failed: ${error.message}`);
   }
 }
 
@@ -297,7 +297,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
       await new Promise(resolve => setTimeout(resolve, delay));
   }
 
-  ctx.retry(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
+  ctx.reply(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
 }
 
 // Format swap results
@@ -316,14 +316,14 @@ function formatSwapResult(result, tokenDecimals, tokenSymbol) {
       trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
       tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
   } else {
-      ctx.retry(`❌ Invalid swap data for ${tokenSymbol}.`);
+      ctx.reply(`❌ Invalid swap data for ${tokenSymbol}.`);
       return;
   }
 
   const entryPrice = trxAmount / tokenAmount;
 
-  ctx.retry(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
-  ctx.retry(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
+  ctx.reply(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
+  ctx.reply(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
 }
 
 // Swap function for 6-decimal tokens
