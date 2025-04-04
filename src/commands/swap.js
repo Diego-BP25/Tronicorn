@@ -222,12 +222,6 @@ async function executeSwap(ctx) {
 
 // Swap function for 18-decimal tokens
 async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
-  ctx.session.swapData = ctx.session.swapData || {}
-  console.log("SESSION DATA:", ctx.session);
-  console.log("decimal", tokenDecimals);
-  console.log("symbol", tokenSymbol);
-
-
 
   const { swapAmount, swapSlippage, swapData } = ctx.session;
   const { tokenAddress, encryptedPrivateKey } = swapData;
@@ -398,8 +392,8 @@ async function listenForSwapEvents(txID, tokenAddress, trxAmount, tokenDecimals,
                       const tokenReceived = parseInt(event.result.value || event.result._amount) / Math.pow(10, tokenDecimals);
                       const entryPrice = trxAmount / tokenReceived;
 
-                      console.log(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenReceived.toFixed(tokenDecimals)} ${tokenSymbol}`);
-                      console.log(`💰 Entry price: ${entryPrice.toFixed(6)} TRX per ${tokenSymbol}`);
+                      ctx.reply(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenReceived.toFixed(tokenDecimals)} ${tokenSymbol}`);
+                      ctx.reply(`💰 Entry price: ${entryPrice.toFixed(6)} TRX per ${tokenSymbol}`);
                       return;
                   }
               }
@@ -411,7 +405,7 @@ async function listenForSwapEvents(txID, tokenAddress, trxAmount, tokenDecimals,
       await new Promise(resolve => setTimeout(resolve, 3000));
   }
 
-  console.log(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
+  ctx.reply(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
 }
 
 
