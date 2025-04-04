@@ -262,7 +262,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       ).send({ callValue: trxAmountInSun });
 
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
-      await fetchEventLogsWithRetries(ctx,transaction, 10, 3000, tokenDecimals, tokenSymbol);
+      await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol,ctx);
 
   } catch (error) {
       ctx.reply(`❌ Swap failed: ${error.message}`);
@@ -270,7 +270,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 }
 
 // Fetch event logs with retries
-async function fetchEventLogsWithRetries(ctx,txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
+async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol,ctx) {
   let attempts = 0;
 
   while (attempts < maxRetries) {
@@ -284,7 +284,7 @@ async function fetchEventLogsWithRetries(ctx,txID, maxRetries, delay, tokenDecim
                   if (event.event_name === 'Swap') {
                     console.log('fetch',ctx)
 
-                    await formatSwapResult(ctx,event.result, tokenDecimals, tokenSymbol);
+                    await formatSwapResult(event.result, tokenDecimals, tokenSymbol,ctx);
                       return;
                   }
               }
@@ -301,7 +301,7 @@ async function fetchEventLogsWithRetries(ctx,txID, maxRetries, delay, tokenDecim
 }
 
 // Format swap results
-async function formatSwapResult(ctx,result, tokenDecimals, tokenSymbol) {
+async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
@@ -316,13 +316,13 @@ async function formatSwapResult(ctx,result, tokenDecimals, tokenSymbol) {
       trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
       tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
   } else {
-      await ctx.reply(`❌ Invalid swap data for ${tokenSymbol}.`);
+      ctx.reply(`❌ Invalid swap data for ${tokenSymbol}.`);
       return;
   }
 
   const entryPrice = trxAmount / tokenAmount;
   console.log('format',ctx)
-await ctx.reply('hola')
+  await ctx.reply('hola')
 const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
  await ctx.reply(message); 
 }
