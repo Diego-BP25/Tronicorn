@@ -1,6 +1,6 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { swapTokens, handleWalletSwap, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap} = require('./src/commands/swap');
+const { swapTokens, handleWalletSwap, handleTrxAmount, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap} = require('./src/commands/swap');
 const {handleAskAmount, handleAskToken, handleProcessData, listWallets} = require('./src/commands/swapToken')
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
@@ -156,6 +156,10 @@ bot.on('text', async (ctx) => {
 
   if (ctx.session.awaitingTokenAddress) {
     return executeSwap(ctx);
+  }
+
+  if (ctx.session.awaitingTrxAmount) {
+    return swapTokens(ctx);
   }
 
   if (ctx.session.Token) {
