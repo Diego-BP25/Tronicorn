@@ -300,7 +300,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 }
 
 // Format swap results
-function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
+async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
