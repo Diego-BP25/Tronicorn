@@ -71,7 +71,7 @@ async function handleAmountSelectionSwap(ctx) {
     await ctx.reply('Please enter the amount of TRX to invest in the swap:');
     ctx.session.awaitingTrxAmount = true;
   } else {
-    ctx.session.swapAmount = parseFloat(selectedAmount); // Guardar siempre el monto seleccionado
+    ctx.session.swapData.swapAmount = parseFloat(selectedAmount); // Guardar siempre el monto seleccionado
     await showSlippageOptionsSwap(ctx);
   }
 }
@@ -82,6 +82,7 @@ async function handleCustomAmountSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomAmountSwap') {
     ctx.session.swapAmount = parseFloat(ctx.message.text); // Guardar el monto ingresado
     ctx.session.awaitingTrxAmount = false; // Resetear estado
+    await showSlippageOptionsSwap(ctx);
   }
 }
 
@@ -109,7 +110,7 @@ async function handleSlippageSelectionSwap(ctx) {
     ctx.session.awaitingSlippage = true;
 
   } else {
-    ctx.session.swapSlippage = parseFloat(selectedSlippageSwap);
+    ctx.session.swapData.swapSlippage = parseFloat(selectedSlippageSwap);
     await swapTokens(ctx);
   }
 }
@@ -117,11 +118,9 @@ async function handleSlippageSelectionSwap(ctx) {
 // Manejador para la entrada de deslizamiento personalizado
 async function  handleCustomSlippageSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomSlippageSwap') {
-    const input = ctx.message.text;
-    const slippage = parseFloat(input);
-    ctx.session.swapData.swapSlippage = parseFloat(slippage);
-    ctx.session.swapState = null; // Resetear estado
+    ctx.session.swapData.swapSlippage = parseFloat(ctx.message.text);
     ctx.session.awaitingSlippage = false;
+    await swapTokens(ctx);
     
   }
 }

@@ -159,11 +159,11 @@ bot.on('text', async (ctx) => {
   }
 
   if (ctx.session.awaitingSlippage) {
-    return swapTokens(ctx);
+    return handleCustomSlippageSwap(ctx);
   }
 
   if (ctx.session.awaitingTrxAmount) {
-    return showSlippageOptionsSwap(ctx);
+    return handleCustomAmountSwap(ctx);
   }
 
   if (ctx.session.Token) {
