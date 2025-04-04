@@ -533,6 +533,7 @@ function formatSwapResult(result, tokenDecimals, tokenSymbol) {
 
 
 module.exports = {
+  showSlippageOptionsSwap,
   executeSwap,
   handleCustomSlippageSwap,
   handleSlippageSelectionSwap,
