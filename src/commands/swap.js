@@ -263,6 +263,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
       await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol,ctx);
+      console.log('tokens18',ctx)
 
   } catch (error) {
       ctx.reply(`❌ Swap failed: ${error.message}`);
@@ -282,6 +283,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
           if (events.length > 0) {
               for (const event of events) {
                   if (event.event_name === 'Swap') {
+                    console.log('fetch',ctx)
 
                     await formatSwapResult(event.result, tokenDecimals, tokenSymbol,ctx);
                       return;
@@ -320,6 +322,8 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
   }
 
   const entryPrice = trxAmount / tokenAmount;
+  console.log('format',ctx)
+
 const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
  ctx.reply(message); 
 }
