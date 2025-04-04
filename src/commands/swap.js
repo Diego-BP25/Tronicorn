@@ -79,7 +79,7 @@ async function handleAmountSelectionSwap(ctx) {
 // Manejador para la entrada de monto personalizado
 async function handleCustomAmountSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomAmountSwap') {
-    ctx.session.swapData.swapAmount = parseFloat(ctx.message.text); // Guardar el monto ingresado
+    ctx.session.swapAmount = parseFloat(ctx.message.text); // Guardar el monto ingresado
     await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
   }
 }
