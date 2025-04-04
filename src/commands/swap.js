@@ -175,17 +175,6 @@ async function handleSwapType(ctx) {
   }
 }
 
-// Función para procesar el monto de TRX
-async function handleTrxAmount(ctx) {
-  if (ctx.session.awaitingTrxAmount) {
-    ctx.session.swapData.trxAmount = ctx.message.text;
-    ctx.session.awaitingTrxAmount = false;
-
-    // Llama a la función de swap con los datos proporcionados
-    await swapTRXForTokens(ctx);
-  }
-}
-
 // Function to fetch token decimals and symbol
 async function getTokenDetails(ctx) {
   const { tokenAddress, encryptedPrivateKey } = ctx.session.swapData;
@@ -553,7 +542,6 @@ module.exports = {
   amountTrxSwap,
   swapTokens,
   handleWalletSwap,
-  handleTrxAmount,
   handleSwapType
 
 };
