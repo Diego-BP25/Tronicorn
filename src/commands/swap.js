@@ -117,7 +117,9 @@ async function handleSlippageSelectionSwap(ctx) {
 // Manejador para la entrada de deslizamiento personalizado
 async function  handleCustomSlippageSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomSlippageSwap') {
-    ctx.session.swapSlippage = parseFloat(ctx.message.text);
+    const input = ctx.message.text;
+    const slippage = parseFloat(input);
+    ctx.session.swapSlippage = parseFloat(slippage);
     ctx.session.awaitingSlippage = false;
     await swapTokens(ctx);
     
