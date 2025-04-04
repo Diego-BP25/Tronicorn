@@ -119,9 +119,9 @@ async function  handleCustomSlippageSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomSlippageSwap') {
     const input = ctx.message.text;
     const slippage = parseFloat(input);
-    ctx.session.swapSlippage = parseFloat(slippage);
+    ctx.session.swapData.swapSlippage = parseFloat(slippage);
+    ctx.session.swapState = null; // Resetear estado
     ctx.session.awaitingSlippage = false;
-    await swapTokens(ctx);
     
   }
 }
