@@ -320,8 +320,8 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
   }
 
   const entryPrice = trxAmount / tokenAmount;
-  const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
-  await ctx.reply(message);
+const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
+ ctx.reply(message); 
 }
 
 // Swap function for 6-decimal tokens
