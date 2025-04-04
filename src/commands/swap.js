@@ -189,7 +189,7 @@ async function getTokenDetails(ctx) {
           tokenContract.decimals().call(),
           tokenContract.symbol().call()
       ]);
-      //await ctx.reply(`✅ Token: ${symbol}`);
+      await ctx.reply(`✅ Token: ${symbol}`);
       return { decimals: parseInt(decimals), symbol };
   } catch (error) {
       console.error("⚠️ Error fetching token details, defaulting to 6 decimals & UNKNOWN symbol:", error);
@@ -235,7 +235,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
 
-      //await ctx.reply(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
+      await ctx.reply(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
       let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
 
@@ -261,7 +261,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           DEADLINE
       ).send({ callValue: trxAmountInSun });
 
-      //ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
+      ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
       await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol,ctx);
 
   } catch (error) {
@@ -320,9 +320,8 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
   }
 
   const entryPrice = trxAmount / tokenAmount;
-
-  ctx.reply(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
-  ctx.reply(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
+  const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
+  await ctx.reply(message);
 }
 
 // Swap function for 6-decimal tokens
