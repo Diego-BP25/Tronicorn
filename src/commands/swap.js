@@ -82,7 +82,6 @@ async function handleCustomAmountSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomAmountSwap') {
     ctx.session.swapAmount = parseFloat(ctx.message.text); // Guardar el monto ingresado
     ctx.session.awaitingTrxAmount = false; // Resetear estado
-    await showSlippageOptionsSwap(ctx); // Pasar al siguiente paso
   }
 }
 
