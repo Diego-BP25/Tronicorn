@@ -262,7 +262,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       ).send({ callValue: trxAmountInSun });
 
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
-      await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol);
+      await fetchEventLogsWithRetries(ctx,transaction, 10, 3000, tokenDecimals, tokenSymbol);
 
   } catch (error) {
       ctx.reply(`❌ Swap failed: ${error.message}`);
@@ -270,7 +270,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 }
 
 // Fetch event logs with retries
-async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
+async function fetchEventLogsWithRetries(ctx,txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
   let attempts = 0;
 
   while (attempts < maxRetries) {
