@@ -225,8 +225,9 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
   ctx.session.swapData = ctx.session.swapData || {}
   console.log("SESSION DATA:", ctx.session);
 
-  const { walletAddress, tokenAddress, swapAmount, encryptedPrivateKey, swapSlippage  } = ctx.session.swapData;
-
+  const { swapAmount, swapSlippage, swapData } = ctx.session;
+  const { tokenAddress, encryptedPrivateKey } = swapData;
+  
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
