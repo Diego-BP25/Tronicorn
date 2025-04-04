@@ -244,10 +244,10 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       }
 
       let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(tokenDecimals));
-      console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
+      //console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
 
       const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - swapSlippage / 100);
-      console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.dividedBy(new BigNumber(10).pow(tokenDecimals)).toString()}`);
+      //console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.dividedBy(new BigNumber(10).pow(tokenDecimals)).toString()}`);
 
       if (swapSlippage === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
           ctx.reply("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
@@ -300,32 +300,56 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
   ctx.reply(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
 }
 
-// Format swap results
-async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
+// Formatear y mostrar los resultados del swap
+function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
   let trxAmount, tokenAmount;
 
   if (BigInt(result.amount0In) > 0 && BigInt(result.amount1Out) > 0) {
-      // Caso: TRX en amount0In → Token en amount1Out
       trxAmount = Number(BigInt(result.amount0In)) / 1_000_000; // Sun → TRX
       tokenAmount = Number(BigInt(result.amount1Out)) / (10 ** tokenDecimals);
   } else if (BigInt(result.amount1In) > 0 && BigInt(result.amount0Out) > 0) {
-      // Caso: TRX en amount1In → Token en amount0Out
       trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
       tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
   } else {
-      ctx.reply(`❌ Invalid swap data for ${tokenSymbol}.`);
+      console.log(`❌ Datos de swap inválidos para ${tokenSymbol}.`);
       return;
   }
 
   const entryPrice = trxAmount / tokenAmount;
-  console.log('format',ctx)
-  await ctx.reply('hola')
-const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
- await ctx.reply(message); 
+
+  ctx.reply(`You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
+  ctx.reply(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
 }
+
+// Format swap results
+// async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
+//   const amount0In = parseInt(result.amount0In);
+//   const amount1Out = parseInt(result.amount1Out);
+
+//   let trxAmount, tokenAmount;
+
+//   if (BigInt(result.amount0In) > 0 && BigInt(result.amount1Out) > 0) {
+//       // Caso: TRX en amount0In → Token en amount1Out
+//       trxAmount = Number(BigInt(result.amount0In)) / 1_000_000; // Sun → TRX
+//       tokenAmount = Number(BigInt(result.amount1Out)) / (10 ** tokenDecimals);
+//   } else if (BigInt(result.amount1In) > 0 && BigInt(result.amount0Out) > 0) {
+//       // Caso: TRX en amount1In → Token en amount0Out
+//       trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
+//       tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
+//   } else {
+//       ctx.reply(`❌ Invalid swap data for ${tokenSymbol}.`);
+//       return;
+//   }
+
+//   const entryPrice = trxAmount / tokenAmount;
+//   console.log('format',ctx)
+//   await ctx.reply('hola')
+// const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
+//  await ctx.reply(message); 
+// }
 
 // Swap function for 6-decimal tokens
 async function swapTRXForTokens6(trxAmount, tokenAddress, tokenSymbol, slippageTolerance) {
@@ -505,34 +529,6 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 
     console.log(`⚠️ No se encontraron eventos de swap para ${tokenSymbol} después de varios intentos.`);
 }
-
-// Formatear y mostrar los resultados del swap
-function formatSwapResult(result, tokenDecimals, tokenSymbol) {
-  const amount0In = parseInt(result.amount0In);
-  const amount1Out = parseInt(result.amount1Out);
-
-  let trxAmount, tokenAmount;
-
-  if (BigInt(result.amount0In) > 0 && BigInt(result.amount1Out) > 0) {
-      trxAmount = Number(BigInt(result.amount0In)) / 1_000_000; // Sun → TRX
-      tokenAmount = Number(BigInt(result.amount1Out)) / (10 ** tokenDecimals);
-  } else if (BigInt(result.amount1In) > 0 && BigInt(result.amount0Out) > 0) {
-      trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
-      tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
-  } else {
-      console.log(`❌ Datos de swap inválidos para ${tokenSymbol}.`);
-      return;
-  }
-
-  const entryPrice = trxAmount / tokenAmount;
-
-  console.log(`✅ Has cambiado ${trxAmount.toFixed(6)} TRX por ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
-  console.log(`💰 Precio de entrada: ${entryPrice.toFixed(8)} TRX por ${tokenSymbol}`);
-}
-
-
-
-
 
 module.exports = {
   showSlippageOptionsSwap,
