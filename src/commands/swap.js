@@ -262,6 +262,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       ).send({ callValue: trxAmountInSun });
 
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
       await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol,ctx);
 
   } catch (error) {
