@@ -265,7 +265,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol);
 
   } catch (error) {
-      XSLTProcessor.retry(`❌ Swap failed: ${error.message}`);
+      ctx.retry(`❌ Swap failed: ${error.message}`);
   }
 }
 
