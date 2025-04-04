@@ -189,7 +189,7 @@ async function getTokenDetails(ctx) {
           tokenContract.decimals().call(),
           tokenContract.symbol().call()
       ]);
-      await ctx.reply(`✅ Token: ${symbol}`);
+      //await ctx.reply(`✅ Token: ${symbol}`);
       return { decimals: parseInt(decimals), symbol };
   } catch (error) {
       console.error("⚠️ Error fetching token details, defaulting to 6 decimals & UNKNOWN symbol:", error);
@@ -235,7 +235,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
 
-      await ctx.reply(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
+      //await ctx.reply(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
       let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
 
@@ -261,8 +261,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           DEADLINE
       ).send({ callValue: trxAmountInSun });
 
-      ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      //ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
       await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol,ctx);
 
   } catch (error) {
