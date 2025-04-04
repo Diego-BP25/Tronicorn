@@ -214,7 +214,7 @@ async function executeSwap(ctx) {
   }
 
   if (decimals === 18) {
-      await swapTRXForTokens18(ctx,swapAmount, tokenAddress, decimals, symbol, swapSlippage);
+      await swapTRXForTokens18(ctx, decimals, symbol);
   } else {
       await swapTRXForTokens6(swapAmount, tokenAddress, symbol, swapSlippage);
   }
@@ -224,6 +224,10 @@ async function executeSwap(ctx) {
 async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
   ctx.session.swapData = ctx.session.swapData || {}
   console.log("SESSION DATA:", ctx.session);
+  console.log("decimal", tokenDecimals);
+  console.log("symbol", tokenSymbol);
+
+
 
   const { swapAmount, swapSlippage, swapData } = ctx.session;
   const { tokenAddress, encryptedPrivateKey } = swapData;
@@ -248,10 +252,10 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(tokenDecimals));
       console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
 
-      const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - slippageTolerance / 100);
+      const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - swapSlippage / 100);
       console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.dividedBy(new BigNumber(10).pow(tokenDecimals)).toString()}`);
 
-      if (slippageTolerance === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
+      if (swapSlippage === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
           ctx.reply("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
           return;
       }
