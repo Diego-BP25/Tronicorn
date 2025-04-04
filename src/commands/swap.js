@@ -261,6 +261,8 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           DEADLINE
       ).send({ callValue: trxAmountInSun });
 
+      // Guardar ctx en la sesión para recuperarlo después
+    ctx.session.lastContext = ctx;
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
       await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol,ctx);
 
