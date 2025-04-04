@@ -155,7 +155,11 @@ bot.on('text', async (ctx) => {
   }
 
   if (ctx.session.awaitingTokenAddress) {
-    return executeSwap(ctx);
+    return swapTokens(ctx);
+  }
+
+  if (ctx.session.awaitingSlippage) {
+    return swapTokens(ctx);
   }
 
   if (ctx.session.awaitingTrxAmount) {
