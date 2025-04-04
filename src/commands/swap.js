@@ -283,13 +283,13 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
               for (const event of events) {
                   if (event.event_name === 'Swap') {
 
-                      formatSwapResult(event.result, tokenDecimals, tokenSymbol);
+                      formatSwapResult(ctx,event.result, tokenDecimals, tokenSymbol);
                       return;
                   }
               }
           }
       } catch (err) {
-          console.error(`⚠️ Error retrieving swap events for ${tokenSymbol}:`, err);
+          ctx.reply(`⚠️ Error retrieving swap events for ${tokenSymbol}:`, err);
       }
 
       attempts++;
@@ -300,7 +300,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 }
 
 // Format swap results
-function formatSwapResult(result, tokenDecimals, tokenSymbol) {
+function formatSwapResult(ctx,result, tokenDecimals, tokenSymbol) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
