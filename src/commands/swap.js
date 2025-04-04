@@ -301,7 +301,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 }
 
 // Formatear y mostrar los resultados del swap
-function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
+async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
@@ -320,8 +320,8 @@ function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
 
   const entryPrice = trxAmount / tokenAmount;
 
-  ctx.reply(`You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
-  ctx.reply(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
+  await ctx.reply(`You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
+  await ctx.reply(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
 }
 
 // Format swap results
