@@ -271,7 +271,11 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
     };
 
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
-
+// Validar chatId antes de continuar
+if (!ctx.chat?.id) {
+  console.error('Error: chatId no está definidoo');
+  return;
+}
        setImmediate(async () => {
       try {
         await fetchEventLogsWithRetries(
@@ -280,7 +284,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           3000,
           tokenDecimals,
           tokenSymbol,
-          ctx.chat.id // Pasamos solo el chatId
+          ctx.chat.id.toString // Pasamos solo el chatId
         );
       } catch (error) {
         console.error("Error en procesamiento secundario:", error);
@@ -298,6 +302,13 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 
 // Fetch event logs with retries
 async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol,chatId) {
+
+  // Validar chatId antes de continuar
+  if (!ctx.chat?.id) {
+    console.error('Error: chatId no está definido');
+    return;
+  }
+
   let attempts = 0;
 
   while (attempts < maxRetries) {
@@ -310,7 +321,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
               for (const event of events) {
                   if (event.event_name === 'Swap') {
 
-                    await formatSwapResult(event.result, tokenDecimals, tokenSymbol,chatId);
+                    await formatSwapResult(event.result, tokenDecimals, tokenSymbol,chatId.toString);
                       return;
                   }
               }
@@ -348,7 +359,9 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, chatId) {
   }
 
   const entryPrice = trxAmount / tokenAmount;
-
+if (!chatId) {
+      throw new Error("chatId no proporcionado");
+    }
   await bot.telegram.sendMessage(chatId,`You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
  await bot.telegram.sendMessage(chatId,`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
 }
