@@ -1,6 +1,6 @@
 const { fetchAllWallets, fetch_Private_key } = require("../service/user.service");
-const { Markup } = require('telegraf');
-const bot = Telegraf(process.env.BOT_TOKEN)
+const { Markup, Telegraf  } = require('telegraf');
+const bot = new Telegraf(process.env.BOT_TOKEN)
 const { decrypt } = require('../utils/tron');
 const TronWeb = require('tronweb').TronWeb;
 const BigNumber = require('bignumber.js');
