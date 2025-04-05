@@ -259,12 +259,36 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           path,
           tronWeb.defaultAddress.base58,
           DEADLINE
+          
       ).send({ callValue: trxAmountInSun });
 
-      // Guardar ctx en la sesión para recuperarlo después
-    ctx.session.lastContext = ctx;
+       // Guardar información necesaria en la sesión
+    ctx.session.swapContext = {
+      chatId: ctx.chat.id,
+      tokenDecimals,
+      tokenSymbol
+    };
+
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
-      await fetchEventLogsWithRetries(transaction, 10, 3000, tokenDecimals, tokenSymbol,ctx);
+
+       setImmediate(async () => {
+      try {
+        await fetchEventLogsWithRetries(
+          transaction,
+          10,
+          3000,
+          tokenDecimals,
+          tokenSymbol,
+          ctx.chat.id // Pasamos solo el chatId
+        );
+      } catch (error) {
+        console.error("Error en procesamiento secundario:", error);
+        await bot.telegram.sendMessage(
+          ctx.chat.id,
+          `⚠️ Error al procesar los resultados del swap: ${error.message}`
+        );
+      }
+    });
 
   } catch (error) {
       ctx.reply(`❌ Swap failed: ${error.message}`);
@@ -272,7 +296,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 }
 
 // Fetch event logs with retries
-async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol,ctx) {
+async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol,chatId) {
   let attempts = 0;
 
   while (attempts < maxRetries) {
@@ -284,16 +308,15 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
           if (events.length > 0) {
               for (const event of events) {
                   if (event.event_name === 'Swap') {
-                    console.log('fetch',ctx)
 
-                    await formatSwapResult(event.result, tokenDecimals, tokenSymbol,ctx);
+                    await formatSwapResult(event.result, tokenDecimals, tokenSymbol,chatId);
                       return;
                   }
               }
           }
       } catch (err) {
         console.error(`⚠️ Error retrieving swap events for ${tokenSymbol}:`, err);
-        await ctx.reply(`⚠️ Ocurrió un error al obtener el swap de ${tokenSymbol}.`);      }
+        await bot.telegram.sendMessage(chatId,`⚠️ Ocurrió un error al obtener el swap de ${tokenSymbol}.`);      }
 
       attempts++;
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -303,7 +326,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 }
 
 // Formatear y mostrar los resultados del swap
-async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
+async function formatSwapResult(result, tokenDecimals, tokenSymbol, chatId) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
@@ -316,42 +339,18 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
       trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
       tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
   } else {
-      console.log(`❌ Datos de swap inválidos para ${tokenSymbol}.`);
+    await bot.telegram.sendMessage(
+      chatId,
+      `❌ Invalid swap data for ${tokenSymbol}.`
+    )
       return;
   }
 
   const entryPrice = trxAmount / tokenAmount;
 
-  await ctx.reply(`You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
-  await ctx.reply(`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
+  await bot.telegram.sendMessage(chatId,`You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`);
+ await bot.telegram.sendMessage(chatId,`💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`);
 }
-
-// Format swap results
-// async function formatSwapResult(result, tokenDecimals, tokenSymbol,ctx) {
-//   const amount0In = parseInt(result.amount0In);
-//   const amount1Out = parseInt(result.amount1Out);
-
-//   let trxAmount, tokenAmount;
-
-//   if (BigInt(result.amount0In) > 0 && BigInt(result.amount1Out) > 0) {
-//       // Caso: TRX en amount0In → Token en amount1Out
-//       trxAmount = Number(BigInt(result.amount0In)) / 1_000_000; // Sun → TRX
-//       tokenAmount = Number(BigInt(result.amount1Out)) / (10 ** tokenDecimals);
-//   } else if (BigInt(result.amount1In) > 0 && BigInt(result.amount0Out) > 0) {
-//       // Caso: TRX en amount1In → Token en amount0Out
-//       trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
-//       tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
-//   } else {
-//       ctx.reply(`❌ Invalid swap data for ${tokenSymbol}.`);
-//       return;
-//   }
-
-//   const entryPrice = trxAmount / tokenAmount;
-//   console.log('format',ctx)
-//   await ctx.reply('hola')
-// const message = `✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(8)} TRX per ${tokenSymbol}`;
-//  await ctx.reply(message); 
-// }
 
 // Swap function for 6-decimal tokens
 async function swapTRXForTokens6(trxAmount, tokenAddress, tokenSymbol, slippageTolerance) {
@@ -436,72 +435,6 @@ async function listenForSwapEvents(txID, tokenAddress, trxAmount, tokenDecimals,
   ctx.reply(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
 }
 
-
-// Función de swap final usando los datos recopilados y clave privada desencriptada
-async function swapTRXForTokens(ctx) {
-  const { walletAddress, tokenAddress, trxAmount, encryptedPrivateKey } = ctx.session.swapData;
-
-  try {
-
-    // Desencripta la clave privada
-    const decryptedPrivateKey = decrypt(encryptedPrivateKey);
-    
-        // Inicializa TronWeb con la clave privada específica de la wallet
-        const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
-
-
-    const trxAmountInSun = tronWeb.toSun(trxAmount); // Convierte el monto a SUN
-    const commissionAmount = trxAmountInSun * commissionRate;
-    const netTrxAmount = trxAmountInSun - commissionAmount;
-  
-    const tokenContract = await tronWeb.contract(tokenDetailsABI, tokenAddress);
-    const decimals = await tokenContract.decimals().call();
-    const symbol = await tokenContract.symbol().call();
-
-    await ctx.reply (`✅ Token: ${symbol} (${decimals} decimals)`);
-    
-
-    // Transferir la comisión a la billetera del bot
-    await tronWeb.trx.sendTransaction(botAddress, commissionAmount);
-
-    const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
-    const path = [
-      'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR', // Dirección de WTRX (para swaps de TRX a tokens)
-      tokenAddress // Dirección del token objetivo proporcionado por el usuario
-    ];
-    const amountOutMin = tronWeb.toSun('0.1'); // Ajusta el mínimo a recibir según tu lógica
-    const recipient = walletAddress; // Usa la wallet seleccionada por el usuario
-    const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutos desde ahora
-    let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
-
-
-    let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(decimals));
-    console.log(`${amountsOut}`)
-    await ctx.reply(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${symbol}`);
-
-    // Realiza el swap
-    const transaction = await routerContract.methods.swapExactETHForTokens(
-      amountOutMin,
-      path,
-      recipient,
-      deadline
-    ).send({
-      callValue: netTrxAmount, // Monto en TRX
-      shouldPollResponse: true
-    });
-
-    // Generar el enlace de Tronscan con el hash de la transacción
-    const tronScanLink = `https://tronscan.org/#/transaction/${transaction.txid}`;
-
-    // Esperar y obtener los logs del swap
-    await fetchEventLogsWithRetries(transaction, 10, 5000, decimals, symbol);
-
-    await ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}\n\n🔗 [view in Tronscan](${tronScanLink}`);
-  } catch (error) {
-    console.error('Error swapping TRX for tokens:', error);
-    await ctx.reply("Error swapping TRX for tokens. Please check the details and try again.");
-  }
-}
 
 // Función para obtener logs de la transacción con reintentos
 async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
