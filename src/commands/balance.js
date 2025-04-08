@@ -1,4 +1,4 @@
-const { tronWeb } = require('../utils/tron1');
+const { tronWeb, ensureTronWebReady } = require('../utils/tron1');
 const { fetchAllWallets } = require("../service/user.service");
 const { Markup } = require('telegraf');
 const axios = require('axios');
