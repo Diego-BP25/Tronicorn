@@ -468,36 +468,6 @@ async function listenForSwapEvents(txID, tokenAddress, trxAmount, tokenDecimals,
   ctx.reply(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
 }
 
-
-// Función para obtener logs de la transacción con reintentos
-async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol) {
-    let attempts = 0;
-
-    while (attempts < maxRetries) {
-        try {
-            const eventUrl = `${FULL_NODE}/v1/transactions/${txID}/events`;
-            const eventResponse = await axios.get(eventUrl);
-            const events = eventResponse.data.data;
-
-            if (events.length > 0) {
-                for (const event of events) {
-                    if (event.event_name === 'Swap') {
-                        formatSwapResult(event.result, tokenDecimals, tokenSymbol);
-                        return;
-                    }
-                }
-            }
-        } catch (err) {
-            console.error(`⚠️ Error obteniendo eventos de swap para ${tokenSymbol}:`, err);
-        }
-
-        attempts++;
-        await new Promise(resolve => setTimeout(resolve, delay));
-    }
-
-    console.log(`⚠️ No se encontraron eventos de swap para ${tokenSymbol} después de varios intentos.`);
-}
-
 module.exports = {
   showSlippageOptionsSwap,
   executeSwap,
