@@ -226,7 +226,8 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 
   const { swapAmount, swapSlippage, swapData } = ctx.session;
   const { tokenAddress, encryptedPrivateKey } = swapData;
-  
+
+  await fetchEventLogsWithRetries (ctx)
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
@@ -307,7 +308,7 @@ ctx.session.lastValidChatId = chatId;
 }
 
 // Fetch event logs with retries
-async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol,chatId) {
+async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol,chatId, ctx) {
 
   // Validar chatId antes de continuar
   if (!ctx.chat?.id) {
@@ -340,13 +341,14 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 
       attempts++;
       await new Promise(resolve => setTimeout(resolve, delay));
+      await formatSwapResult (ctx)
   }
 
   ctx.reply(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
 }
 
 // Formatear y mostrar los resultados del swap
-async function formatSwapResult(result, tokenDecimals, tokenSymbol, chatId) {
+async function formatSwapResult(result, tokenDecimals, tokenSymbol, chatId, ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
@@ -379,6 +381,7 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, chatId) {
     `💰 Price: ${entryPrice.toFixed(8)} TRX/${tokenSymbol}`
   ];
 
+  await ctx.reply (messages)
   await bot.telegram.sendMessage(chatId,messages);
 }
 
