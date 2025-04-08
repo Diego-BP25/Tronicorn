@@ -102,7 +102,7 @@ async function findPairOnDexScreener(tokenAddress) {
   }
 }
 
-const { tronWeb, ensureTronWebReady } = require('../utils/tron');
+const { tronWeb, ensureTronWebReady } = require('../utils/tron1');
 
 async function getTokenDecimals(tokenAddress) {
   try {
