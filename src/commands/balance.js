@@ -102,9 +102,11 @@ async function findPairOnDexScreener(tokenAddress) {
   }
 }
 
+const { tronWeb, ensureTronWebReady } = require('../utils/tron');
+
 async function getTokenDecimals(tokenAddress) {
   try {
-    if (!tronWeb?.ready) throw new Error("TronWeb not initialized");
+    await ensureTronWebReady(); // ← added
     if (!tokenAddress) throw new Error("Missing token address");
 
     const tokenContract = await tronWeb.contract(tokenABI, tokenAddress);
@@ -112,95 +114,99 @@ async function getTokenDecimals(tokenAddress) {
     return parseInt(decimals);
   } catch (error) {
     console.error(`Decimals error for ${tokenAddress}:`, error.message);
-    return 6;
+    return 6; // default fallback
   }
 }
 
 async function getTokenPriceInTRX(tokenAddress) {
-  try {
-    const pairAddress = await findPairOnDexScreener(tokenAddress);
-    if (!pairAddress) return null;
-
-    const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
-    const [token0Address, token1Address] = await Promise.all([
-      pairContract.token0().call(),
-      pairContract.token1().call()
-    ]);
-
-    const [token0Decimals, token1Decimals] = await Promise.all([
-      getTokenDecimals(token0Address),
-      getTokenDecimals(token1Address)
-    ]);
-
-    const reserves = await pairContract.getReserves().call();
-    const r0 = Number(reserves.reserve0) / (10 ** token0Decimals);
-    const r1 = Number(reserves.reserve1) / (10 ** token1Decimals);
-
-    if (r0 === 0 || r1 === 0) {
-      throw new Error("Zero liquidity");
+    try {
+      await ensureTronWebReady(); // ← added
+  
+      const pairAddress = await findPairOnDexScreener(tokenAddress);
+      if (!pairAddress) return null;
+  
+      const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
+      const [token0Address, token1Address] = await Promise.all([
+        pairContract.token0().call(),
+        pairContract.token1().call()
+      ]);
+  
+      const [token0Decimals, token1Decimals] = await Promise.all([
+        getTokenDecimals(token0Address),
+        getTokenDecimals(token1Address)
+      ]);
+  
+      const reserves = await pairContract.getReserves().call();
+      const r0 = Number(reserves.reserve0) / (10 ** token0Decimals);
+      const r1 = Number(reserves.reserve1) / (10 ** token1Decimals);
+  
+      if (r0 === 0 || r1 === 0) {
+        throw new Error("Zero liquidity");
+      }
+  
+      const price =
+        token0Address === TRX_CONTRACT_ADDRESS
+          ? r0 / r1
+          : token1Address === TRX_CONTRACT_ADDRESS
+          ? r1 / r0
+          : null;
+  
+      return price;
+    } catch (error) {
+      console.error("Price calculation failed:", error.message);
+      return null;
     }
-
-    const price =
-      token0Address === TRX_CONTRACT_ADDRESS
-        ? r0 / r1
-        : token1Address === TRX_CONTRACT_ADDRESS
-        ? r1 / r0
-        : null;
-
-    return price;
-  } catch (error) {
-    console.error("Price calculation failed:", error.message);
-    return null;
   }
-}
-
+    
 // ==================== BALANCE FETCHING ====================
 async function getTRC20Balance(address) {
-  try {
-    const fetch = (...args) =>
-      import('node-fetch').then(({ default: fetch }) => fetch(...args));
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-
-    const response = await fetch(
-      `https://apilist.tronscanapi.com/api/account/wallet?address=${address}&asset_type=1`,
-      { signal: controller.signal }
-    );
-
-    clearTimeout(timeout);
-    if (!response.ok) throw new Error(`Tronscan API: ${response.status}`);
-    const { data: assets } = await response.json();
-
-    if (!assets?.length) return `No tokens found for ${address}`;
-
-    let report = `💼 *Wallet Address*\n${address}\n[🌍 Tronscan](https://tronscan.org/#/address/${address})`;
-
-    for (const asset of assets) {
-      if (!asset.token_address) continue;
-
-      const decimals = await getTokenDecimals(asset.token_address);
-      const balance = (asset.balance / (10 ** decimals)).toFixed(6);
-      const usdValue = parseFloat(asset.token_value_in_usd || 0).toFixed(6);
-
-      let trxValue = "N/A";
-      if (asset.token_name.toLowerCase() === 'trx') {
-        trxValue = balance;
-      } else {
-        const price = await getTokenPriceInTRX(asset.token_address);
-        trxValue = price ? (price * parseFloat(balance)).toFixed(6) : "N/A";
+    try {
+      await ensureTronWebReady(); // ← added
+  
+      const fetch = (...args) =>
+        import('node-fetch').then(({ default: fetch }) => fetch(...args));
+  
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+  
+      const response = await fetch(
+        `https://apilist.tronscanapi.com/api/account/wallet?address=${address}&asset_type=1`,
+        { signal: controller.signal }
+      );
+  
+      clearTimeout(timeout);
+      if (!response.ok) throw new Error(`Tronscan API: ${response.status}`);
+      const { data: assets } = await response.json();
+  
+      if (!assets?.length) return `No tokens found for ${address}`;
+  
+      let report = `💼 *Wallet Address*\n${address}\n[🌍 Tronscan](https://tronscan.org/#/address/${address})`;
+  
+      for (const asset of assets) {
+        if (!asset.token_address) continue;
+  
+        const decimals = await getTokenDecimals(asset.token_address);
+        const balance = (asset.balance / (10 ** decimals)).toFixed(6);
+        const usdValue = parseFloat(asset.token_value_in_usd || 0).toFixed(6);
+  
+        let trxValue = "N/A";
+        if (asset.token_name.toLowerCase() === 'trx') {
+          trxValue = balance;
+        } else {
+          const price = await getTokenPriceInTRX(asset.token_address);
+          trxValue = price ? (price * parseFloat(balance)).toFixed(6) : "N/A";
+        }
+  
+        report += `\n\n────────────────\nToken: ${asset.token_name || "Unknown"} (${asset.token_abbr || "?"})\nBalance: ${balance}\nUSD Value: ${usdValue}\nTRX Value: ${trxValue}`;
       }
-
-      report += `\n\n────────────────\nToken: ${asset.token_name || "Unknown"} (${asset.token_abbr || "?"})\nBalance: ${balance}\nUSD Value: ${usdValue}\nTRX Value: ${trxValue}`;
+  
+      return report;
+    } catch (error) {
+      console.error("Balance fetch failed:", error.message);
+      return "Error fetching balance. Please try again later.";
     }
-
-    return report;
-  } catch (error) {
-    console.error("Balance fetch failed:", error.message);
-    return "Error fetching balance. Please try again later.";
   }
-}
-
+  
 // ==================== TELEGRAM HANDLERS ====================
 async function balanceCommand(ctx) {
   try {
