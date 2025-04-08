@@ -1,4 +1,4 @@
-const { tronWeb, ensureTronWebReady } = require('../utils/tron1');
+const { TronWeb, ensureTronWebReady } = require('../utils/tron1');
 const { fetchAllWallets } = require("../service/user.service");
 const { Markup } = require('telegraf');
 const axios = require('axios');
@@ -102,14 +102,14 @@ async function findPairOnDexScreener(tokenAddress) {
   }
 }
 
-const { tronWeb, ensureTronWebReady } = require('../utils/tron1');
+const { TronWeb, ensureTronWebReady } = require('../utils/tron1');
 
 async function getTokenDecimals(tokenAddress) {
   try {
     await ensureTronWebReady(); // ← added
     if (!tokenAddress) throw new Error("Missing token address");
 
-    const tokenContract = await tronWeb.contract(tokenABI, tokenAddress);
+    const tokenContract = await TronWeb.contract(tokenABI, tokenAddress);
     const decimals = await tokenContract.decimals().call();
     return parseInt(decimals);
   } catch (error) {
@@ -125,7 +125,7 @@ async function getTokenPriceInTRX(tokenAddress) {
       const pairAddress = await findPairOnDexScreener(tokenAddress);
       if (!pairAddress) return null;
   
-      const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
+      const pairContract = await TronWeb.contract(tokenPairABI, pairAddress);
       const [token0Address, token1Address] = await Promise.all([
         pairContract.token0().call(),
         pairContract.token1().call()
