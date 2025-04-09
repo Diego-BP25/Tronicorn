@@ -135,16 +135,14 @@ async function getTRC20Balance(address) {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
       const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
-      const TokenName= asset.token_name
+      const TokenName= asset.token_id;
       let valueInTRX;
 
       if (TokenName.toLowerCase() === "trx") {
         valueInTRX = roundedBalance;
       } else {
-        console.log("Asset completo:", asset);
-
-        console.log("Token:", TokenName, "ID:", asset.tokenId);
-        const tokenPriceInTRX = await getTokenPriceInTRX(asset.tokenId);
+        console.log("Asset completo:", asset.token_id);
+        const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
         valueInTRX = tokenPriceInTRX
           ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
           : "N/A";
