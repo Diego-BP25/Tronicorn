@@ -291,13 +291,13 @@ if (!ctx.chat?.id) {
 }
 
 // Fetch event logs with retries
-async function fetchEventLogsWithRetries({txID,  maxRetries = 10, delay = 3000, tokenDecimals, tokenSymbol, ctx}) {
-  console.log("fetchEventLogsWithRetries",txID, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
+async function fetchEventLogsWithRetries({transaction,  maxRetries = 10, delay = 3000, tokenDecimals, tokenSymbol, ctx}) {
+  console.log("fetchEventLogsWithRetries",transaction, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
   let attempts = 0;
 
   while (attempts < maxRetries) {
       try {
-          const eventUrl = `${FULL_NODE}/v1/transactions/${txID}/events`;
+          const eventUrl = `${FULL_NODE}/v1/transactions/${transaction}/events`;
           const eventResponse = await axios.get(eventUrl);
           const events = eventResponse.data.data;
 
@@ -338,19 +338,13 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
       trxAmount = Number(BigInt(result.amount1In)) / 1_000_000; // Sun → TRX
       tokenAmount = Number(BigInt(result.amount0Out)) / (10 ** tokenDecimals);
   } else {
-    await bot.telegram.sendMessage(
-      chatId,
+    await ctx.reply(
       `❌ Invalid swap data for ${tokenSymbol}.`
     )
       return;
   }
 
   const entryPrice = trxAmount / tokenAmount;
-  if (!chatId || typeof chatId !== 'string') {
-    console.error('❌ Error FATAL: chatId inválido:', chatId);
-    throw new Error('ID de chat no válido');
-  }
-  console.log(`Procesando resultados para chatId: ${chatId}`);
 
   // Enviar mensajes con verificación EXTRA
   const messages = [
