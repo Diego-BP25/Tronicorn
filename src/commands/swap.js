@@ -274,7 +274,8 @@ if (!ctx.chat?.id) {
         await fetchEventLogsWithRetries({
           transaction,
           tokenDecimals,
-          tokenSymbol
+          tokenSymbol,
+          ctx
            // Pasamos solo el chatId
       });
       } catch (error) {
@@ -286,7 +287,6 @@ if (!ctx.chat?.id) {
   } catch (error) {
       ctx.reply(`❌ Swap failed: ${error.message}`);
   }
-  await fetchEventLogsWithRetries ({ctx})
 
 }
 
