@@ -149,7 +149,7 @@ async function getTRC20Balance(address) {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
       const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
-      const TokenName= asset.token_id;
+      const tokenName = escapeMarkdown(asset.token_id || "");
       let valueInTRX;
 
       if (tokenName.toLowerCase() === "trx") {
@@ -160,7 +160,7 @@ async function getTRC20Balance(address) {
         valueInTRX = tokenPriceInTRX
           ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
           : "N/A";
-      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${TokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
+      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
     };
 
     return balanceReport;
