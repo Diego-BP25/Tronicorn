@@ -227,7 +227,6 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
   const { swapAmount, swapSlippage, swapData } = ctx.session;
   const { tokenAddress, encryptedPrivateKey } = swapData;
 
-  await fetchEventLogsWithRetries (ctx)
       // Desencripta la clave privada
       const decryptedPrivateKey = decrypt(encryptedPrivateKey);
 
@@ -264,60 +263,36 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           
       ).send({ callValue: trxAmountInSun });
 
-       // Guardar información necesaria en la sesión
-    ctx.session.swapContext = {
-      chatId: ctx.chat.id,
-      tokenDecimals,
-      tokenSymbol
-    };
-
       ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
 // Validar chatId antes de continuar
 if (!ctx.chat?.id) {
   console.error('Error: chatId no está definidoo');
   return;
 }
-const chatId = ctx.chat.id.toString(); // Convertir a string siempre
-
-// Guardar en sesión para depuración
-ctx.session.lastValidChatId = chatId;
-
        setImmediate(async () => {
       try {
-        await fetchEventLogsWithRetries(
+        await fetchEventLogsWithRetries({
           transaction,
-          10,
-          3000,
           tokenDecimals,
-          tokenSymbol,
-          chatId
+          tokenSymbol
            // Pasamos solo el chatId
-        );
+      });
       } catch (error) {
         console.error("Error en procesamiento secundario:", error);
-        await bot.telegram.sendMessage(
-          ctx.chat.id,
-          `⚠️ Error al procesar los resultados del swap: ${error.message}`
-        );
+        
       }
     });
 
   } catch (error) {
       ctx.reply(`❌ Swap failed: ${error.message}`);
   }
+  await fetchEventLogsWithRetries ({ctx})
+
 }
 
 // Fetch event logs with retries
-async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals, tokenSymbol,chatId, ctx) {
-
-  // Validar chatId antes de continuar
-  if (!ctx.chat?.id) {
-    console.error('Error: chatId no está definido');
-    return;
-  }
-
-  console.log(`Buscando eventos para chatId: ${chatId}`);
-
+async function fetchEventLogsWithRetries(txID,  maxRetries = 10, delay = 3000, tokenDecimals, tokenSymbol, ctx) {
+  console.log(txID, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
   let attempts = 0;
 
   while (attempts < maxRetries) {
@@ -330,7 +305,7 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
               for (const event of events) {
                   if (event.event_name === 'Swap') {
 
-                    await formatSwapResult(event.result, tokenDecimals, tokenSymbol,chatId);
+                    await formatSwapResult(event.result, tokenDecimals, tokenSymbol, ctx);
                       return;
                   }
               }
@@ -341,16 +316,18 @@ async function fetchEventLogsWithRetries(txID, maxRetries, delay, tokenDecimals,
 
       attempts++;
       await new Promise(resolve => setTimeout(resolve, delay));
-      await formatSwapResult (ctx)
   }
 
   ctx.reply(`⚠️ No swap events found for ${tokenSymbol} after multiple attempts.`);
 }
 
 // Formatear y mostrar los resultados del swap
-async function formatSwapResult(result, tokenDecimals, tokenSymbol, chatId, ctx) {
+async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
+
+  console.log(txID, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
+
 
   let trxAmount, tokenAmount;
 
@@ -382,7 +359,6 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, chatId, ctx)
   ];
 
   await ctx.reply (messages)
-  await bot.telegram.sendMessage(chatId,messages);
 }
 
 // Swap function for 6-decimal tokens
