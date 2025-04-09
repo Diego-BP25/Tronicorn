@@ -397,8 +397,20 @@ async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
 
       await ctx.reply(`✅ Swap executed! Transaction Hash: ${transaction}`);
 
-      // ✅ Correct event tracking for 6-decimal tokens
-      await listenForSwapEvents({transaction, swapAmount, tokenDecimals, tokenSymbol, ctx});
+      setImmediate(async () => {
+        try {
+          await listenForSwapEvents({
+            transaction,
+            swapAmount,
+            tokenDecimals,
+            tokenSymbol,
+            ctx
+        });
+        } catch (error) {
+          console.error("Error en procesamiento secundario:", error);
+          
+        }
+      });
 
   } catch (error) {
       console.error(`❌ Swap failed for ${tokenSymbol}:`, error.message || error);
@@ -406,8 +418,8 @@ async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
 }
 
 // Fetch swap logs for 6-decimal tokens
-async function listenForSwapEvents({txID, swapAmount, tokenDecimals, tokenSymbol, ctx}) {
-  const eventUrl = `https://api.trongrid.io/v1/transactions/${txID}/events`;
+async function listenForSwapEvents({transaction, swapAmount, tokenDecimals, tokenSymbol, ctx}) {
+  const eventUrl = `https://api.trongrid.io/v1/transactions/${transaction}/events`;
 
   for (let i = 0; i < 10; i++) {
       try {
