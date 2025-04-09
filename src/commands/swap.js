@@ -348,8 +348,8 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
 
   // Enviar mensajes con verificación EXTRA
   const messages = [
-    `✅ Swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}`,
-    `💰 Price: ${entryPrice.toFixed(8)} TRX/${tokenSymbol}`
+    `✅ Swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n
+    💰 Price: ${entryPrice.toFixed(8)} TRX/${tokenSymbol}`
   ];
 
   await ctx.reply (messages)
