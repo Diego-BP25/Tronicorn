@@ -133,6 +133,7 @@ async function getTRC20Balance(address) {
 
     for (const asset of assets)  {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
+      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
       const TokenName= asset.token_name
       let valueInTRX;
@@ -141,7 +142,6 @@ async function getTRC20Balance(address) {
         valueInTRX = roundedBalance;
       } else {
         console.log("Token:", TokenName, "ID:", asset.tokenId);
-
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.tokenId);
         valueInTRX = tokenPriceInTRX
           ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
