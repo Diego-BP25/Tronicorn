@@ -141,6 +141,8 @@ async function getTRC20Balance(address) {
       if (TokenName.toLowerCase() === "trx") {
         valueInTRX = roundedBalance;
       } else {
+        console.log("Asset completo:", asset);
+
         console.log("Token:", TokenName, "ID:", asset.tokenId);
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.tokenId);
         valueInTRX = tokenPriceInTRX
