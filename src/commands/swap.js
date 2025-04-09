@@ -263,7 +263,16 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           
       ).send({ callValue: trxAmountInSun });
 
-      ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${transaction}`);
+      const tronScanTxLink = `https://tronscan.org/#/transaction/${transaction}`;
+
+      function escapeMarkdownV2(text) {
+        return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
+      }
+
+      ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${escapeMarkdownV2(transaction)}\n`+
+        `[🌍 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
+        { parse_mode: "MarkdownV2", disable_web_page_preview: true }
+      );
 // Validar chatId antes de continuar
 if (!ctx.chat?.id) {
   console.error('Error: chatId no está definidoo');
@@ -394,7 +403,15 @@ async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
           DEADLINE
       ).send({ callValue: trxAmountInSun });
 
-      await ctx.reply(`✅ Swap executed! Transaction Hash: ${transaction}`);
+      const tronScanTxLink = `https://tronscan.org/#/transaction/${transaction}`;
+
+      function escapeMarkdownV2(text) {
+        return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
+      }
+
+      await ctx.reply(`✅ Swap executed! Txn Hash: ${escapeMarkdownV2(transaction)}\n`+
+        `[🌍 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
+        { parse_mode: "MarkdownV2", disable_web_page_preview: true });
 
       setImmediate(async () => {
         try {
