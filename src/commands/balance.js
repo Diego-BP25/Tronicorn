@@ -163,7 +163,6 @@ async function getTRC20Balance(address) {
         valueInTRX = roundedBalance;
       } else {
         await sleep(300); // Espera antes de cada petición a DexScreener
-        console.log("Asset completo:",asset.token_id);
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
         valueInTRX = tokenPriceInTRX
           ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
