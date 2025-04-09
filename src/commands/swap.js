@@ -217,7 +217,7 @@ async function executeSwap(ctx) {
   if (decimals === 18) {
       await swapTRXForTokens18(ctx, decimals, symbol);
   } else {
-      await swapTRXForTokens6(swapAmount, tokenAddress, symbol, swapSlippage);
+      await swapTRXForTokens6(ctx, decimals, symbol);
   }
 }
 
@@ -244,10 +244,10 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
           throw new Error("Invalid output from router: amountsOut is malformed.");
       }
 
-      let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(tokenDecimals));
+      //let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(tokenDecimals));
       //console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
 
-      const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - swapSlippage / 100);
+      //const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - swapSlippage / 100);
       //console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.dividedBy(new BigNumber(10).pow(tokenDecimals)).toString()}`);
 
       if (swapSlippage === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
@@ -276,7 +276,6 @@ if (!ctx.chat?.id) {
           tokenDecimals,
           tokenSymbol,
           ctx
-           // Pasamos solo el chatId
       });
       } catch (error) {
         console.error("Error en procesamiento secundario:", error);
@@ -352,33 +351,40 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
 }
 
 // Swap function for 6-decimal tokens
-async function swapTRXForTokens6(trxAmount, tokenAddress, tokenSymbol, slippageTolerance) {
+async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
+
+  
+  const { swapAmount, swapSlippage, swapData } = ctx.session;
+  const { tokenAddress, encryptedPrivateKey } = swapData;
+
+      // Desencripta la clave privada
+      const decryptedPrivateKey = decrypt(encryptedPrivateKey);
+
+  const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
   try {
-      const trxAmountInSun = tronWeb.toSun(trxAmount);
+      const trxAmountInSun = tronWeb.toSun(swapAmount);
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
 
-      console.log(`🚀 Swapping ${trxAmount.toFixed(6)} TRX for ${tokenSymbol} with ${slippageTolerance}% slippage tolerance...`);
+      await ctx.reply(`🚀 Swapping ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
       let amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
       if (!amountsOut || !amountsOut.amounts || amountsOut.amounts.length < 2) {
           throw new Error("Invalid output from router: amountsOut is malformed.");
       }
 
-      console.log(`📊 Raw Amounts Out:`, amountsOut);
-
-      let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(6));
-      console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
+      // let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(6));
+      // console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
 
       // ✅ FIX: Ensure minAmountOut is an integer (no decimals)
       const minAmountOut = new BigNumber(amountsOut.amounts[1])
-          .multipliedBy(1 - slippageTolerance / 100)
+          .multipliedBy(1 - swapSlippage / 100)
           .integerValue(BigNumber.ROUND_FLOOR);  // ✅ No decimals, prevents BigInt error
 
-      console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.toFixed(0)}`);
+      //console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.toFixed(0)}`);
 
-      if (slippageTolerance === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
-          console.log("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
+      if (swapSlippage === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
+        await ctx.reply("🛑 Swap failed due to strict 0% slippage: Market price changed slightly.");
           return;
       }
 
@@ -389,10 +395,10 @@ async function swapTRXForTokens6(trxAmount, tokenAddress, tokenSymbol, slippageT
           DEADLINE
       ).send({ callValue: trxAmountInSun });
 
-      console.log(`✅ Swap executed! Transaction Hash: ${transaction}`);
+      await ctx.reply(`✅ Swap executed! Transaction Hash: ${transaction}`);
 
       // ✅ Correct event tracking for 6-decimal tokens
-      await listenForSwapEvents(transaction, tokenAddress, trxAmount, 6, tokenSymbol);
+      await listenForSwapEvents({transaction, swapAmount, tokenDecimals, tokenSymbol, ctx});
 
   } catch (error) {
       console.error(`❌ Swap failed for ${tokenSymbol}:`, error.message || error);
@@ -400,7 +406,7 @@ async function swapTRXForTokens6(trxAmount, tokenAddress, tokenSymbol, slippageT
 }
 
 // Fetch swap logs for 6-decimal tokens
-async function listenForSwapEvents(txID, tokenAddress, trxAmount, tokenDecimals, tokenSymbol) {
+async function listenForSwapEvents({txID, swapAmount, tokenDecimals, tokenSymbol, ctx}) {
   const eventUrl = `https://api.trongrid.io/v1/transactions/${txID}/events`;
 
   for (let i = 0; i < 10; i++) {
@@ -416,10 +422,15 @@ async function listenForSwapEvents(txID, tokenAddress, trxAmount, tokenDecimals,
                       (event.result.value || event.result._amount) // ✅ Detects both log formats
                   ) {
                       const tokenReceived = parseInt(event.result.value || event.result._amount) / Math.pow(10, tokenDecimals);
-                      const entryPrice = trxAmount / tokenReceived;
+                      const entryPrice = swapAmount / tokenReceived;
 
-                      ctx.reply(`✅ You swapped ${trxAmount.toFixed(6)} TRX for ${tokenReceived.toFixed(tokenDecimals)} ${tokenSymbol}`);
-                      ctx.reply(`💰 Entry price: ${entryPrice.toFixed(6)} TRX per ${tokenSymbol}`);
+                      // Enviar mensajes con verificación EXTRA
+                      const messages = [
+                        `✅ You swapped ${swapAmount.toFixed(6)} TRX for ${tokenReceived.toFixed(tokenDecimals)} ${tokenSymbol}\n
+                        💰 Entry price: ${entryPrice.toFixed(6)} TRX per ${tokenSymbol}`
+                      ];
+
+                      ctx.reply(messages);
                       return;
                   }
               }
