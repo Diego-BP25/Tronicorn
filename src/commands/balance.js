@@ -156,7 +156,7 @@ async function getTRC20Balance(address) {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
       const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
-      const tokenName = escapeMarkdown(asset.token_id || "");
+      const tokenName = escapeMarkdown(asset.token_name || "");
       let valueInTRX;
 
       if (tokenName.toLowerCase() === "trx") {
