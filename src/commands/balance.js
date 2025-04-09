@@ -85,13 +85,16 @@ async function getTokenPriceInTRX(tokenAddress) {
       token1Contract.decimals().call()
     ]);
 
+    const decimals0Value = parseInt(decimals0.toString());
+    const decimals1Value = parseInt(decimals1.toString());
+
     const reserves = await pairContract.getReserves().call();
     const reserve0 = BigInt(reserves[0].toString());
     const reserve1 = BigInt(reserves[1].toString());
     
     // Normalizamos decimales
-    const normalized0 = Number(reserve0) / Math.pow(10, decimals0);
-    const normalized1 = Number(reserve1) / Math.pow(10, decimals1);
+    const normalized0 = Number(reserve0.toString()) / Math.pow(10, decimals0Value);
+    const normalized1 = Number(reserve1.toString()) / Math.pow(10, decimals1Value);
 
 
     // Si token es token0 => price = reserve1 / reserve0
@@ -144,7 +147,10 @@ async function getTRC20Balance(address) {
 
     let balanceReport = `💼 *Wallet Address* • \n${address}\n${tronScanLink}`;
 
-    
+    // Función sleep
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     for (const asset of assets)  {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
@@ -156,6 +162,7 @@ async function getTRC20Balance(address) {
       if (tokenName.toLowerCase() === "trx") {
         valueInTRX = roundedBalance;
       } else {
+        await sleep(300); // Espera antes de cada petición a DexScreener
         console.log("Asset completo:",asset.token_id);
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
         valueInTRX = tokenPriceInTRX
