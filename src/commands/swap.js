@@ -291,8 +291,8 @@ if (!ctx.chat?.id) {
 }
 
 // Fetch event logs with retries
-async function fetchEventLogsWithRetries(txID,  maxRetries = 10, delay = 3000, tokenDecimals, tokenSymbol, ctx) {
-  console.log(txID, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
+async function fetchEventLogsWithRetries({txID,  maxRetries = 10, delay = 3000, tokenDecimals, tokenSymbol, ctx}) {
+  console.log("fetchEventLogsWithRetries",txID, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
   let attempts = 0;
 
   while (attempts < maxRetries) {
@@ -312,7 +312,7 @@ async function fetchEventLogsWithRetries(txID,  maxRetries = 10, delay = 3000, t
           }
       } catch (err) {
         console.error(`⚠️ Error retrieving swap events for ${tokenSymbol}:`, err);
-        await bot.telegram.sendMessage(chatId,`⚠️ Ocurrió un error al obtener el swap de ${tokenSymbol}.`);      }
+        }
 
       attempts++;
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -326,7 +326,7 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
 
-  console.log(txID, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
+  console.log("formatSwapResult",result, tokenDecimals, tokenSymbol,ctx);
 
 
   let trxAmount, tokenAmount;
