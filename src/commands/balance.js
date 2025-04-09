@@ -104,6 +104,20 @@ async function getTokenPriceInTRX(tokenAddress) {
     console.error('Error getting price from DexScreener:', err.message);
     return null;
   }
+
+}
+
+function escapeMarkdown(text) {
+  return text
+    .replace(/_/g, "\\_")
+    .replace(/\*/g, "\\*")
+    .replace(/\[/g, "\\[")
+    .replace(/\]/g, "\\]")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)")
+    .replace(/-/g, "\\-")
+    .replace(/\./g, "\\.")
+    .replace(/!/g, "\\!");
 }
 
 // Función para obtener el balance de TRC20 tokens
@@ -124,7 +138,7 @@ async function getTRC20Balance(address) {
       return `No tokens found for address: ${address}`;
     }
 
-    const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${address})`;
+    const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${escapeMarkdown(address)})`;
 
 
     let balanceReport = `💼 *Wallet Address* • \n${address}\n${tronScanLink}`;
@@ -138,7 +152,7 @@ async function getTRC20Balance(address) {
       const TokenName= asset.token_id;
       let valueInTRX;
 
-      if (TokenName.toLowerCase() === "trx") {
+      if (tokenName.toLowerCase() === "trx") {
         valueInTRX = roundedBalance;
       } else {
         console.log("Asset completo:", asset.token_id);
