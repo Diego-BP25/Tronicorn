@@ -343,8 +343,7 @@ async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
 
   // Enviar mensajes con verificación EXTRA
   const messages = [
-    `✅ Swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n
-    💰 Price: ${entryPrice.toFixed(8)} TRX/${tokenSymbol}`
+    `✅ Swapped ${trxAmount.toFixed(6)} TRX for ${tokenAmount.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Price: ${entryPrice.toFixed(8)} TRX/${tokenSymbol}`
   ];
 
   await ctx.reply (messages)
@@ -438,8 +437,7 @@ async function listenForSwapEvents({transaction, swapAmount, tokenDecimals, toke
 
                       // Enviar mensajes con verificación EXTRA
                       const messages = [
-                        `✅ You swapped ${swapAmount.toFixed(6)} TRX for ${tokenReceived.toFixed(tokenDecimals)} ${tokenSymbol}\n
-                        💰 Entry price: ${entryPrice.toFixed(6)} TRX per ${tokenSymbol}`
+                        `✅ You swapped ${swapAmount.toFixed(6)} TRX for ${tokenReceived.toFixed(tokenDecimals)} ${tokenSymbol}\n💰 Entry price: ${entryPrice.toFixed(6)} TRX per ${tokenSymbol}`
                       ];
 
                       ctx.reply(messages);
