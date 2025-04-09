@@ -88,11 +88,11 @@ async function getTokenPriceInTRX(tokenAddress) {
     const reserves = await pairContract.getReserves().call();
     const reserve0 = BigInt(reserves[0].toString());
     const reserve1 = BigInt(reserves[1].toString());
-
     
     // Normalizamos decimales
-    const normalized0 = Number(decimals0Raw);
-    const normalized1 = Number(decimals1Raw);
+    const normalized0 = Number(reserve0) / Math.pow(10, decimals0);
+    const normalized1 = Number(reserve1) / Math.pow(10, decimals1);
+
 
     // Si token es token0 => price = reserve1 / reserve0
     // Si token es token1 => price = reserve0 / reserve1
