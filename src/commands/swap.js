@@ -292,7 +292,6 @@ if (!ctx.chat?.id) {
 
 // Fetch event logs with retries
 async function fetchEventLogsWithRetries({transaction,  maxRetries = 10, delay = 3000, tokenDecimals, tokenSymbol, ctx}) {
-  console.log("fetchEventLogsWithRetries",transaction, maxRetries, delay,tokenSymbol,tokenDecimals, ctx);
   let attempts = 0;
 
   while (attempts < maxRetries) {
@@ -325,9 +324,6 @@ async function fetchEventLogsWithRetries({transaction,  maxRetries = 10, delay =
 async function formatSwapResult(result, tokenDecimals, tokenSymbol, ctx) {
   const amount0In = parseInt(result.amount0In);
   const amount1Out = parseInt(result.amount1Out);
-
-  console.log("formatSwapResult",result, tokenDecimals, tokenSymbol,ctx);
-
 
   let trxAmount, tokenAmount;
 
