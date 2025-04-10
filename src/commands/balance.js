@@ -124,17 +124,6 @@ function escapeMarkdown(text) {
     .replace(/!/g, "\\!");
 }
 
-const getTrxPrice = async () => {
-  try {
-    const response = await axios.get('https://apilist.tronscanapi.com/api/market/overview');
-    return parseFloat(response.data.data.price);
-  } catch (err) {
-    console.error('Error al obtener precio del TRX:', err);
-    return null;
-  }
-};
-
-
 // Función para obtener el balance de TRC20 tokens
 async function getTRC20Balance(address) {
   try {
@@ -164,9 +153,8 @@ async function getTRC20Balance(address) {
     }
 
     for (const asset of assets)  {
-      const trxPriceInUSD = await getTrxPrice();
-      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
+      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
       const tokenName = escapeMarkdown(asset.token_name || "");
       let valueInTRX;
@@ -176,10 +164,11 @@ async function getTRC20Balance(address) {
       } else {
         await sleep(300); // Espera antes de cada petición a DexScreener
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
-        valueInTRX = (roundedValueInUSD / trxPriceInUSD).toFixed(6)
-          // ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
-          // : "N/A";
-      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${valueInTRX}\n\n Equivalent in TRX: ${valueInTRX}`;
+        console.log("tokenPriceInTRX: ", tokenPriceInTRX, "asset.balance: ", asset.balance, "tokenPriceInTRX: ", tokenPriceInTRX)
+        valueInTRX = tokenPriceInTRX  
+        ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
+          : "N/A";
+      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
     };
 
     return balanceReport;
