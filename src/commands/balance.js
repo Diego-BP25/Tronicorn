@@ -89,14 +89,14 @@ async function getTokenPriceInTRX(tokenAddress) {
     const reserve0 = BigInt(reserves[0].toString()) / (10n ** BigInt(token0Decimals));
     const reserve1 = BigInt(reserves[1].toString()) / (10n ** BigInt(token1Decimals));
 
-    const priceInToken1 = Number(reserve1) / Number(reserve0);
 
 
-    const price = (tokenAddress === token0)
-      ? normalized1 / normalized0
-      : normalized0 / normalized1;
+    const price = (tokenAddress === token0Address)
+  ? reserve1 / reserve0
+  : reserve0 / reserve1;
 
-    return priceInToken1;
+
+    return price;
   } catch (err) {
     console.error('Error getting price from DexScreener:', err.message);
     return null;
