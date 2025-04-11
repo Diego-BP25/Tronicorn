@@ -154,7 +154,7 @@ async function getTRC20Balance(address) {
       let valueInTRXFormatted;
 
       if (tokenName.toLowerCase() === "trx") {
-        valueInTRX = roundedBalance;
+        valueInTRXFormatted = roundedBalance;
       } else {
         await sleep(300); // Espera antes de cada petición a DexScreener
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
