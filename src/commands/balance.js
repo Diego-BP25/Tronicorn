@@ -151,17 +151,21 @@ async function getTRC20Balance(address) {
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
       const tokenName = escapeMarkdown(asset.token_name || "");
       let valueInTRX;
+      let valueInTRXFormatted;
 
       if (tokenName.toLowerCase() === "trx") {
         valueInTRX = roundedBalance;
       } else {
         await sleep(300); // Espera antes de cada petición a DexScreener
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
-        console.log("tokenPriceInTRX: ", tokenPriceInTRX, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
-        valueInTRX = roundedValueInUSD*tokenPriceInTRX
-        ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
+        const tokenPriceInTRXNumber = Number(tokenPriceInTRX); // convertir BigInt a Number
+
+        console.log("tokenPriceInTRX: ", tokenPriceInTRXNumber, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
+        valueInTRX = roundedValueInUSD*tokenPriceInTRXNumber
+        valueInTRXFormatted = valueInTRX.toFixed(6)
+        ? (parseFloat(asset.balance) * tokenPriceInTRXNumber).toFixed(6)
           : "N/A";
-      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
+      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRXFormatted}`;
     };
 
     return balanceReport;
