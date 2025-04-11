@@ -160,11 +160,10 @@ async function getTRC20Balance(address) {
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
         const tokenPriceInTRXNumber = Number(tokenPriceInTRX); // convertir BigInt a Number
 
-        console.log("tokenPriceInTRX: ", tokenPriceInTRXNumber, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
-        valueInTRX = roundedValueInUSD*tokenPriceInTRXNumber
-        valueInTRXFormatted = valueInTRX.toFixed(6)
-        ? (parseFloat(asset.balance) * tokenPriceInTRXNumber).toFixed(6)
-          : "N/A";
+        console.log("tokenPriceInTRX: ", valueInTRX, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
+        valueInTRX = parseFloat(asset.balance) * tokenPriceInTRXNumber;
+        valueInTRXFormatted = valueInTRX.toFixed(6);
+
       }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRXFormatted}`;
     };
 
