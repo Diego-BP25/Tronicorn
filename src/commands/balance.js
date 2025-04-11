@@ -91,9 +91,10 @@ async function getTokenPriceInTRX(tokenAddress) {
 
 
 
-    const price = (parseFloat(tokenAddress === token0Address))
-  ? reserve1 / reserve0
-  : reserve0 / reserve1;
+    const price = tokenAddress === token0Address
+  ? Number(reserve1) / Number(reserve0)
+  : Number(reserve0) / Number(reserve1);
+
 
 
     return price;
