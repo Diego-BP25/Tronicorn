@@ -61,7 +61,6 @@ const tokenABI = [
   }
 ];
 
-
 // Obtener precio del token en TRX usando el contrato del par
 async function getTokenPriceInTRX(tokenAddress) {
   try {
@@ -71,39 +70,33 @@ async function getTokenPriceInTRX(tokenAddress) {
 
     if (!pair) return null;
 
-    const pairAddress = pair.pairAddress;
-    const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
-
-    const token0 = await pairContract.token0().call();
-    const token1 = await pairContract.token1().call();
-
-    const token0Contract = await tronWeb.contract(tokenABI, token0);
-    const token1Contract = await tronWeb.contract(tokenABI, token1);
-
-    const [decimals0, decimals1] = await Promise.all([
-      token0Contract.decimals().call(),
-      token1Contract.decimals().call()
-    ]);
-
-    const decimals0Value = parseInt(decimals0.toString());
-    const decimals1Value = parseInt(decimals1.toString());
-
-    const reserves = await pairContract.getReserves().call();
-    const reserve0 = BigInt(reserves[0].toString());
-    const reserve1 = BigInt(reserves[1].toString());
     
-    // Normalizamos decimales
-    const normalized0 = Number(reserve0.toString()) / Math.pow(10, decimals0Value);
-    const normalized1 = Number(reserve1.toString()) / Math.pow(10, decimals1Value);
+    const pairAddress = pair.pairAddress;
+    // Interactuar con el contrato del par usando TronWeb
+    const pairContract = await tronWeb.contract(tokenPairABI, pairAddress);
+    const token0Address = await pairContract.token0().call();
+    const token1Address = await pairContract.token1().call();
+
+    const token0Contract = await tronWeb.contract(tokenABI, token0Address);
+    const token1Contract = await tronWeb.contract(tokenABI, token1Address);
+
+    const token0Decimals = await token0Contract.decimals().call();
+    const token1Decimals = await token1Contract.decimals().call();
+
+    
+    // Obtener las reservas del par
+    const reserves = await pairContract.getReserves().call();
+    const reserve0 = BigInt(reserves[0].toString()) / (10n ** BigInt(token0Decimals));
+    const reserve1 = BigInt(reserves[1].toString()) / (10n ** BigInt(token1Decimals));
+
+    const priceInToken1 = Number(reserve1) / Number(reserve0);
 
 
-    // Si token es token0 => price = reserve1 / reserve0
-    // Si token es token1 => price = reserve0 / reserve1
     const price = (tokenAddress === token0)
       ? normalized1 / normalized0
       : normalized0 / normalized1;
 
-    return price;
+    return priceInToken1;
   } catch (err) {
     console.error('Error getting price from DexScreener:', err.message);
     return null;
@@ -165,7 +158,7 @@ async function getTRC20Balance(address) {
         await sleep(300); // Espera antes de cada petición a DexScreener
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
         console.log("tokenPriceInTRX: ", tokenPriceInTRX, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
-        valueInTRX = tokenPriceInTRX  
+        valueInTRX = tokenPriceInTRX/roundedValueInUSD
         ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
           : "N/A";
       }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
