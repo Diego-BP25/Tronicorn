@@ -91,7 +91,7 @@ async function getTokenPriceInTRX(tokenAddress) {
 
 
 
-    const price = (tokenAddress === token0Address)
+    const price = (parseFloat(tokenAddress === token0Address))
   ? reserve1 / reserve0
   : reserve0 / reserve1;
 
@@ -147,7 +147,7 @@ async function getTRC20Balance(address) {
 
     for (const asset of assets)  {
       const roundedBalance = parseFloat(asset.balance).toFixed(6);
-      const roundedValueInUSD = BigInt(asset.token_value_in_usd).toFixed(6);
+      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
       const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
       const tokenName = escapeMarkdown(asset.token_name || "");
       let valueInTRX;
