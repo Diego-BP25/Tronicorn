@@ -158,7 +158,7 @@ async function getTRC20Balance(address) {
         await sleep(300); // Espera antes de cada petición a DexScreener
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
         console.log("tokenPriceInTRX: ", tokenPriceInTRX, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
-        valueInTRX = tokenPriceInTRX/roundedValueInUSD
+        valueInTRX = roundedValueInUSD*tokenPriceInTRX
         ? (parseFloat(asset.balance) * tokenPriceInTRX).toFixed(6)
           : "N/A";
       }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRX}`;
