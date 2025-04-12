@@ -247,7 +247,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       //let formattedTokenAmount = new BigNumber(amountsOut.amounts[1]).dividedBy(new BigNumber(10).pow(tokenDecimals));
       //console.log(`📊 Converted Token Amount: ${formattedTokenAmount.toString()} ${tokenSymbol}`);
 
-      //const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - swapSlippage / 100);
+      const minAmountOut = new BigNumber(amountsOut.amounts[1]).multipliedBy(1 - swapSlippage / 100);
       //console.log(`📉 Minimum Amount Out (after slippage): ${minAmountOut.dividedBy(new BigNumber(10).pow(tokenDecimals)).toString()}`);
 
       if (swapSlippage === 0 && minAmountOut.isLessThan(amountsOut.amounts[1])) {
