@@ -347,10 +347,14 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
         return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
       }
 
-      ctx.reply (escapeMarkdownV2(
-        `✅ Swap executed!\n\nTxn Hash: ${transaction}\n` +
-        `[🌍 View on Tronscan](${tronScanTxLink})`
-      ),
+      const escapedMessage = escapeMarkdownV2(
+        `✅ Swap executed!\n\nTxn Hash: ${transaction}\n\n`
+      );
+      
+      const linkMarkdown = `[🌍 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!
+      
+      await ctx.reply(
+        escapedMessage + linkMarkdown,
         { parse_mode: "MarkdownV2", disable_web_page_preview: true }
       );
 // Validar chatId antes de continuar
@@ -489,11 +493,16 @@ async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
         return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
       }
 
-      await ctx.reply(escapeMarkdownV2(
-        `✅ Swap executed!\n\nTxn Hash: ${transaction}\n` +
-        `[🌍 View on Tronscan](${tronScanTxLink})`
-      ),
-        { parse_mode: "MarkdownV2", disable_web_page_preview: true });
+      const escapedMessage = escapeMarkdownV2(
+        `✅ Swap executed!\n\nTxn Hash: ${transaction}\n\n`
+      );
+      
+      const linkMarkdown = `[🌍 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!
+      
+      await ctx.reply(
+        escapedMessage + linkMarkdown,
+        { parse_mode: "MarkdownV2", disable_web_page_preview: true }
+      );
 
       setImmediate(async () => {
         try {
