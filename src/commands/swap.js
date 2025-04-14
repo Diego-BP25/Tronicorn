@@ -224,7 +224,8 @@ async function confirmSwap(ctx, details) {
 
 // Execute swap
 async function executeSwap(ctx) {
-  const { swapAmount,tokenAddress, swapSlippage,encryptedPrivateKey} = ctx.session.swapData;
+  const { tokenAddress,encryptedPrivateKey} = ctx.session.swapData;
+  const { swapAmount, swapSlippage } = ctx.session;
 
 
       // Desencripta la clave privada
@@ -244,7 +245,7 @@ async function executeSwap(ctx) {
       console.log(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
       return;
   }
-  console.log("🧪 swapData:", ctx.session.swapData);
+  console.log("🧪 swapData:", ctx.session);
   console.log("🔢 swapAmount:", swapAmount);
   console.log("🔢 swapSlippage:", swapSlippage);
 
