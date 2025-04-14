@@ -229,7 +229,7 @@ async function executeSwap(ctx) {
     ctx.session.swapData.tokenAddress = ctx.message.text;
     ctx.session.awaitingTokenAddress = false;
   }
-  
+
   const { tokenAddress,encryptedPrivateKey} = ctx.session.swapData;
   const { swapAmount, swapSlippage } = ctx.session;
 
@@ -246,12 +246,6 @@ async function executeSwap(ctx) {
       console.log(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
       return;
   }
-  console.log("🧪 swapData:", ctx.session.swapData);
-
-  console.log("🔢 encryptedPrivateKey:", encryptedPrivateKey);
-  console.log("🔢 tokenAddress:", tokenAddress);
-
-
 
   const trxAmountBN = new BigNumber(swapAmount);
     const trxAmountInSun = trxAmountBN.times(1_000_000).toFixed(0);
@@ -281,7 +275,7 @@ async function executeSwap(ctx) {
       });
 }
 
-bot.action("confirm_swap_yes", async (ctx) => {
+async function SwapYes(ctx){
   const { swapDetails } = ctx.session;
 
   if (!swapDetails) {
@@ -297,12 +291,20 @@ bot.action("confirm_swap_yes", async (ctx) => {
   }
 
   ctx.session.swapDetails = null; // limpiar sesión
-});
+}
+async function SwapNo(ctx){
 
-bot.action("confirm_swap_no", async (ctx) => {
   await ctx.editMessageReplyMarkup(); // Borra los botones
   await ctx.reply("❌ Swap cancelled by user.");
   ctx.session.swapDetails = null;
+}
+
+
+bot.action("confirm_swap_yes", async (ctx) => {
+  
+});
+
+bot.action("confirm_swap_no", async (ctx) => {
 });
 
 
@@ -571,6 +573,8 @@ module.exports = {
   amountTrxSwap,
   swapTokens,
   handleWalletSwap,
-  handleSwapType
+  handleSwapType,
+  SwapNo,
+  SwapYes
 
 };
