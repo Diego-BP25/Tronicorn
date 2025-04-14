@@ -30,8 +30,8 @@ async function handleWalletSwap(ctx) {
   try {
     // Opciones de tipo de swap como botones
     const swapOptions = [
-      [Markup.button.callback("TRX➡️Tokens", `swap_type_TRX_TOKENS`)],
-      [Markup.button.callback("Tokens➡️TRX", `swap_type_TOKENS_TRX`)]
+      [Markup.button.callback("TRX ➡️ Tokens", `swap_type_TRX_TOKENS`)],
+      [Markup.button.callback("Tokens ➡️ TRX", `swap_type_TOKENS_TRX`)]
     ];
     await ctx.reply('Please select the type of swap:', Markup.inlineKeyboard(swapOptions));
   } catch (error) {
@@ -98,7 +98,7 @@ async function showSlippageOptionsSwap(ctx) {
     [Markup.button.callback('✏️ Personalize', 'swap_slippage_custom')]
   ]);
 
-  await ctx.reply('Select the sliding percentage:', buttons);
+  await ctx.reply('Select the slippage percentage:', buttons);
 }
 
 // Manejador para la selección del deslizamiento
