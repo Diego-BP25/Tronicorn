@@ -244,6 +244,11 @@ async function executeSwap(ctx) {
       console.log(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
       return;
   }
+  console.log("🧪 swapData:", ctx.session.swapData);
+  console.log("🔢 swapAmount:", swapAmount);
+  console.log("🔢 swapSlippage:", swapSlippage);
+
+
 
   const trxAmountBN = new BigNumber(swapAmount);
     const trxAmountInSun = trxAmountBN.times(1_000_000).toFixed(0);
