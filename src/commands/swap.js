@@ -198,9 +198,42 @@ async function getTokenDetails(ctx) {
   }
 }
 
+const { Markup } = require('telegraf');
+
+async function confirmSwap(ctx, details) {
+  const message = `🔎 *Swap Preview*\n` +
+    `----------------------------\n` +
+    `• *TRX Amount:* ${details.trxAmount}\n` +
+    `• *Token:* ${details.tokenSymbol} (${details.tokenDecimals} decimals)\n` +
+    `• *Slippage:* ${details.slippage}%\n` +
+    `• *Estimated Tokens:* ${details.estimatedTokens}\n` +
+    `• *Min After Slippage:* ${details.minTokens}\n` +
+    `----------------------------\n` +
+    `\n*Confirm swap?*`;
+
+  // Guardamos los detalles en la sesión
+  ctx.session.swapDetails = details;
+
+  await ctx.reply(message, {
+    parse_mode: "Markdown",
+    ...Markup.inlineKeyboard([
+      Markup.button.callback("✅ Yes", "confirm_swap_yes"),
+      Markup.button.callback("❌ No", "confirm_swap_no")
+    ])
+  });
+}
+
+
 // Execute swap
 async function executeSwap(ctx) {
-  const { swapAmount,tokenAddress, swapSlippage} = ctx.session.swapData;
+  const { swapAmount,tokenAddress, swapSlippage,encryptedPrivateKey} = ctx.session.swapData;
+
+
+      // Desencripta la clave privada
+      const decryptedPrivateKey = decrypt(encryptedPrivateKey);
+
+  const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
+
 
   if (ctx.session.awaitingTokenAddress && !ctx.session.swapData.tokenAddress) {
     ctx.session.swapData.tokenAddress = ctx.message.text;
@@ -214,12 +247,59 @@ async function executeSwap(ctx) {
       return;
   }
 
-  if (decimals === 18) {
-      await swapTRXForTokens18(ctx, decimals, symbol);
-  } else {
-      await swapTRXForTokens6(ctx, decimals, symbol);
-  }
+  const trxAmountBN = new BigNumber(swapAmount);
+    const trxAmountInSun = trxAmountBN.times(1_000_000).toFixed(0);
+    const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
+    const path = [WTRX, tokenAddress];
+
+    const amountsOut = await routerContract.getAmountsOut(trxAmountInSun, path).call();
+    
+    if (!amountsOut?.amounts || amountsOut.amounts.length < 2) {
+        throw new Error("Invalid router response");
+    }
+
+  const tokenAmountRaw = new BigNumber(amountsOut.amounts[1]);
+  const estimatedTokens = tokenAmountRaw.dividedBy(10 ** decimals).toFixed(decimals);
+  const minTokens = tokenAmountRaw
+      .times(1 - slippageTolerance / 100)
+      .dividedBy(10 ** decimals)
+      .toFixed(decimals);
+
+      await confirmSwap(ctx, {
+        trxAmount: trxAmountBN.toFixed(6),
+        tokenSymbol: symbol,
+        tokenDecimals: decimals,
+        slippage: swapSlippage,
+        estimatedTokens,
+        minTokens
+      });
+
 }
+
+bot.action("confirm_swap_yes", async (ctx) => {
+  const { swapDetails } = ctx.session;
+
+  if (!swapDetails) {
+    return ctx.reply("❌ No swap data found in session.");
+  }
+
+  await ctx.editMessageReplyMarkup(); // Borra los botones
+
+  if (swapDetails.tokenDecimals === 18) {
+    await swapTRXForTokens18(ctx, swapDetails.tokenDecimals, swapDetails.tokenSymbol);
+  } else {
+    await swapTRXForTokens6(ctx, swapDetails.tokenDecimals, swapDetails.tokenSymbol);
+  }
+
+  ctx.session.swapDetails = null; // limpiar sesión
+});
+
+bot.action("confirm_swap_no", async (ctx) => {
+  await ctx.editMessageReplyMarkup(); // Borra los botones
+  await ctx.reply("❌ Swap cancelled by user.");
+  ctx.session.swapDetails = null;
+});
+
 
 // Swap function for 18-decimal tokens
 async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
@@ -269,8 +349,10 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
         return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
       }
 
-      ctx.reply(`✅ Swap executed!\n\n Txn Hash: ${escapeMarkdownV2(transaction)}\n`+
-        `[🌍 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
+      ctx.reply (escapeMarkdownV2(
+        `✅ Swap executed!\n\nTxn Hash: ${transaction}\n` +
+        `[🌍 View on Tronscan](${tronScanTxLink})`
+      ),
         { parse_mode: "MarkdownV2", disable_web_page_preview: true }
       );
 // Validar chatId antes de continuar
@@ -409,8 +491,10 @@ async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
         return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
       }
 
-      await ctx.reply(`✅ Swap executed! Txn Hash: ${escapeMarkdownV2(transaction)}\n`+
-        `[🌍 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
+      await ctx.reply(escapeMarkdownV2(
+        `✅ Swap executed!\n\nTxn Hash: ${transaction}\n` +
+        `[🌍 View on Tronscan](${tronScanTxLink})`
+      ),
         { parse_mode: "MarkdownV2", disable_web_page_preview: true });
 
       setImmediate(async () => {

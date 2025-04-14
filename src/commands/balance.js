@@ -164,8 +164,8 @@ async function getTRC20Balance(address) {
         console.log("tokenPriceInTRX: ", valueInTRX, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
         valueInTRX = parseFloat(asset.balance) * tokenPriceInTRXNumber;
         valueInTRXFormatted = valueInTRX.toFixed(6);
-
-      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}\n\n Equivalent in TRX: ${valueInTRXFormatted}`;
+        //linea para mostrar el equivalente en trx \n\n Equivalent in TRX: ${valueInTRXFormatted}
+      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}`;
     };
 
     return balanceReport;
