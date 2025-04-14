@@ -299,15 +299,6 @@ async function SwapNo(ctx){
   ctx.session.swapDetails = null;
 }
 
-
-bot.action("confirm_swap_yes", async (ctx) => {
-  
-});
-
-bot.action("confirm_swap_no", async (ctx) => {
-});
-
-
 // Swap function for 18-decimal tokens
 async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
 

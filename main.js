@@ -1,6 +1,6 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
-const { swap } = require('./src/commands/swap');
+const { handleWalletSwap, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap, SwapYes, SwapNo } = require('./src/commands/swap');
 const {handleAskAmount, handleAskToken, handleProcessData, listWallets} = require('./src/commands/swapToken')
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
@@ -58,7 +58,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
 
     bot.action('swap', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
-      return swap.handleWalletSwap(ctx);  // Llamar a la función de la transferencia
+      return handleWalletSwap(ctx);  // Llamar a la función de la transferencia
     });
 
     // Acción para el botón de swap inicial
@@ -91,7 +91,13 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
   // Acción para confirmar swap 
   bot.action("confirm_swap_yes", async (ctx) => {
     await ctx.answerCbQuery();
-    return handleSwapType(ctx);
+    return SwapYes(ctx);
+  });
+
+  // Acción para cancelar swap 
+  bot.action("confirm_swap_no", async (ctx) => {
+    await ctx.answerCbQuery();
+    return SwapNo(ctx);
   });
 
   // Acción para el tipo de swap tokens a TRX
