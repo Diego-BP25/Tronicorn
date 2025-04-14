@@ -111,7 +111,7 @@ async function handleSlippageSelectionSwap(ctx) {
     ctx.session.awaitingSlippage = true;
 
   } else {
-    ctx.session.swapSlippage = parseFloat(selectedSlippageSwap);
+    ctx.session.swapSlippage = Math.min(Math.max(parseFloat(selectedSlippageSwap) || 1, 0.1), 50);;
     await swapTokens(ctx);
   }
 }
@@ -119,7 +119,7 @@ async function handleSlippageSelectionSwap(ctx) {
 // Manejador para la entrada de deslizamiento personalizado
 async function  handleCustomSlippageSwap(ctx) {
   if (ctx.session.swapState === 'waitingForCustomSlippageSwap') {
-    ctx.session.swapSlippage = parseFloat(ctx.message.text);
+    ctx.session.swapSlippage = Math.min(Math.max(parseFloat(ctx.message.text) || 1, 0.1), 50);
     ctx.session.awaitingSlippage = false;
     await swapTokens(ctx);
     
@@ -271,13 +271,6 @@ async function executeSwap(ctx) {
         estimatedTokens,
         minTokens
       });
-      console. log({trxAmount: trxAmountBN.toFixed(6),
-        tokenSymbol: symbol,
-        tokenDecimals: decimals,
-        slippage: swapSlippage,
-        estimatedTokens,
-        minTokens})
-
 }
 
 bot.action("confirm_swap_yes", async (ctx) => {
