@@ -198,8 +198,6 @@ async function getTokenDetails(ctx) {
   }
 }
 
-const { Markup } = require('telegraf');
-
 async function confirmSwap(ctx, details) {
   const message = `🔎 *Swap Preview*\n` +
     `----------------------------\n` +
