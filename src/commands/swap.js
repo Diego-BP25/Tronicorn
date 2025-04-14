@@ -245,9 +245,8 @@ async function executeSwap(ctx) {
       console.log(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
       return;
   }
-  console.log("🧪 swapData:", ctx.session);
-  console.log("🔢 swapAmount:", swapAmount);
-  console.log("🔢 swapSlippage:", swapSlippage);
+  console.log("🔢 encryptedPrivateKey:", encryptedPrivateKey);
+  console.log("🔢 tokenAddress:", tokenAddress);
 
 
 
