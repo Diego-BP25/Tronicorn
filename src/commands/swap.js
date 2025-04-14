@@ -271,6 +271,12 @@ async function executeSwap(ctx) {
         estimatedTokens,
         minTokens
       });
+      console. log({trxAmount: trxAmountBN.toFixed(6),
+        tokenSymbol: symbol,
+        tokenDecimals: decimals,
+        slippage: swapSlippage,
+        estimatedTokens,
+        minTokens})
 
 }
 
