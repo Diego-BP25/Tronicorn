@@ -259,7 +259,7 @@ async function executeSwap(ctx) {
   const tokenAmountRaw = new BigNumber(amountsOut.amounts[1]);
   const estimatedTokens = tokenAmountRaw.dividedBy(10 ** decimals).toFixed(decimals);
   const minTokens = tokenAmountRaw
-      .times(1 - slippageTolerance / 100)
+      .times(1 - swapSlippage / 100)
       .dividedBy(10 ** decimals)
       .toFixed(decimals);
 
