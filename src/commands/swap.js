@@ -224,8 +224,8 @@ async function confirmSwap(ctx, details) {
 
 // Execute swap
 async function executeSwap(ctx) {
-  const { tokenAddress,encryptedPrivateKey} = ctx.session.swapData;
-  const { swapAmount, swapSlippage } = ctx.session;
+  const { encryptedPrivateKey} = ctx.session.swapData;
+  const { swapAmount, swapSlippage, tokenAddress } = ctx.session;
 
 
       // Desencripta la clave privada
