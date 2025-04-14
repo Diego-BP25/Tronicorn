@@ -224,6 +224,12 @@ async function confirmSwap(ctx, details) {
 
 // Execute swap
 async function executeSwap(ctx) {
+
+  if (ctx.session.awaitingTokenAddress && !ctx.session.swapData.tokenAddress) {
+    ctx.session.swapData.tokenAddress = ctx.message.text;
+    ctx.session.awaitingTokenAddress = false;
+  }
+  
   const { tokenAddress,encryptedPrivateKey} = ctx.session.swapData;
   const { swapAmount, swapSlippage } = ctx.session;
 
@@ -233,11 +239,6 @@ async function executeSwap(ctx) {
 
   const tronWeb = new TronWeb(FULL_NODE, SOLIDITY_NODE, EVENT_SERVER, decryptedPrivateKey);
 
-
-  if (ctx.session.awaitingTokenAddress && !ctx.session.swapData.tokenAddress) {
-    ctx.session.swapData.tokenAddress = ctx.message.text;
-    ctx.session.awaitingTokenAddress = false;
-  }
   const { decimals, symbol } = await getTokenDetails(ctx);
 
 
