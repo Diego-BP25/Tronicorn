@@ -105,17 +105,9 @@ async function getTokenPriceInTRX(tokenAddress) {
 
 }
 
+// Función para escapar texto para MarkdownV2
 function escapeMarkdown(text) {
-  return text
-    .replace(/_/g, "\\_")
-    .replace(/\*/g, "\\*")
-    .replace(/\[/g, "\\[")
-    .replace(/\]/g, "\\]")
-    .replace(/\(/g, "\\(")
-    .replace(/\)/g, "\\)")
-    .replace(/-/g, "\\-")
-    .replace(/\./g, "\\.")
-    .replace(/!/g, "\\!");
+  return text.replace(/([_*\[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
 }
 
 // Función para obtener el balance de TRC20 tokens
@@ -123,57 +115,52 @@ async function getTRC20Balance(address) {
   try {
     const fetch = (...args) =>
       import('node-fetch').then(({ default: fetch }) => fetch(...args));
-  
-  // Obtener los activos de la billetera usando la API adecuada
-  const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${address}&asset_type=1`)
 
+    const response = await fetch(`https://apilist.tronscanapi.com/api/account/wallet?address=${address}&asset_type=1`);
+    const data = await response.json();
 
-  const data = await response.json();
-
-  const assets = data.data;
+    const assets = data.data;
 
     if (!data || !data.data || data.data.length === 0) {
-      return `No tokens found for address: ${address}`;
+      return `No tokens found for address: ${escapeMarkdown(address)}`;
     }
 
-    const tronScanLink = `[🌍 View on Tronscan](https://tronscan.org/#/address/${escapeMarkdown(address)})`;
+    const tronScanLink = `[🔗 View on Tronscan](https://tronscan.org/#/address/${escapeMarkdown(address)})`;
 
+    let balanceReport = `💼 *Wallet Address:*\n\`${escapeMarkdown(address)}\`\n${tronScanLink}\n\n━━━━━━━━━━━━━━━━━━━━━━━`;
 
-    let balanceReport = `💼 *Wallet Address* • \n${address}\n${tronScanLink}`;
+    // Sleep entre peticiones (para DexScreener)
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-    // Función sleep
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    for (const asset of assets)  {
-      const roundedBalance = parseFloat(asset.balance).toFixed(6);
-      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(6);
-      const tokenSymbol = asset.token_abbr || ""; // Símbolo del token
+    for (const asset of assets) {
       const tokenName = escapeMarkdown(asset.token_name || "");
-      let valueInTRX;
-      let valueInTRXFormatted;
+      const tokenSymbol = escapeMarkdown(asset.token_abbr || "");
+      const roundedBalance = parseFloat(asset.balance).toFixed(6);
+      const roundedValueInUSD = parseFloat(asset.token_value_in_usd).toFixed(2);
+      let valueInTRXFormatted = "";
 
-      if (tokenName.toLowerCase() === "trx") {
-        valueInTRXFormatted = roundedBalance;
-      } else {
-        await sleep(300); // Espera antes de cada petición a DexScreener
+      if (tokenName.toLowerCase() !== "trx") {
+        await sleep(300);
         const tokenPriceInTRX = await getTokenPriceInTRX(asset.token_id);
-        const tokenPriceInTRXNumber = Number(tokenPriceInTRX); // convertir BigInt a Number
-
-        console.log("tokenPriceInTRX: ", valueInTRX, "asset.balance: ", asset.balance, "roundedValueInUSD: ", roundedValueInUSD)
-        valueInTRX = parseFloat(asset.balance) * tokenPriceInTRXNumber;
+        const valueInTRX = parseFloat(asset.balance) * Number(tokenPriceInTRX);
         valueInTRXFormatted = valueInTRX.toFixed(6);
-        //linea para mostrar el equivalente en trx \n\n Equivalent in TRX: ${valueInTRXFormatted}
-      }     balanceReport += `\n\n──────────────────────────────\n\nToken: ${tokenName} (${tokenSymbol})\n\n balance: ${roundedBalance}\n\n current value in USD : ${roundedValueInUSD}`;
-    };
+      }
+
+      balanceReport += `\n\n🪙 *Token:* ${tokenName} (${tokenSymbol})` +
+                       `\n• Balance: *${roundedBalance}*` +
+                       `\n• 💵 USD Value: *$${roundedValueInUSD}*` +
+                       (valueInTRXFormatted ? `\n• 🔄 In TRX: *${valueInTRXFormatted}*` : ``) +
+                       `\n━━━━━━━━━━━━━━━━━━━━━━━`;
+    }
 
     return balanceReport;
+
   } catch (error) {
     console.error("Error fetching TRC20 balance:", error);
-    return "Sorry, an error occurred while fetching your TRC20 balance.";
+    return "⚠️ Sorry, an error occurred while fetching your TRC20 balance.";
   }
 }
+
 
 async function balanceCommand(ctx) {
   try {
