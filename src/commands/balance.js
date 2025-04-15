@@ -149,7 +149,7 @@ async function getTRC20Balance(address) {
       balanceReport += `\n\n🪙 *Token:* ${tokenName} (${tokenSymbol})` +
                        `\n• Balance: *${roundedBalance}*` +
                        `\n• 💵 USD Value: *$${roundedValueInUSD}*` +
-                       (valueInTRXFormatted ? `\n• 🔄 In TRX: *${valueInTRXFormatted}*` : ``) +
+                       // linea para mostrar el equivalente en trx (valueInTRXFormatted ? `\n• 🔄 In TRX: *${valueInTRXFormatted}*` : ``) +
                        `\n━━━━━━━━━━━━━━━━━━━━━━━`;
     }
 
