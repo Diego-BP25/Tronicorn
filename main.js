@@ -8,7 +8,7 @@ const { walletCommand, createNewWallet, handleWalletName } = require('./src/comm
 const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
 const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
 const {sniperCommand, amountTrx, listenToken, sendToken, handleAdminToken, handlewalletSelection, handleAmountSelection, handleSlippageSelection, handleCustomAmount,handleCustomSlippage } = require ('./src/commands/Sniper')
-const {External} = require('./src/commands/external')
+const {External,listUserWallets, handleReceive, handleSend} = require('./src/commands/external')
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -47,6 +47,9 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await ctx.answerCbQuery();  // Responder al callback query
       return balanceCommand(ctx);  // Llamar a la función de balance
     });
+
+    bot.action(/^wallet_balance_/, handleWalletBalance);
+
 //-----------------------------external------------------------
 
     bot.action('external', async (ctx) => {
@@ -54,7 +57,30 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       return External(ctx);  // Llamar a la función de balance
     });
 
-    bot.action(/^wallet_balance_/, handleWalletBalance);
+    bot.action("receive_payment", async (ctx) => {
+      ctx.session.transferMode = "receive";
+      await listUserWallets(ctx);
+    });
+    
+    bot.action("send_payment", async (ctx) => {
+      ctx.session.transferMode = "send";
+      await listUserWallets(ctx);
+    });
+    
+
+    bot.action(/select_wallet_(.+)/, async (ctx) => {
+      const walletAddress = ctx.match[1];
+      const mode = ctx.session.transferMode;
+    
+      if (mode === "receive") {
+        return handleReceive(ctx, walletAddress);
+      } else if (mode === "send") {
+        return handleSend(ctx, walletAddress);
+      } else {
+        return ctx.reply("⚠️ Unknown operation. Please try again.");
+      }
+    });
+    
 //-----------------------------transferTRX------------------------
     bot.action('transfer', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
