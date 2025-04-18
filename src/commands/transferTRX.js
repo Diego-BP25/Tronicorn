@@ -120,7 +120,7 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
       await ctx.reply(
         `✅ Sent ${escapeMarkdownV2(amount.toString())} TRX to ${escapeMarkdownV2(toAddress)}\n\n` +
         `📌 Txn Hash: ${escapeMarkdownV2(receipt.txid)}\n` +
-        `[🌍 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
+        `[🔗 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
         { parse_mode: "MarkdownV2", disable_web_page_preview: true }
       );
     } else {

@@ -163,7 +163,7 @@ async function typePump(ctx) {
   ];
    tronScanLink = `https://tronscan.org/#/address/${ctx.session.wallet}`;
 
-    await ctx.reply(`Complete configuration ✅\n🔹 amount: ${ctx.session.sniperAmount} TRX\n🔹 Slippage: ${ctx.session.sniperSlippage}%\n🔹 Wallet: ${ctx.session.wallet}\n[🌍 View on Tronscan](${tronScanLink})\n\nNow select what type of contract you want to pump with.`,Markup.inlineKeyboard(buttons));
+    await ctx.reply(`Complete configuration ✅\n🔹 amount: ${ctx.session.sniperAmount} TRX\n🔹 Slippage: ${ctx.session.sniperSlippage}%\n🔹 Wallet: ${ctx.session.wallet}\n[🔗 View on Tronscan](${tronScanLink})\n\nNow select what type of contract you want to pump with.`,Markup.inlineKeyboard(buttons));
   } catch (error) {
     console.error('Error en sniperCommand:', error);
     await ctx.reply('Error al ejecutar el comando sniper.');
@@ -241,7 +241,7 @@ async function handleAdminToken(ctx) {
 
 
     // 4️⃣ Notificar al admin
-    const tokenMessage = `✅ Active contract:\n\n📌 *Name:* ${TokenName} (${TokenSymbol})\n💰 *Price:* $${TokenUsdt} USD\n🔄 *Equivalent in TRX:* ${TokenTrx} TRX\n[🌍 View on Tronscan](${tronScanLink})\n\n⏳ *This contract becomes active in 30 minutes.*`;
+    const tokenMessage = `✅ Active contract:\n\n📌 *Name:* ${TokenName} (${TokenSymbol})\n💰 *Price:* $${TokenUsdt} USD\n🔄 *Equivalent in TRX:* ${TokenTrx} TRX\n[🔗 View on Tronscan](${tronScanLink})\n\n⏳ *This contract becomes active in 30 minutes.*`;
     await ctx.replyWithMarkdown(tokenMessage);
 
     // 5️⃣ Notificar a los usuarios con la hora exacta

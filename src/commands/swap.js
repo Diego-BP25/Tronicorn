@@ -351,7 +351,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
         `✅ Swap executed!\n\nTxn Hash: ${transaction}\n\n`
       );
       
-      const linkMarkdown = `[🌍 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!
+      const linkMarkdown = `[🔗 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!
       
       await ctx.reply(
         escapedMessage + linkMarkdown,
@@ -497,7 +497,7 @@ async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
         `✅ Swap executed!\n\nTxn Hash: ${transaction}\n\n`
       );
       
-      const linkMarkdown = `[🌍 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!
+      const linkMarkdown = `[🔗 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!
       
       await ctx.reply(
         escapedMessage + linkMarkdown,

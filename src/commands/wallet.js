@@ -25,7 +25,7 @@ async function walletCommand(ctx) {
 
         walletMessage += `💼 *${walletName}*  • ${formattedBalance} TRX\n`;
         walletMessage += `${walletAddress}\n`;
-        walletMessage += `[🌍 View on Tronscan](${tronScanLink})\n`;
+        walletMessage += `[🔗 View on Tronscan](${tronScanLink})\n`;
         walletMessage += `\n───────────────────────────\n\n`;  // Separador entre wallets
       }
 
