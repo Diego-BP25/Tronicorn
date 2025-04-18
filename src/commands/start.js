@@ -8,7 +8,6 @@ async function startCommand(ctx) {
       { parse_mode: "Markdown" }
     );
     await ctx.reply(
-      'Choose an option:',
       Markup.inlineKeyboard([
         [Markup.button.callback('💼 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance')],
         [Markup.button.callback('🌐 Link Wallet', 'external')]
@@ -21,7 +20,6 @@ async function startCommand(ctx) {
       { parse_mode: "Markdown" }
     );
     await ctx.reply(
-      'Choose an option:',
       Markup.inlineKeyboard([
         [Markup.button.callback('🔁 Swap Tokens', 'swap'), Markup.button.callback('🎯 Sniper', 'sniper')]
       ])
@@ -33,7 +31,6 @@ async function startCommand(ctx) {
       { parse_mode: "Markdown" }
     );
     await ctx.reply(
-      'Choose an option:',
       Markup.inlineKeyboard([
         [Markup.button.callback('🚀 Transfer TRX', 'transfer')]
       ])
@@ -45,7 +42,6 @@ async function startCommand(ctx) {
       { parse_mode: "Markdown" }
     );
     await ctx.reply(
-      'Choose an option:',
       Markup.inlineKeyboard([
         [Markup.button.callback('🪙 StableCoins', 'stableCoins')]
       ])
