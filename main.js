@@ -8,7 +8,8 @@ const { walletCommand, createNewWallet, handleWalletName } = require('./src/comm
 const { handleWalletBalance, balanceCommand } = require('./src/commands/balance');
 const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
 const {sniperCommand, amountTrx, listenToken, sendToken, handleAdminToken, handlewalletSelection, handleAmountSelection, handleSlippageSelection, handleCustomAmount,handleCustomSlippage } = require ('./src/commands/Sniper')
-const {External,listUserWallets, handleReceive, handleSend} = require('./src/commands/external')
+const {External} = require('./src/commands/external')
+const { stableCoins, listUserWallets, handleReceive, handleSend} = require('./src/commands/stablecoins')
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -56,6 +57,12 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
       await ctx.answerCbQuery();  // Responder al callback query
       return External(ctx);  // Llamar a la función de balance
     });
+
+  //-----------------------------stableCoins------------------------
+
+  bot.action("stableCoins", async (ctx) => {
+    await stableCoins(ctx);
+  });
 
     bot.action("receive_payment", async (ctx) => {
       ctx.session.transferMode = "receive";
