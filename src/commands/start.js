@@ -38,4 +38,3 @@ async function startCommand(ctx) {
 }
 
 module.exports = { startCommand };
-y
