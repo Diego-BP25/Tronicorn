@@ -1,7 +1,7 @@
 const { Markup, Telegraf  } = require('telegraf');
 const { fetchAllWallets, fetch_Private_key } = require("../service/user.service");
 const QRCode = require('qrcode');
-const Jimp = require('jimp');
+const Jimp = require('jimp').default;
 const path = require('path');
 
 
