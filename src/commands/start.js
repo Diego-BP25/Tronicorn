@@ -2,41 +2,40 @@ const { Markup } = require('telegraf');
 
 async function startCommand(ctx) {
   try {
-    const menuText = `
-🔐 *Wallet Management*
-💼 Wallet        💰 Balance
-🌐 Link Wallet
-
-🔄 *Trading Tools*
-🔁 Swap Tokens   🎯 Sniper
-
-💸 *Transfers*
-🚀 Transfer TRX
-
-💵 *Stable Assets*
-🪙 StableCoins
-    `;
-
-    await ctx.reply(
-      menuText,
-      {
-        parse_mode: 'Markdown',
-        ...Markup.inlineKeyboard([
-          [Markup.button.callback('💼 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance')],
-          [Markup.button.callback('🌐 Link Wallet', 'external')],
-          [Markup.button.callback('🔁 Swap Tokens', 'swap'), Markup.button.callback('🎯 Sniper', 'sniper')],
-          [Markup.button.callback('🚀 Transfer TRX', 'transfer')],
-          [Markup.button.callback('🪙 StableCoins', 'stableCoins')],
-        ])
-      }
+    await ctx.replyWithMarkdown(
+`🔐 *Wallet Management*`,
+      Markup.inlineKeyboard([
+        [Markup.button.callback('👛 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance')],
+        [Markup.button.callback('🌐 Link Wallet', 'external')],
+        [{ text: '⬇️ Más opciones', callback_data: 'more_options' }] // opcional si querés paginación
+      ])
     );
 
+    await ctx.replyWithMarkdown(
+`🛠️ *Trading Tools*`,
+      Markup.inlineKeyboard([
+        [Markup.button.callback('🔁 Swap Tokens', 'swap'), Markup.button.callback('🎯 Sniper', 'sniper')],
+      ])
+    );
+
+    await ctx.replyWithMarkdown(
+`💸 *Transfers*`,
+      Markup.inlineKeyboard([
+        [Markup.button.callback('🚀 Transfer TRX', 'transfer')],
+      ])
+    );
+
+    await ctx.replyWithMarkdown(
+`💵 *Stable Assets*`,
+      Markup.inlineKeyboard([
+        [Markup.button.callback('🪙 StableCoins', 'stableCoins')],
+      ])
+    );
+    
   } catch (error) {
-    console.error("❌ Error displaying menu:", error);
-    await ctx.reply("⚠️ Something went wrong while showing the menu.");
+    console.error("Error showing menu:", error);
+    await ctx.reply("❌ Error showing menu.");
   }
 }
 
-module.exports = {
-  startCommand
-};
+module.exports = { startCommand };
