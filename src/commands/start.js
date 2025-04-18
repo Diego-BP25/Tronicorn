@@ -5,14 +5,13 @@ async function startCommand(ctx) {
     await ctx.replyWithMarkdown(
 `🔐 *Wallet Management*`,
       Markup.inlineKeyboard([
-        [Markup.button.callback('👛 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance')],
-        [Markup.button.callback('🌐 Link Wallet', 'external')],
-        [{ text: '⬇️ Más opciones', callback_data: 'more_options' }] // opcional si querés paginación
+        [Markup.button.callback('💼 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance')],
+        [Markup.button.callback('🌐 Link Wallet', 'external')]
       ])
     );
 
     await ctx.replyWithMarkdown(
-`🛠️ *Trading Tools*`,
+`🔄  *Trading Tools*`,
       Markup.inlineKeyboard([
         [Markup.button.callback('🔁 Swap Tokens', 'swap'), Markup.button.callback('🎯 Sniper', 'sniper')],
       ])
@@ -39,3 +38,4 @@ async function startCommand(ctx) {
 }
 
 module.exports = { startCommand };
+y
