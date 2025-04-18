@@ -1,7 +1,7 @@
 const { Markup, Telegraf  } = require('telegraf');
 const { fetchAllWallets, fetch_Private_key } = require("../service/user.service");
 const QRCode = require('qrcode');
-const Jimp = require('jimp').default;
+const Jimp = require('jimp');
 const path = require('path');
 
 
@@ -47,6 +47,9 @@ async function listUserWallets(ctx) {
   
   async function handleReceive(ctx, walletAddress) {
     try {
+        console.log("Tipo de Jimp:", typeof Jimp);
+console.log("Jimp.read existe:", typeof Jimp.read);
+
       // 1. Generar el QR en un buffer
       const qrBuffer = await QRCode.toBuffer(walletAddress, {
         width: 400,
