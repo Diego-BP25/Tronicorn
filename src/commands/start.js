@@ -2,8 +2,8 @@ const { Markup } = require('telegraf');
 
 async function startCommand(ctx) {
   try {
-    await ctx.reply(
-'Welcome to the TRON Bot! Choose an option:',
+    await ctx.replyWithMarkdown(
+`Welcome to the TRON Bot! Choose an option:`,
       Markup.inlineKeyboard([
         [Markup.button.callback(`🔐 *Wallet Management*`, '')],
         [Markup.button.callback('💼 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance'), Markup.button.callback('🌐 Link Wallet', 'external')],
