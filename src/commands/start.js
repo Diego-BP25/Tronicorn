@@ -4,7 +4,8 @@ async function startCommand(ctx) {
   try {
     await ctx.replyWithMarkdown(
 `Welcome to the TRON Bot! Choose an option:`,
-      Markup.inlineKeyboard([
+{
+  reply_markup: Markup.inlineKeyboard([
         [Markup.button.callback(`🔐 *Wallet Management*`, '')],
         [Markup.button.callback('💼 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance'), Markup.button.callback('🌐 Link Wallet', 'external')],
         [Markup.button.callback(`🔄  *Trading Tools*`, '')],
@@ -14,6 +15,7 @@ async function startCommand(ctx) {
         [Markup.button.callback(`💵 *Stable Assets*`, '')],
         [Markup.button.callback('🪙 StableCoins', 'stableCoins')]
       ])
+    }
     );    
   } catch (error) {
     console.error("Error showing menu:", error);
