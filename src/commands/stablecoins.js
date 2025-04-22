@@ -26,15 +26,19 @@ async function listUserWallets(ctx) {
       const walletResult = await fetchAllWallets(userId);
   
       if (walletResult.success && walletResult.wallets.length > 0) {
-        const walletButtons = walletResult.wallets.map(wallet => {
-          return [Markup.button.callback(wallet.wallet_name, `select_wallet_${wallet.wallet_address}`)];
-        });
+        // Mostrar todas las wallets en una sola fila (máximo 3)
+        const walletRow = walletResult.wallets.map(wallet =>
+          Markup.button.callback(wallet.wallet_name, `select_wallet_${wallet.wallet_address}`)
+        );
   
-        walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
+        const keyboard = [
+          walletRow, // Todas las wallets en una sola fila
+          [Markup.button.callback('🔗 Wallet external', 'external_wallet')] // Botón debajo
+        ];
   
         await ctx.reply(
           'Choose a wallet:',
-          Markup.inlineKeyboard(walletButtons)
+          Markup.inlineKeyboard(keyboard)
         );
       } else {
         await ctx.reply("❗ You don't have any registered wallets.");
@@ -44,48 +48,78 @@ async function listUserWallets(ctx) {
       ctx.reply("⚠️ An error occurred while fetching your wallets.");
     }
   }
-  
-  async function handleReceive(ctx, walletAddress) {
-      try {
 
-        // 1. Generar el QR en un buffer
-        const qrBuffer = await QRCode.toBuffer(walletAddress, {
-          width: 400,
-          margin: 2
-        });
-    
-        // 2. Leer el QR generado como imagen
-        const qrImage = await Jimp.read(qrBuffer);
-    
-        // 3. Cargar tu logo (ajusta el path si es necesario)
-        const logoPath = path.join(__dirname, 'tronbot2_byn.png'); // Cambia el nombre si tu logo tiene otro
-        const logo = await Jimp.read(logoPath);
-    
-        // 4. Redimensionar el logo para que encaje bien en el centro
-        const logoSize = qrImage.bitmap.width * 0.3; // 20% del tamaño del QR
-        logo.resize(logoSize, logoSize);
-    
-        // 5. Calcular posición centrada
-        const x = (qrImage.bitmap.width / 2) - (logo.bitmap.width / 2);
-        const y = (qrImage.bitmap.height / 2) - (logo.bitmap.height / 2);
-    
-        // 6. Pegar el logo sobre el QR
-        qrImage.composite(logo, x, y);
-    
-        // 7. Obtener buffer final
-        const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
-    
-        // 8. Enviar el QR personalizado
-        await ctx.replyWithPhoto({ source: finalBuffer }, {
-          caption: `📥 *Receive USDT*\n\`${walletAddress}\`\nScan to pay.`,
-          parse_mode: "Markdown"
-        });
-    
-      } catch (err) {
-        console.error("QR error:", err);
-        await ctx.reply("❌ Could not generate QR.");
-      }
+  
+  // En stablecoins.js
+async function handleExternalWalletInput(ctx) {
+    const walletAddress = ctx.message.text;
+    ctx.session.awaitingExternalWallet = false;
+  
+    if (ctx.session.transferMode === 'receive') {
+      await handleReceive(ctx, walletAddress); // Llama tu función que genera el QR
+    } else {
+      ctx.session.selectedWallet = walletAddress;
+      ctx.session.awaitingRecipient = true;
+      await ctx.reply("✉️ Enter the recipient wallet address:");
+    }
+  }  
+
+  async function handleReceive(ctx, walletAddress) {
+    try {
+      const qrBuffer = await QRCode.toBuffer(walletAddress, { width: 400 });
+  
+      await ctx.replyWithPhoto({ source: qrBuffer }, {
+        caption: `📥 *Receive USDT*\n\`${walletAddress}\`\nScan to pay.`,
+        parse_mode: "Markdown"
+      });
+    } catch (err) {
+      console.error("QR error:", err);
+      await ctx.reply("❌ Could not generate QR.");
+    }
   }
+  
+ //qr con imagen 
+//   async function handleReceive(ctx, walletAddress) {
+//       try {
+
+//         // 1. Generar el QR en un buffer
+//         const qrBuffer = await QRCode.toBuffer(walletAddress, {
+//           width: 400,
+//           margin: 2
+//         });
+    
+//         // 2. Leer el QR generado como imagen
+//         const qrImage = await Jimp.read(qrBuffer);
+    
+//         // 3. Cargar tu logo (ajusta el path si es necesario)
+//         const logoPath = path.join(__dirname, 'tronbot2_byn.png'); // Cambia el nombre si tu logo tiene otro
+//         const logo = await Jimp.read(logoPath);
+    
+//         // 4. Redimensionar el logo para que encaje bien en el centro
+//         const logoSize = qrImage.bitmap.width * 0.3; // 300% del tamaño del QR
+//         logo.resize(logoSize, logoSize);
+    
+//         // 5. Calcular posición centrada
+//         const x = (qrImage.bitmap.width / 2) - (logo.bitmap.width / 2);
+//         const y = (qrImage.bitmap.height / 2) - (logo.bitmap.height / 2);
+    
+//         // 6. Pegar el logo sobre el QR
+//         qrImage.composite(logo, x, y);
+    
+//         // 7. Obtener buffer final
+//         const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
+    
+//         // 8. Enviar el QR personalizado
+//         await ctx.replyWithPhoto({ source: finalBuffer }, {
+//           caption: `📥 *Receive USDT*\n\`${walletAddress}\`\nScan to pay.`,
+//           parse_mode: "Markdown"
+//         });
+    
+//       } catch (err) {
+//         console.error("QR error:", err);
+//         await ctx.reply("❌ Could not generate QR.");
+//       }
+//   }
   
 
 async function handleSend(ctx, walletAddress) {
@@ -99,5 +133,6 @@ module.exports = {
     stableCoins,
     listUserWallets,
     handleReceive, 
-    handleSend
+    handleSend,
+    handleExternalWalletInput
 }
