@@ -243,7 +243,7 @@ async function executeSwap(ctx) {
 
 
   if (symbol === "UNKNOWN") {
-      console.log(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
+      await ctx.reply(`⚠️ Warning: Could not fetch token details for ${tokenAddress}. Swap cancelled.`);
       return;
   }
 

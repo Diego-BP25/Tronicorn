@@ -1,7 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { handleWalletSwap, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap, SwapYes, SwapNo } = require('./src/commands/swap');
-const {handleAskAmount, handleAskToken, handleProcessData, listWallets} = require('./src/commands/swapToken')
+const {handleAskAmount, handleAskToken, handleProcessData, listWallets, proximamente} = require('./src/commands/swapToken')
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
@@ -9,7 +9,7 @@ const { handleWalletBalance, balanceCommand } = require('./src/commands/balance'
 const { transferCommand, handleWalletSelection, handleToAddress, handleAmount } = require('./src/commands/transferTRX');
 const {sniperCommand, amountTrx, listenToken, sendToken, handleAdminToken, handlewalletSelection, handleAmountSelection, handleSlippageSelection, handleCustomAmount,handleCustomSlippage } = require ('./src/commands/Sniper')
 const {External} = require('./src/commands/external')
-const { stableCoins, listUserWallets, handleReceive, handleSend, handleExternalWalletInput} = require('./src/commands/stablecoins')
+const { stableCoins, listUserWallets, handleReceive, handleSend, handleExternalWalletInput,desarrollo} = require('./src/commands/stablecoins')
 const databaseConnect = require('./src/utils/database');
 const LocalSession = require('telegraf-session-local'); // Para manejo de sesión persistente
 
@@ -78,7 +78,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     
     bot.action("send_payment", async (ctx) => {
       ctx.session.transferMode = "send";
-      await listUserWallets(ctx);
+      await desarrollo(ctx);
     });
     
 
@@ -150,7 +150,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
   // Acción para el tipo de swap tokens a TRX
   bot.action(/^swap_type_TOKENS_TRX$/, async (ctx) => {
     await ctx.answerCbQuery();
-    return listWallets(ctx);
+    return proximamente(ctx);
   });
 
     // Acción para seleccionar una wallet

@@ -8,6 +8,10 @@ const solidityNode = 'https://api.trongrid.io';
 const eventServer = 'https://api.trongrid.io';
 const routerAddress = 'TXF1xDbVGdxFGbovmmmXvBGu8ZiE3Lq4mR'; // SunSwap V2 Router
 
+async function proximamente (ctx){
+  await ctx.reply('🚧 This feature is in development. Available next week!');
+}
+
 // ABI para las funciones balanceOf, decimals y approve
 const abi = [
     {
@@ -194,5 +198,6 @@ async function listWallets(ctx) {
     listWallets,
     handleAskAmount,
     handleProcessData,
-    handleAskToken
+    handleAskToken,
+    proximamente
   };

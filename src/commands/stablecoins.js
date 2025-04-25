@@ -4,6 +4,9 @@ const QRCode = require('qrcode');
 const Jimp = require('jimp');
 const path = require('path');
 
+async function desarrollo (ctx){
+    await ctx.reply('🚧 This feature is in development. Coming soon available!');
+}
 
 async function stableCoins(ctx) {
   try {
@@ -134,5 +137,6 @@ module.exports = {
     listUserWallets,
     handleReceive, 
     handleSend,
-    handleExternalWalletInput
+    handleExternalWalletInput,
+    desarrollo
 }
