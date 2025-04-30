@@ -12,7 +12,6 @@ const SOLIDITY_NODE = 'https://api.trongrid.io';
 const EVENT_SERVER = 'https://api.trongrid.io';
 const ROUTER_ADDRESS = 'TXF1xDbVGdxFGbovmmmXvBGu8ZiE3Lq4mR'; // SunSwap V2 Router
 const WTRX = 'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR'; // Wrapped TRX
-const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes
 
 // Definir el porcentaje de comisión
 const commissionRate = 0.01; // Comisión del 1%
@@ -313,6 +312,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       const trxAmountInSun = tronWeb.toSun(swapAmount);
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
+      const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20;
 
       await ctx.reply(`🚀 Attempting to swap ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
@@ -457,6 +457,7 @@ async function swapTRXForTokens6(ctx, tokenDecimals, tokenSymbol) {
       const trxAmountInSun = tronWeb.toSun(swapAmount);
       const routerContract = await tronWeb.contract().at(ROUTER_ADDRESS);
       const path = [WTRX, tokenAddress];
+      const DEADLINE = Math.floor(Date.now() / 1000) + 60 * 20;
 
       await ctx.reply(`🚀 Swapping ${swapAmount.toFixed(6)} TRX for ${tokenSymbol} with ${swapSlippage}% slippage tolerance...`);
 
