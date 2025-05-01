@@ -275,9 +275,9 @@ async function proximamente (ctx){
   decimals,
   symbol,
   CONTRACTS: {
-    contract: contractAddress,
-    router: routerAddress
+    router: CONTRACTS.ROUTER
   }
+  
 };
   
     } catch (error) {
@@ -295,7 +295,7 @@ async function proximamente (ctx){
       const { tronWeb } = ctx.session;
       const { CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
       const tokenContract = await tronWeb.contract().at(path[0]);
-      const router = await tronWeb.contract().at(CONTRACTS.ROUTER.address);
+      const router = await tronWeb.contract(CONTRACTS.router.abi, CONTRACTS.router.address);
       const txOwner = tronWeb.defaultAddress.base58;
   
       const amountFormatted = new BigNumber(swapTokenAmount).toFormat(6);
