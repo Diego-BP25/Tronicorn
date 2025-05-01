@@ -267,12 +267,18 @@ async function proximamente (ctx){
       // Guardamos temporalmente los datos calculados en sesión para usarlos si confirman
       ctx.session.swapTokenFinal = {
         amountInWei,
-        minTRXRaw,
-        path,
-        symbol,
-        decimals,
-        estimatedTRX
-      };
+  minTRXRaw,
+  path,
+  estimatedTRX,
+  swapTokenAmount,
+  swapTokenSlippage,
+  decimals,
+  symbol,
+  CONTRACTS: {
+    contract: contractAddress,
+    router: routerAddress
+  }
+};
   
     } catch (error) {
       console.error("❌ Error in swapTokenToTRXBot:", error.message);
