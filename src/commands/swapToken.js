@@ -3,7 +3,7 @@ const { Markup } = require('telegraf');
 const { decrypt } = require('../utils/tron');
 const BigNumber = require('bignumber.js');
 const axios = require('axios'); 
-const TronWeb = require('tronweb');
+const TronWeb = require('tronweb').TronWeb;
 
 const fullHost = 'https://api.trongrid.io';
 
@@ -211,7 +211,6 @@ async function proximamente (ctx){
   async function swapTokenToTRX(ctx) {
     try {
       const { swapTokenAmount, swapTokenSlippage, walletAddress, encryptedPrivateKey } = ctx.session;
-  console.log("session",ctx.session)
       if (!swapTokenAmount || !walletAddress || !encryptedPrivateKey) {
         await ctx.reply("❌ Missing data. Please make sure to complete all steps of the swap.");
         return;
