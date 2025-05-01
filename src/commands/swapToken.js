@@ -235,8 +235,8 @@ async function proximamente (ctx){
       const amountInWei = new BigNumber(swapTokenAmount).times(10 ** decimals).toFixed(0);
       const router = await tronWeb.contract(CONTRACTS.ROUTER.abi, CONTRACTS.ROUTER.address);
       const path = [
-        tronWeb.address.fromHex(tokenAddress),
-        tronWeb.address.fromHex(CONTRACTS.WTRX.address)
+        tokenAddress,
+        CONTRACTS.WTRX.address
       ];
         
       const amountsOut = await router.methods.getAmountsOut(amountInWei, path).call();
@@ -288,7 +288,9 @@ async function proximamente (ctx){
       console.error("❌ Error in swapTokenToTRXBot:", error.message);
       await ctx.reply(`Error performing swap: ${error.message}`);
     }
-  }const handleConfirmSwapToken = async (ctx) => {
+  }
+  
+  async function handleConfirmSwapToken(ctx) {
 
     try {
       const swapTokenFinal = ctx.session.swapTokenFinal;
@@ -304,11 +306,11 @@ async function proximamente (ctx){
       console.log("📦 path recibido en handleConfirmSwapToken:", path);
 
       
-      if (!tronWeb.isAddress(path.tokenAddress)) {
+      if (!tronWeb.isAddress(path[0])) {
         return ctx.reply(`❌ Dirección del token inválida: ${tokenAddress}`);
       }
       
-      if (!tronWeb.isAddress(path.CONTRACTS.WTRX.address)) {
+      if (!tronWeb.isAddress(path[1])) {
         return ctx.reply(`❌ Dirección de WTRX inválida: ${CONTRACTS.WTRX.address}`);
       }
       const tokenContract = await tronWeb.contract().at(path[0]);
