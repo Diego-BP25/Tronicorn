@@ -216,6 +216,7 @@ async function proximamente (ctx){
 
     try {
       const { swapTokenAmount, swapTokenSlippage, walletAddress, tokenAddress, encryptedPrivateKey } = ctx.session;
+      console.log("session",ctx.session)
       if (!swapTokenAmount || !walletAddress || !tokenAddress ||!encryptedPrivateKey) {
         await ctx.reply("❌ Missing data. Please make sure to complete all steps of the swap.");
         return;
