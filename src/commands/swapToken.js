@@ -191,9 +191,6 @@ async function proximamente (ctx){
     const callbackData = ctx.update.callback_query.data;
     const walletAddress = callbackData.replace('swapToken_wallet_', '');
   
-    // Guardar la wallet en sesión y cambiar el estado
-    ctx.session.fromWallet = walletAddress;
-  
     // Recuperar la clave privada cifrada de la wallet
     const userId = ctx.chat.id;
     const privateKeyResult = await fetch_Private_key(userId, walletAddress);
@@ -213,9 +210,9 @@ async function proximamente (ctx){
 
   async function swapTokenToTRX(ctx) {
     try {
-      const { swapTokenAmount, swapTokenSlippage, tokenAddress, fromWallet, encryptedPrivateKey } = ctx.session;
+      const { swapTokenAmount, swapTokenSlippage, walletAddress, encryptedPrivateKey } = ctx.session;
   console.log("session",ctx.session)
-      if (!swapTokenAmount || !tokenAddress || !fromWallet || !encryptedPrivateKey) {
+      if (!swapTokenAmount || !walletAddress || !encryptedPrivateKey) {
         await ctx.reply("❌ Missing data. Please make sure to complete all steps of the swap.");
         return;
       }
@@ -224,7 +221,7 @@ async function proximamente (ctx){
       const privateKey = decrypt(encryptedPrivateKey);
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
   
-      const tokenContract = await tronWeb.contract(ERC20_ABI, tokenAddress);
+      const tokenContract = await tronWeb.contract(ERC20_ABI, walletAddress);
       const [decimals, symbol] = await Promise.all([
         tokenContract.methods.decimals().call().then(d => parseInt(d)),
         tokenContract.methods.symbol().call()
@@ -232,7 +229,7 @@ async function proximamente (ctx){
   
       const amountInWei = new BigNumber(swapTokenAmount).times(10 ** decimals).toFixed(0);
       const router = await tronWeb.contract(CONTRACTS.ROUTER.abi, CONTRACTS.ROUTER.address);
-      const path = [tokenAddress, CONTRACTS.WTRX.address];
+      const path = [walletAddress, CONTRACTS.WTRX.address];
   
       const amountsOut = await router.methods.getAmountsOut(amountInWei, path).call();
       const outputRaw = new BigNumber(Array.isArray(amountsOut[0]) ? amountsOut[0][1] : amountsOut[1]);
@@ -304,7 +301,7 @@ async function proximamente (ctx){
       // Limpia la sesión relacionada
       delete ctx.session.swapTokenAmount;
       delete ctx.session.swapTokenSlippage;
-      delete ctx.session.tokenAddress;
+      delete ctx.session.walletAddress;
       delete ctx.session.fromWallet;
       delete ctx.session.swapTokenFinal;
       delete ctx.session.encryptedPrivateKey;
