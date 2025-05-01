@@ -1,7 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { handleWalletSwap, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap, SwapYes, SwapNo } = require('./src/commands/swap');
-const {handleAskAmount, handleAskToken, handleProcessData, listWallets, proximamente} = require('./src/commands/swapToken')
+const {handleAmountSelectionSwapToken,handleCustomAmountSwapToken, amountTrxSwapToken,handleSlippageSelectionSwapToken, handleCustomSlippageSwapToken, swapTokenToTRX,contractToken,handleConfirmSwapToken} = require('./src/commands/swapToken')
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
@@ -103,6 +103,9 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
 
     bot.action(/^transfer_wallet_.+$/, handleWalletSelection);
 
+
+//-----------------------------swap------------------------
+
     bot.action('swap', async (ctx) => {
       await ctx.answerCbQuery();  // Responder al callback query
       return handleWalletSwap(ctx);  // Llamar a la función de la transferencia
@@ -147,17 +150,30 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     return SwapNo(ctx);
   });
 
-  // Acción para el tipo de swap tokens a TRX
-  bot.action(/^swap_type_TOKENS_TRX$/, async (ctx) => {
-    await ctx.answerCbQuery();
-    return proximamente(ctx);
-  });
-
     // Acción para seleccionar una wallet
     bot.action(/^token_wallet_.+$/, async (ctx) => {
       await ctx.answerCbQuery();
       return handleAskToken(ctx);
     });
+
+//-----------------------------swapToken------------------------
+  // Acción para el tipo de swap tokens a TRX
+  bot.action(/^swap_type_TOKENS_TRX$/, async (ctx) => {
+    await ctx.answerCbQuery();
+    return amountTrxSwapToken(ctx);
+  });
+
+  bot.action(/swapToken_amount_.+$/, handleAmountSelectionSwapToken);
+
+  bot.action(/swapToken_slippage_.+$/, handleSlippageSelectionSwapToken);
+
+  bot.action(/^swapToken_wallet_.+$/, async (ctx) => {
+    await ctx.answerCbQuery();
+    return contractToken(ctx);
+  });
+
+  bot.action(/confirm_swapToken.+$/, handleConfirmSwapToken);
+
 //--------------sniper-----------------------
     bot.action('sniper', async (ctx) => {
       await ctx.answerCbQuery();
@@ -258,6 +274,18 @@ bot.on('text', async (ctx) => {
     return handleExternalWalletInput(ctx);
   }
 
+  if (ctx.session.awaitingTokenAmount) {
+    return handleCustomAmountSwapToken(ctx);
+  }
+
+  if (ctx.session.awaitingSlippageToken) {
+    return handleCustomSlippageSwapToken(ctx);
+  }
+
+  if (ctx.session.awaitingTokenSwap) {
+    return swapTokenToTRX(ctx);
+  }
+  
 });
 
 
