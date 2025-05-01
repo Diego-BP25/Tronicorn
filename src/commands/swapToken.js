@@ -233,8 +233,11 @@ async function proximamente (ctx){
   
       const amountInWei = new BigNumber(swapTokenAmount).times(10 ** decimals).toFixed(0);
       const router = await tronWeb.contract(CONTRACTS.ROUTER.abi, CONTRACTS.ROUTER.address);
-      const path = [tokenAddress, CONTRACTS.WTRX.address];
-  
+      const path = [
+        tronWeb.address.fromHex(tokenAddress),
+        tronWeb.address.fromHex(CONTRACTS.WTRX.address)
+      ];
+        
       const amountsOut = await router.methods.getAmountsOut(amountInWei, path).call();
       const outputRaw = new BigNumber(Array.isArray(amountsOut[0]) ? amountsOut[0][1] : amountsOut[1]);
       const estimatedTRX = outputRaw.dividedBy(1e6).toFixed(6);
@@ -300,11 +303,11 @@ async function proximamente (ctx){
       console.log("📦 path recibido en handleConfirmSwapToken:", path);
 
       
-      if (!tronWeb.isAddress(tokenAddress)) {
+      if (!tronWeb.isAddress(path.tokenAddress)) {
         return ctx.reply(`❌ Dirección del token inválida: ${tokenAddress}`);
       }
       
-      if (!tronWeb.isAddress(CONTRACTS.WTRX.address)) {
+      if (!tronWeb.isAddress(path.CONTRACTS.WTRX.address)) {
         return ctx.reply(`❌ Dirección de WTRX inválida: ${CONTRACTS.WTRX.address}`);
       }
       const tokenContract = await tronWeb.contract().at(path[0]);
