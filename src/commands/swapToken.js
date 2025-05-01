@@ -280,6 +280,8 @@ async function proximamente (ctx){
     }
   }const handleConfirmSwapToken = async (ctx) => {
     try {
+      const swapTokenFinal = ctx.session.swapTokenFinal;
+
       if (!swapTokenFinal) {
         return ctx.reply("⚠️ No swap data to confirm.");
       }
