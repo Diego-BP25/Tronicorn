@@ -246,12 +246,14 @@ async function proximamente (ctx){
         .toFixed(0);
   
       await ctx.replyWithMarkdownV2(
-        `🔄 *Swap Preview*\n` +
-        `• Amount: ${swapTokenAmount} ${symbol}\n` +
-        `• Slippage: ${swapTokenSlippage}%\n` +
-        `• Estimated TRX: ${estimatedTRX}\n` +
-        `• Minimum Received: ${new BigNumber(minTRXRaw).dividedBy(1e6).toFixed(6)} TRX\n\n` +
-        `Do you want to proceed?`,
+        escapeMarkdownV2(
+          `🔄 *Swap Preview*\n` +
+          `• Amount: ${swapTokenAmount} ${symbol}\n` +
+          `• Slippage: ${swapTokenSlippage}%\n` +
+          `• Estimated TRX: ${estimatedTRX}\n` +
+          `• Minimum Received: ${new BigNumber(minTRXRaw).dividedBy(1e6).toFixed(6)} TRX\n\n` +
+          `Do you want to proceed?`
+        ),
         Markup.inlineKeyboard([
           [Markup.button.callback('✅ Confirm', 'confirm_swapToken')],
           [Markup.button.callback('❌ Cancel', 'cancel_swapToken')]
