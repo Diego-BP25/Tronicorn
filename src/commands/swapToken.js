@@ -4,7 +4,6 @@ const { decrypt } = require('../utils/tron');
 const BigNumber = require('bignumber.js');
 const axios = require('axios'); 
 const TronWeb = require('tronweb').TronWeb;
-
 const fullHost = 'https://api.trongrid.io';
 
 const CONTRACTS = {
@@ -209,9 +208,15 @@ async function proximamente (ctx){
   }
 
   async function swapTokenToTRX(ctx) {
+
+    if (ctx.session.awaitingTokenSwap && !ctx.session.tokenAddress) {
+      ctx.session.tokenAddress = ctx.message.text;
+      ctx.session.awaitingTokenSwap = false;
+    }
+
     try {
-      const { swapTokenAmount, swapTokenSlippage, walletAddress, encryptedPrivateKey } = ctx.session;
-      if (!swapTokenAmount || !walletAddress || !encryptedPrivateKey) {
+      const { swapTokenAmount, swapTokenSlippage, walletAddress, tokenAddress, encryptedPrivateKey } = ctx.session;
+      if (!swapTokenAmount || !walletAddress || !tokenAddress ||!encryptedPrivateKey) {
         await ctx.reply("❌ Missing data. Please make sure to complete all steps of the swap.");
         return;
       }
@@ -220,7 +225,7 @@ async function proximamente (ctx){
       const privateKey = decrypt(encryptedPrivateKey);
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
   
-      const tokenContract = await tronWeb.contract(ERC20_ABI, walletAddress);
+      const tokenContract = await tronWeb.contract(ERC20_ABI, tokenAddress);
       const [decimals, symbol] = await Promise.all([
         tokenContract.methods.decimals().call().then(d => parseInt(d)),
         tokenContract.methods.symbol().call()
@@ -228,7 +233,7 @@ async function proximamente (ctx){
   
       const amountInWei = new BigNumber(swapTokenAmount).times(10 ** decimals).toFixed(0);
       const router = await tronWeb.contract(CONTRACTS.ROUTER.abi, CONTRACTS.ROUTER.address);
-      const path = [walletAddress, CONTRACTS.WTRX.address];
+      const path = [tokenAddress, CONTRACTS.WTRX.address];
   
       const amountsOut = await router.methods.getAmountsOut(amountInWei, path).call();
       const outputRaw = new BigNumber(Array.isArray(amountsOut[0]) ? amountsOut[0][1] : amountsOut[1]);
