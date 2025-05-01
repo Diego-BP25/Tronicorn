@@ -244,7 +244,7 @@ async function proximamente (ctx){
         .dividedBy(100)
         .integerValue(BigNumber.ROUND_FLOOR)
         .toFixed(0);
-        
+
         function escapeMarkdownV2(text) {
           return text.replace(/([_*\[\]()~`>#+=|{}.!\\-])/g, '\\$1');
         }
@@ -278,52 +278,107 @@ async function proximamente (ctx){
       console.error("❌ Error in swapTokenToTRXBot:", error.message);
       await ctx.reply(`Error performing swap: ${error.message}`);
     }
-  }
-  async function handleConfirmSwapToken(ctx) {
+  }const handleConfirmSwapToken = async (ctx) => {
     try {
-      const { encryptedPrivateKey, swapTokenFinal } = ctx.session;
-      const privateKey = await fetch_Private_key(encryptedPrivateKey);
-      const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
+      if (!swapTokenFinal) {
+        return ctx.reply("⚠️ No swap data to confirm.");
+      }
   
-      const tokenContract = await tronWeb.contract(ERC20_ABI, swapTokenFinal.path[0]);
-      const router = await tronWeb.contract(CONTRACTS.ROUTER.abi, CONTRACTS.ROUTER.address);
+      const { tronWeb } = ctx.session;
+      const { CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
+      const tokenContract = await tronWeb.contract().at(path[0]);
+      const router = await tronWeb.contract().at(CONTRACTS.ROUTER.address);
+      const txOwner = tronWeb.defaultAddress.base58;
   
-      await ctx.reply('⚙️ Approving token...');
+      const amountFormatted = new BigNumber(swapTokenAmount).toFormat(6);
+      const minFormatted = new BigNumber(minTRXRaw).dividedBy(1e6).toFormat(6);
   
-      await tokenContract.methods.approve(CONTRACTS.ROUTER.address, swapTokenFinal.amountInWei).send({ feeLimit: 100000000 });
+      await ctx.replyWithMarkdownV2(escapeMarkdownV2(`
+  🔁 *Confirming Swap...*
   
+  • Token: ${symbol}
+  • Amount: ${amountFormatted} ${symbol}
+  • Estimated TRX: ${estimatedTRX}
+  • Slippage: ${swapTokenSlippage}%
+  • Minimum After Slippage: ${minFormatted} TRX
+      `));
+  
+      await ctx.reply("⚡ Approving use of tokens...");
+      const approveTx = await tokenContract.methods.approve(CONTRACTS.ROUTER.address, swapTokenFinal.amountInWei)
+        .send({ feeLimit: 100_000_000 });
+      await ctx.reply(`✅ Approval TX sent: ${approveTx.txID || approveTx}`);
+  
+      await ctx.reply("⚡ Executing swap...");
       const deadline = Math.floor(Date.now() / 1000) + 1200;
   
       const tx = await router.methods.swapExactTokensForETH(
         swapTokenFinal.amountInWei,
         swapTokenFinal.minTRXRaw,
-        swapTokenFinal.path,
-        tronWeb.defaultAddress.base58,
+        path,
+        txOwner,
         deadline
-      ).send({ feeLimit: 200000000 });
+      ).send({ feeLimit: 200_000_000 });
   
-      const txHash = tx?.transaction?.txID || tx?.txID || tx;
+      const txHash = tx; // tx contiene el hash directamente
+      await ctx.reply(`⏳ Waiting for swap confirmation...\n🔗 https://tronscan.org/#/transaction/${txHash}`);
   
-      await ctx.replyWithMarkdown(
-        `✅ *Swap executed successfully!*\n🔗 [View on Tronscan](https://tronscan.org/#/transaction/${txHash})`
+      // Espera y obtiene eventos del swap
+      let events = null;
+      for (let i = 0; i < 10; i++) {
+        try {
+          const { data } = await axios.get(`https://api.trongrid.io/v1/transactions/${txHash}/events`);
+          if (data?.data?.length > 0) {
+            events = data.data;
+            break;
+          }
+        } catch (err) {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+  
+      if (!events) {
+        return await ctx.reply(`⚠️ The events could not be obtained.\n🔗 https://tronscan.org/#/transaction/${txHash}`);
+      }
+  
+      const tokenTransfer = events.find((e) =>
+        e.event_name === "Transfer" &&
+        e.address === path[0] &&
+        e.result.from === txOwner
       );
   
-      // Limpia la sesión relacionada
-      delete ctx.session.swapTokenAmount;
-      delete ctx.session.swapTokenSlippage;
-      delete ctx.session.walletAddress;
-      delete ctx.session.fromWallet;
-      delete ctx.session.swapTokenFinal;
-      delete ctx.session.encryptedPrivateKey;
+      const wtrxWithdrawal = events.find((e) =>
+        e.event_name === "Withdrawal" &&
+        e.address === CONTRACTS.WTRX.address
+      );
   
+      if (!tokenTransfer || !wtrxWithdrawal) {
+        return await ctx.reply("⚠️ No transfer data was found in the logs.");
+      }
+  
+      const tokenAmount = new BigNumber(tokenTransfer.result.value)
+        .dividedBy(10 ** decimals)
+        .toFixed(6);
+  
+      const trxAmount = new BigNumber(wtrxWithdrawal.result.wad || wtrxWithdrawal.result.amount)
+        .dividedBy(1e6)
+        .toFixed(6);
+  
+      const entryPrice = new BigNumber(trxAmount)
+        .dividedBy(tokenAmount)
+        .toFixed(8);
+  
+      await ctx.replyWithMarkdownV2(escapeMarkdownV2(`
+  ✅ *Swap Successful*
+  
+  • Swapped: ${tokenAmount} ${symbol}
+  • Received: ${trxAmount} TRX
+  • Entry Price: ${entryPrice} TRX/${symbol}
+      `));
     } catch (error) {
-      console.error("❌ Error in handleConfirmSwapToken:", error.message);
-      await ctx.reply(`❌ Swap failed: ${error.message}`);
+      console.error("❌ Error en handleConfirmSwapToken:", error);
+      await ctx.reply(`❌ Error executing swap: ${error.message}`);
     }
-  }
-  
-  
-  
+  };
 
   module.exports = {
     handleConfirmSwapToken,

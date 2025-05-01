@@ -172,7 +172,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     return contractToken(ctx);
   });
 
-  bot.action(/confirm_swapToken.+$/, handleConfirmSwapToken);
+  bot.action('confirm_swapToken', handleConfirmSwapToken);
 
 //--------------sniper-----------------------
     bot.action('sniper', async (ctx) => {
