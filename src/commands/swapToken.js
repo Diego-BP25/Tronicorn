@@ -220,7 +220,7 @@ async function proximamente (ctx){
         await ctx.reply("❌ Missing data. Please make sure to complete all steps of the swap.");
         return;
       }
-  
+   
       // Desencriptar clave privada (asume que tienes esta función lista)
       const privateKey = decrypt(encryptedPrivateKey);
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
@@ -285,6 +285,7 @@ async function proximamente (ctx){
       await ctx.reply(`Error performing swap: ${error.message}`);
     }
   }const handleConfirmSwapToken = async (ctx) => {
+
     try {
       const swapTokenFinal = ctx.session.swapTokenFinal;
       const encryptedPrivateKey = ctx.session.encryptedPrivateKey;
@@ -296,6 +297,16 @@ async function proximamente (ctx){
       const privateKey = decrypt(encryptedPrivateKey); // Desencriptas la clave
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
       const { CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
+      console.log("📦 path recibido en handleConfirmSwapToken:", path);
+
+      
+      if (!tronWeb.isAddress(tokenAddress)) {
+        return ctx.reply(`❌ Dirección del token inválida: ${tokenAddress}`);
+      }
+      
+      if (!tronWeb.isAddress(CONTRACTS.WTRX.address)) {
+        return ctx.reply(`❌ Dirección de WTRX inválida: ${CONTRACTS.WTRX.address}`);
+      }
       const tokenContract = await tronWeb.contract().at(path[0]);
       const router = await tronWeb.contract(CONTRACTS.router.abi, CONTRACTS.router.address);
       const txOwner = tronWeb.defaultAddress.base58;
