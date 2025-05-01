@@ -244,7 +244,11 @@ async function proximamente (ctx){
         .dividedBy(100)
         .integerValue(BigNumber.ROUND_FLOOR)
         .toFixed(0);
-  
+        
+        function escapeMarkdownV2(text) {
+          return text.replace(/([_*\[\]()~`>#+=|{}.!\\-])/g, '\\$1');
+        }
+        
       await ctx.replyWithMarkdownV2(
         escapeMarkdownV2(
           `🔄 *Swap Preview*\n` +
