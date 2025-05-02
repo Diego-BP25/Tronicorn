@@ -271,7 +271,7 @@ async function proximamente (ctx){
         privateKey,
         tokenAddress,
         amountInWei,
-        path,
+        path
 };
   
     } catch (error) {
