@@ -270,15 +270,16 @@ async function proximamente (ctx){
   
       // Guardamos temporalmente los datos calculados en sesión para usarlos si confirman
       ctx.session.swapTokenFinal = {
+        tokenContract,
         amountInWei,
-  minTRXRaw,
-  path,
-  estimatedTRX,
-  swapTokenAmount,
-  swapTokenSlippage,
-  decimals,
-  symbol,
-  CONTRACTS: {
+        minTRXRaw,
+        path,
+        estimatedTRX,
+        swapTokenAmount,
+        swapTokenSlippage,
+        decimals,
+        symbol,
+        CONTRACTS: {
     router: CONTRACTS.ROUTER
   }
   
@@ -302,18 +303,9 @@ async function proximamente (ctx){
       }
       const privateKey = decrypt(encryptedPrivateKey); // Desencriptas la clave
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
-      const { CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
+      const { amountInWei, tokenContract, CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
       console.log("📦 path recibido en handleConfirmSwapToken:", path);
 
-      
-      if (!tronWeb.isAddress(path[0])) {
-        return ctx.reply(`❌ Dirección del token inválida: ${tokenAddress}`);
-      }
-      
-      if (!tronWeb.isAddress(path[1])) {
-        return ctx.reply(`❌ Dirección de WTRX inválida: ${CONTRACTS.WTRX.address}`);
-      }
-      const tokenContract = await tronWeb.contract().at(path[0]);
       const router = await tronWeb.contract(CONTRACTS.router.abi, CONTRACTS.router.address);
       const txOwner = tronWeb.defaultAddress.base58;
   
@@ -331,7 +323,9 @@ async function proximamente (ctx){
       `));
   
       await ctx.reply("⚡ Approving use of tokens...");
-      const approveTx = await tokenContract.methods.approve(CONTRACTS.ROUTER.address, swapTokenFinal.amountInWei)
+      const approveTx = await tokenContract.methods.approve(
+        CONTRACTS.ROUTER.address,
+        amountInWei)
         .send({ feeLimit: 100_000_000 });
       await ctx.reply(`✅ Approval TX sent: ${approveTx.txID || approveTx}`);
   
