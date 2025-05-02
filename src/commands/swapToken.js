@@ -271,13 +271,7 @@ async function proximamente (ctx){
         privateKey,
         tokenAddress,
         amountInWei,
-        minTRXRaw,
         path,
-        estimatedTRX,
-        swapTokenAmount,
-        swapTokenSlippage,
-        decimals,
-        symbol  
 };
   
     } catch (error) {
@@ -290,16 +284,11 @@ async function proximamente (ctx){
 
     try {
       const swapTokenFinal = ctx.session.swapTokenFinal;
-      const { privateKey,amountInWei, tokenAddress, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
-      
+      const { privateKey,amountInWei, tokenAddress, path } = swapTokenFinal;
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
       const tokenContract = await tronWeb.contract(ERC20_ABI, tokenAddress);
-
       const router = await tronWeb.contract(CONTRACTS.ROUTER.abi, CONTRACTS.ROUTER.address);
       const txOwner = tronWeb.defaultAddress.base58;
-  
-      const amountFormatted = new BigNumber(swapTokenAmount).toFormat(6);
-      const minFormatted = new BigNumber(minTRXRaw).dividedBy(1e6).toFormat(6);
       function escapeMarkdownV2(text) {
         return text.replace(/([_*\[\]()~`>#+=|{}.!\\-])/g, '\\$1');
       }  
@@ -338,54 +327,7 @@ async function proximamente (ctx){
         escapedMessage + linkMarkdown,
         { parse_mode: "MarkdownV2", disable_web_page_preview: true }
       );
-      // Espera y obtiene eventos del swap
-      let events = null;
-      for (let i = 0; i < 10; i++) {
-        try {
-          const { data } = await axios.get(`https://api.trongrid.io/v1/transactions/${txHash}/events`);
-          if (data?.data?.length > 0) {
-            events = data.data;
-            break;
-          }
-        } catch (err) {
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-        }
-      }
-  
-      const tokenTransfer = events.find((e) =>
-        e.event_name === "Transfer" &&
-        e.address === path[0] &&
-        e.result.from === txOwner
-      );
-  
-      const wtrxWithdrawal = events.find((e) =>
-        e.event_name === "Withdrawal" &&
-        e.address === CONTRACTS.WTRX.address
-      );
-  
-      if (!tokenTransfer || !wtrxWithdrawal) {
-        return await ctx.reply("⚠️ No transfer data was found in the logs.");
-      }
-  
-      const tokenAmount = new BigNumber(tokenTransfer.result.value)
-        .dividedBy(10 ** decimals)
-        .toFixed(6);
-  
-      const trxAmount = new BigNumber(wtrxWithdrawal.result.wad || wtrxWithdrawal.result.amount)
-        .dividedBy(1e6)
-        .toFixed(6);
-  
-      const entryPrice = new BigNumber(trxAmount)
-        .dividedBy(tokenAmount)
-        .toFixed(8);
-  
-      await ctx.replyWithMarkdownV2(escapeMarkdownV2(`
-  ✅ *Swap Successful*
-  
-  • Swapped: ${tokenAmount} ${symbol}
-  • Received: ${trxAmount} TRX
-  • Entry Price: ${entryPrice} TRX/${symbol}
-      `));
+
     } catch (error) {
       console.error("❌ Error en handleConfirmSwapToken:", error);
       await ctx.reply(`❌ Error executing swap: ${error.message}`);
