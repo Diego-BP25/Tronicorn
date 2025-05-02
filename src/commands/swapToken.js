@@ -87,9 +87,9 @@ async function proximamente (ctx){
       // Crear los botones en el formato deseado
       const buttons = Markup.inlineKeyboard([
         [
-          Markup.button.callback('5 TRX', 'swapToken_amount_5'),
-          Markup.button.callback('10 TRX', 'swapToken_amount_10'),
-          Markup.button.callback('20 TRX', 'swapToken_amount_20')
+          Markup.button.callback('5 Tokens', 'swapToken_amount_5'),
+          Markup.button.callback('10 Tokens', 'swapToken_amount_10'),
+          Markup.button.callback('20 Tokens', 'swapToken_amount_20')
         ],
         [Markup.button.callback('✏️ Personalize', 'swapToken_amount_custom')] // Botón debajo
       ]);
@@ -261,8 +261,8 @@ async function proximamente (ctx){
     await ctx.reply(message, {
         parse_mode: "Markdown",
         ...Markup.inlineKeyboard([
-          Markup.button.callback("✅ Confirm', 'confirm_swapToken"),
-          Markup.button.callback("❌ Cancel', 'cancel_swapToken")
+          Markup.button.callback("✅ Confirm", "confirm_swapToken"),
+          Markup.button.callback("❌ Cancel", "cancel_swapToken")
         ])
       });
   
