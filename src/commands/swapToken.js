@@ -297,10 +297,6 @@ async function proximamente (ctx){
       const swapTokenFinal = ctx.session.swapTokenFinal;
       const encryptedPrivateKey = ctx.session.encryptedPrivateKey;
 
-
-      if (!swapTokenFinal) {
-        return ctx.reply("⚠️ No swap data to confirm.");
-      }
       const privateKey = decrypt(encryptedPrivateKey); // Desencriptas la clave
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
       const { amountInWei, tokenContract, CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
