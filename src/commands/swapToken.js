@@ -307,7 +307,9 @@ async function proximamente (ctx){
   
       const amountFormatted = new BigNumber(swapTokenAmount).toFormat(6);
       const minFormatted = new BigNumber(minTRXRaw).dividedBy(1e6).toFormat(6);
-  
+      function escapeMarkdownV2(text) {
+        return text.replace(/([_*\[\]()~`>#+=|{}.!\\-])/g, '\\$1');
+      }
       await ctx.replyWithMarkdownV2(escapeMarkdownV2(`
   🔁 *Confirming Swap...*
   
