@@ -206,7 +206,7 @@ async function confirmSwap(ctx, details) {
     `• *Estimated Tokens:* ${details.estimatedTokens}\n` +
     `• *Min After Slippage:* ${details.minTokens}\n` +
     `----------------------------\n` +
-    `\n*Confirm swap?*`;
+    `\n*Do you want to proceed?*`;
 
   // Guardamos los detalles en la sesión
   ctx.session.swapDetails = details;
@@ -214,8 +214,8 @@ async function confirmSwap(ctx, details) {
   await ctx.reply(message, {
     parse_mode: "Markdown",
     ...Markup.inlineKeyboard([
-      Markup.button.callback("✅ Yes", "confirm_swap_yes"),
-      Markup.button.callback("❌ No", "confirm_swap_no")
+      Markup.button.callback("✅ Confirm", "confirm_swap_yes"),
+      Markup.button.callback("❌ Cancel", "confirm_swap_no")
     ])
   });
 }
@@ -348,7 +348,7 @@ async function swapTRXForTokens18(ctx, tokenDecimals, tokenSymbol) {
       }
 
       const escapedMessage = escapeMarkdownV2(
-        `✅ Swap executed!\n\nTxn Hash: ${transaction}\n\n`
+        `✅ Swap Successful!\n\nTxn Hash: ${transaction}\n\n`
       );
       
       const linkMarkdown = `[🔗 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!

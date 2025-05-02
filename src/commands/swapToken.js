@@ -216,7 +216,6 @@ async function proximamente (ctx){
 
     try {
       const { swapTokenAmount, swapTokenSlippage, walletAddress, tokenAddress, encryptedPrivateKey } = ctx.session;
-      console.log("session",ctx.session)
       if (!swapTokenAmount || !walletAddress || !tokenAddress ||!encryptedPrivateKey) {
         await ctx.reply("❌ Missing data. Please make sure to complete all steps of the swap.");
         return;
@@ -249,24 +248,23 @@ async function proximamente (ctx){
         .integerValue(BigNumber.ROUND_FLOOR)
         .toFixed(0);
 
-        function escapeMarkdownV2(text) {
-          return text.replace(/([_*\[\]()~`>#+=|{}.!\\-])/g, '\\$1');
-        }
         
-      await ctx.replyWithMarkdownV2(
-        escapeMarkdownV2(
-          `🔄 *Swap Preview*\n` +
-          `• Amount: ${swapTokenAmount} ${symbol}\n` +
-          `• Slippage: ${swapTokenSlippage}%\n` +
-          `• Estimated TRX: ${estimatedTRX}\n` +
-          `• Minimum Received: ${new BigNumber(minTRXRaw).dividedBy(1e6).toFixed(6)} TRX\n\n` +
-          `Do you want to proceed?`
-        ),
-        Markup.inlineKeyboard([
-          [Markup.button.callback('✅ Confirm', 'confirm_swapToken')],
-          [Markup.button.callback('❌ Cancel', 'cancel_swapToken')]
+        const message = `🔎 *Swap Preview*\n` +
+    `----------------------------\n` +
+    `• *Amount:* ${swapTokenAmount} ${symbol}\n` +
+    `• *Slippage:* ${swapTokenSlippage}%\n` +
+    `• *Estimated TRX:* ${estimatedTRX}\n` +
+    `• *Minimum Received:* ${new BigNumber(minTRXRaw).dividedBy(1e6).toFixed(6)} TRX\n\n` +
+    `----------------------------\n` +
+    `\n*Do you want to proceed?*`;
+      
+    await ctx.reply(message, {
+        parse_mode: "Markdown",
+        ...Markup.inlineKeyboard([
+          Markup.button.callback("✅ Confirm', 'confirm_swapToken"),
+          Markup.button.callback("❌ Cancel', 'cancel_swapToken")
         ])
-      );
+      });
   
       // Guardamos temporalmente los datos calculados en sesión para usarlos si confirman
       ctx.session.swapTokenFinal = {
@@ -294,7 +292,6 @@ async function proximamente (ctx){
       const swapTokenFinal = ctx.session.swapTokenFinal;
       const { privateKey,amountInWei, tokenAddress, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
       
-      console.log("private:", privateKey);
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
       const tokenContract = await tronWeb.contract(ERC20_ABI, tokenAddress);
 
@@ -305,18 +302,8 @@ async function proximamente (ctx){
       const minFormatted = new BigNumber(minTRXRaw).dividedBy(1e6).toFormat(6);
       function escapeMarkdownV2(text) {
         return text.replace(/([_*\[\]()~`>#+=|{}.!\\-])/g, '\\$1');
-      }
-      await ctx.replyWithMarkdownV2(escapeMarkdownV2(`
-  🔁 *Confirming Swap...*
-  
-  • Token: ${symbol}
-  • Amount: ${amountFormatted} ${symbol}
-  • Estimated TRX: ${estimatedTRX}
-  • Slippage: ${swapTokenSlippage}%
-  • Minimum After Slippage: ${minFormatted} TRX
-      `));
-  
-      await ctx.reply("⚡ Approving use of tokens...");
+      }  
+      await ctx.reply("⚡ Approving token spend...");
       const approveTx = await tokenContract.methods.approve(
         CONTRACTS.ROUTER.address,
         amountInWei)
@@ -335,8 +322,22 @@ async function proximamente (ctx){
       ).send({ feeLimit: 200_000_000 });
   
       const txHash = tx; // tx contiene el hash directamente
-      await ctx.reply(`⏳ Waiting for swap confirmation...\n🔗 https://tronscan.org/#/transaction/${txHash}`);
   
+      function escapeMarkdownV2(text) {
+        return text.replace(/([_*\[\]()~`>#+\-=|{}.!])/g, "\\$1");
+      }
+      const tronScanTxLink = `https://tronscan.org/#/transaction/${txHash}`;
+
+      const escapedMessage = escapeMarkdownV2(
+        `✅ Swap Successful!\n\nTxn Hash: ${txHash}\n\n`
+      );
+      
+      const linkMarkdown = `[🔗 View on Tronscan](${tronScanTxLink})`; // ¡sin escapar!
+      
+      await ctx.reply(
+        escapedMessage + linkMarkdown,
+        { parse_mode: "MarkdownV2", disable_web_page_preview: true }
+      );
       // Espera y obtiene eventos del swap
       let events = null;
       for (let i = 0; i < 10; i++) {
@@ -349,10 +350,6 @@ async function proximamente (ctx){
         } catch (err) {
           await new Promise((resolve) => setTimeout(resolve, 3000));
         }
-      }
-  
-      if (!events) {
-        return await ctx.reply(`⚠️ The events could not be obtained.\n🔗 https://tronscan.org/#/transaction/${txHash}`);
       }
   
       const tokenTransfer = events.find((e) =>
