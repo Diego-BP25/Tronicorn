@@ -279,11 +279,7 @@ async function proximamente (ctx){
         swapTokenAmount,
         swapTokenSlippage,
         decimals,
-        symbol,
-        CONTRACTS: {
-    router: CONTRACTS.ROUTER
-  }
-  
+        symbol  
 };
   
     } catch (error) {
@@ -296,13 +292,13 @@ async function proximamente (ctx){
 
     try {
       const swapTokenFinal = ctx.session.swapTokenFinal;
-      const { privateKey,amountInWei, tokenAddress, CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
+      const { privateKey,amountInWei, tokenAddress, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
       
       console.log("private:", privateKey);
       const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
       const tokenContract = await tronWeb.contract(ERC20_ABI, tokenAddress);
 
-      const router = await tronWeb.contract(CONTRACTS.router.abi, CONTRACTS.router.address);
+      const router = await tronWeb.contract(CONTRACTS.ROUTER.abi, CONTRACTS.ROUTER.address);
       const txOwner = tronWeb.defaultAddress.base58;
   
       const amountFormatted = new BigNumber(swapTokenAmount).toFormat(6);
