@@ -270,6 +270,7 @@ async function proximamente (ctx){
   
       // Guardamos temporalmente los datos calculados en sesión para usarlos si confirman
       ctx.session.swapTokenFinal = {
+        privateKey,
         tokenContract,
         amountInWei,
         minTRXRaw,
@@ -295,12 +296,9 @@ async function proximamente (ctx){
 
     try {
       const swapTokenFinal = ctx.session.swapTokenFinal;
-      const encryptedPrivateKey = ctx.session.encryptedPrivateKey;
-
-      const privateKey = decrypt(encryptedPrivateKey); // Desencriptas la clave
-      const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
-      const { amountInWei, tokenContract, CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
+      const { privateKey,amountInWei, tokenContract, CONTRACTS, swapTokenAmount, swapTokenSlippage, estimatedTRX, minTRXRaw, path, decimals, symbol } = swapTokenFinal;
       console.log("📦 path recibido en handleConfirmSwapToken:", path);
+      const tronWeb = new TronWeb({ fullHost: 'https://api.trongrid.io', privateKey });
 
       const router = await tronWeb.contract(CONTRACTS.router.abi, CONTRACTS.router.address);
       const txOwner = tronWeb.defaultAddress.base58;
