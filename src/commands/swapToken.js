@@ -209,6 +209,9 @@ async function proximamente (ctx){
 
   async function swapTokenToTRX(ctx) {
 
+     // Limpiar datos antiguos del swap anterior
+     ctx.session.swapTokenFinal = null;
+
     if (ctx.session.awaitingTokenSwap && !ctx.session.tokenAddress) {
       ctx.session.tokenAddress = ctx.message.text;
       ctx.session.awaitingTokenSwap = false;
@@ -335,7 +338,16 @@ async function proximamente (ctx){
     }
   };
 
+
+  async function SwapTokenNo(ctx){
+
+    await ctx.editMessageReplyMarkup(); // Borra los botones
+    await ctx.reply("❌ Swap cancelled by user.");
+    ctx.session.swapDetails = null;
+  }
+
   module.exports = {
+    SwapTokenNo,
     handleConfirmSwapToken,
     contractToken,
     swapTokenToTRX,

@@ -1,7 +1,7 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
 const { handleWalletSwap, handleSwapType, amountTrxSwap, handleAmountSelectionSwap,handleCustomAmountSwap, handleSlippageSelectionSwap, handleCustomSlippageSwap,executeSwap, SwapYes, SwapNo } = require('./src/commands/swap');
-const {handleAmountSelectionSwapToken,handleCustomAmountSwapToken, amountTrxSwapToken,handleSlippageSelectionSwapToken, handleCustomSlippageSwapToken, swapTokenToTRX,contractToken,handleConfirmSwapToken} = require('./src/commands/swapToken')
+const {handleAmountSelectionSwapToken,handleCustomAmountSwapToken, amountTrxSwapToken,handleSlippageSelectionSwapToken, handleCustomSlippageSwapToken, swapTokenToTRX,contractToken,handleConfirmSwapToken,SwapTokenNo} = require('./src/commands/swapToken')
 const { handleClose } = require('./src/commands/botons');
 const { startCommand } = require('./src/commands/start');
 const { walletCommand, createNewWallet, handleWalletName } = require('./src/commands/wallet');
@@ -162,7 +162,7 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     await ctx.answerCbQuery();
     return amountTrxSwapToken(ctx);
   });
-
+  
   bot.action(/swapToken_amount_.+$/, handleAmountSelectionSwapToken);
 
   bot.action(/swapToken_slippage_.+$/, handleSlippageSelectionSwapToken);
@@ -173,6 +173,9 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
   });
 
   bot.action('confirm_swapToken', handleConfirmSwapToken);
+
+  bot.action('cancel_swapToken', SwapTokenNo);
+
 
 //--------------sniper-----------------------
     bot.action('sniper', async (ctx) => {
