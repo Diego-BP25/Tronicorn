@@ -210,7 +210,7 @@ async function proximamente (ctx){
   async function swapTokenToTRX(ctx) {
 
      // Limpiar datos antiguos del swap anterior
-     ctx.session.swapTokenFinal = null;
+     ctx.session = null;
 
     if (ctx.session.awaitingTokenSwap && !ctx.session.tokenAddress) {
       ctx.session.tokenAddress = ctx.message.text;
