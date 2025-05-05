@@ -202,7 +202,7 @@ async function getTokenDetails(ctx) {
 async function confirmSwap(ctx, details) {
   const message = `🔎 *Swap Preview*\n` +
     `----------------------------\n` +
-    `• *TRX Amount:* ${details.trxAmount}\n` +
+    `• *TRX Amount:* ${details.trxAmount} ${details.symbol}\n` +
     `• *Token:* ${details.tokenSymbol} (${details.tokenDecimals} decimals)\n` +
     `• *Slippage:* ${details.slippage}%\n` +
     `• *Estimated Tokens:* ${new BigNumber(details.estimatedTokens).dividedBy(1e6).toFixed(6)}\n` +
@@ -267,7 +267,7 @@ async function executeSwap(ctx) {
       .toFixed(decimals);
 
       await confirmSwap(ctx, {
-        trxAmount: trxAmountBN.toFixed(6),
+        trxAmount: trxAmountBN,
         tokenSymbol: symbol,
         tokenDecimals: decimals,
         slippage: swapSlippage,
