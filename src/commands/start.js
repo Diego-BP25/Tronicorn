@@ -1,6 +1,10 @@
 const { Markup } = require('telegraf');
+const { clearAllSessionFlows } = require('./clearSessions');
+
 async function startCommand(ctx) {
   try {
+    clearAllSessionFlows(ctx);
+
     await ctx.reply(
 'Welcome to the TRON Bot! Choose an option:',
 

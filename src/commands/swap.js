@@ -271,8 +271,8 @@ async function executeSwap(ctx) {
         tokenSymbol: symbol,
         tokenDecimals: decimals,
         slippage: swapSlippage,
-        estimatedTokens,
-        minTokens
+        estimatedTokens: estimatedTokens.toFixed(6),
+        minTokens : minTokens.toFixed(6)
       });
 }
 
