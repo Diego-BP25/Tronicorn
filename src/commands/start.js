@@ -7,8 +7,8 @@ async function startCommand(ctx) {
 
     await ctx.reply(
 `*Welcome to the Tronicorn Bot!*\u00A0\u00A0\u00A0`,
-
-   Markup.inlineKeyboard([
+{parse_mode: 'Markdown',
+   ...Markup.inlineKeyboard([
         [Markup.button.callback('» Wallet Management «', 'null')],
         [Markup.button.callback('💼 Wallet', 'wallet'), Markup.button.callback('💰 Balance', 'balance'), Markup.button.callback('🌐 Link Wallet', 'external')],
         [Markup.button.callback('» Trading Tools «', 'null')],
@@ -18,7 +18,7 @@ async function startCommand(ctx) {
         [Markup.button.callback('» Stable Assets «', 'null')],
         [Markup.button.callback('🪙 StableCoins', 'stableCoins')]
       ])
-    
+    }
     );    
   } catch (error) {
     console.error("Error showing menu:", error);
