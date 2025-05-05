@@ -3,13 +3,11 @@ const { fetchAllWallets} = require("../service/user.service");
 const QRCode = require('qrcode');
 const Jimp = require('jimp');
 const path = require('path');
-
-async function desarrollo (ctx){
-    await ctx.reply('🚧 This feature is in development. Coming soon available!');
-}
+const { clearAllSessionFlows } = require('./clearSessions');
 
 async function stableCoins(ctx) {
   try {
+    clearAllSessionFlows(ctx);
     // Opciones de tipo de swap como botones
     const swapOptions = [
       [Markup.button.callback("💼⬅️ Receive payment", `receive_payment`)],
@@ -137,6 +135,5 @@ module.exports = {
     listUserWallets,
     handleReceive, 
     handleSend,
-    handleExternalWalletInput,
-    desarrollo
+    handleExternalWalletInput
 }

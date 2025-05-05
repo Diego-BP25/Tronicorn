@@ -2,6 +2,8 @@ const { tronWeb } = require('../utils/tron');
 const { fetchAllWallets } = require("../service/user.service");
 const { Markup } = require('telegraf');
 const axios = require('axios');
+const { clearAllSessionFlows } = require('./clearSessions');
+
 
 
 // ABI para interactuar con contratos de pares
@@ -163,7 +165,9 @@ async function getTRC20Balance(address) {
 
 
 async function balanceCommand(ctx) {
+
   try {
+    clearAllSessionFlows(ctx);
     const userId = ctx.chat.id;
 
     // Obtener todas las wallets del usuario

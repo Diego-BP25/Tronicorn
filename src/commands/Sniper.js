@@ -1,6 +1,8 @@
 const { fetchAllWallets, fetch_Private_key, fetchAllUsers } = require('../service/user.service');
 const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
+const { clearAllSessionFlows } = require('./clearSessions');
+
 
 const ADMIN_ID = process.env.ADMIN_ID 
 let currentToken = null; // Variable global para almacenar el token actual
@@ -14,6 +16,7 @@ let tronScanLink = null;
 
 async function sniperCommand(ctx) {
   try {
+    clearAllSessionFlows(ctx);
     const isAdmin = ctx.chat.id.toString() === ADMIN_ID;
 
     // botones para token

@@ -2,6 +2,8 @@ const { clearAllSessionFlows } = require('./clearSessions');
 const { fetchAllWallets, fetch_Private_key } = require('../service/user.service');
 const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
+const { clearAllSessionFlows } = require('./clearSessions');
+
 // ✅ Centralized error messages (for easy updates)
 const ERROR_MESSAGES = {
   WALLET_LOAD_FAILED: "❌ Failed to load your wallets. Please try again later.",

@@ -1,10 +1,13 @@
 const { tronWeb, encrypt } = require('../utils/tron');
 const { fetchAllWallets, saveWallet} = require("../service/user.service");
 const { Markup } = require('telegraf');
+const { clearAllSessionFlows } = require('./clearSessions');
+
 
 // Función para manejar el comando wallet
 async function walletCommand(ctx) {
   try {
+    clearAllSessionFlows(ctx);
     const userId = ctx.chat.id;
 
     // Buscar si el usuario ya tiene wallets registradas

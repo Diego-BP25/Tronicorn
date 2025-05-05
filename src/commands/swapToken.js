@@ -3,6 +3,8 @@ const { Markup } = require('telegraf');
 const { decrypt } = require('../utils/tron');
 const BigNumber = require('bignumber.js');
 const axios = require('axios'); 
+const { clearAllSessionFlows } = require('./clearSessions');
+
 const TronWeb = require('tronweb').TronWeb;
 const fullHost = 'https://api.trongrid.io';
 
@@ -76,14 +78,10 @@ const ERC20_ABI = [
   }
 ];
 
-async function proximamente (ctx){
-  await ctx.reply('🚧 This feature is in development. Available next week!');
-}
-
   // Manejador para ingresar la cantidad de TRX a invertir en el pump
   async function amountTrxSwapToken(ctx) {
     try {
-  
+      clearAllSessionFlows(ctx);
       // Crear los botones en el formato deseado
       const buttons = Markup.inlineKeyboard([
         [
@@ -106,7 +104,7 @@ async function proximamente (ctx){
     const selectedAmount = ctx.match[0].replace('swapToken_amount_', '');
   
     if (selectedAmount === 'custom') {
-      ctx.session.swapState = 'waitingForCustomAmountSwap';
+      ctx.session.swapTokenState = 'waitingForCustomAmountSwap';
       await ctx.reply('Please enter the amount of TRX to invest in the swap:');
       ctx.session.awaitingTokenAmount = true;
     } else {
@@ -117,7 +115,7 @@ async function proximamente (ctx){
 
   // Manejador para la entrada de monto personalizado
   async function handleCustomAmountSwapToken(ctx) {
-    if (ctx.session.swapState === 'waitingForCustomAmountSwap') {
+    if (ctx.session.swapTokenState === 'waitingForCustomAmountSwap') {
       ctx.session.swapTokenAmount = parseFloat(ctx.message.text); // Guardar el monto ingresado
       ctx.session.awaitingTokenAmount = false; // Resetear estado
       await showSlippageOptionsSwapToken(ctx);
@@ -143,7 +141,7 @@ async function proximamente (ctx){
     const selectedSlippageSwap = ctx.match[0].replace('swapToken_slippage_', '');
   
     if (selectedSlippageSwap === 'custom') {
-      ctx.session.swapState = 'waitingForCustomSlippageSwapToken';
+      ctx.session.swapTokenState = 'waitingForCustomSlippageSwapToken';
       await ctx.reply('Please enter the slip percentage:');
       ctx.session.awaitingSlippageToken = true;
   
@@ -155,7 +153,7 @@ async function proximamente (ctx){
   
   // Manejador para la entrada de deslizamiento personalizado
   async function  handleCustomSlippageSwapToken(ctx) {
-    if (ctx.session.swapState === 'waitingForCustomSlippageSwapToken') {
+    if (ctx.session.swapTokenState === 'waitingForCustomSlippageSwapToken') {
       ctx.session.swapTokenSlippage = Math.min(Math.max(parseFloat(ctx.message.text) || 1, 0.1), 50);
       ctx.session.awaitingSlippageToken = false;
       await handleWalletSwapToken(ctx);
@@ -355,6 +353,5 @@ async function proximamente (ctx){
     handleSlippageSelectionSwapToken,
     handleCustomAmountSwapToken,
     handleAmountSelectionSwapToken,
-    amountTrxSwapToken,
-    proximamente
+    amountTrxSwapToken
   };
