@@ -120,9 +120,8 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
             `----------------------------\n` +
             `\n*WARNING*\n` +
             `Never share your private key. Store it in a secure place.\n` +
-            `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`
+            `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`+
             `----------------------------`;
-            
             
         await ctx.reply(message, {
           parse_mode: "Markdown"});
