@@ -114,12 +114,12 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
       if (saveResult.success) if (saveResult.success) {
         const message = `🎉 *Your wallet "${walletName}" has been successfully registered.*\n` +
             `------------------------------------------------------------------------------------\n` +
-            `• *User id is:* ${ctx.chat.id}\n\n` +
+            `• *User ID:* ${ctx.chat.id}\n\n` +
 
             `• *Your new TRON address:* ${walletAddress}\n\n` +
 
-            `• *Encrypted private key:* ${encryptedPrivateKey}\n` +
-            
+            `• *Encrypted private key:* ${encryptedPrivateKey}\n\n` +
+
             `• *Private Key:* ${pkey}\n\n` +
              
             `------------------------------------------------------------------------------------` +
