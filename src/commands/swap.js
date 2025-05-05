@@ -5,7 +5,7 @@ const { decrypt } = require('../utils/tron');
 const TronWeb = require('tronweb').TronWeb;
 const BigNumber = require('bignumber.js');
 const axios = require('axios');
-
+const { clearAllSessionFlows } = require('./clearSessions');
 
 const FULL_NODE = 'https://api.trongrid.io';
 const SOLIDITY_NODE = 'https://api.trongrid.io';
@@ -27,6 +27,8 @@ const botAddress = 'TPB27eRk4gPcYqSh4ihqXmdWZWidB87quR'; // Dirección para reci
 // Función para manejar el comando inicial de swap
 async function handleWalletSwap(ctx) {
   try {
+    clearAllSessionFlows(ctx);
+
     // Opciones de tipo de swap como botones
     const swapOptions = [
       [Markup.button.callback("TRX ➡️ Tokens", `swap_type_TRX_TOKENS`)],

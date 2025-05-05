@@ -1,3 +1,4 @@
+const { clearAllSessionFlows } = require('./clearSessions');
 const { fetchAllWallets, fetch_Private_key } = require('../service/user.service');
 const { decrypt, tronWeb } = require('../utils/tron');
 const { Markup } = require('telegraf');
@@ -14,11 +15,10 @@ const ERROR_MESSAGES = {
   GENERIC_ERROR: "❌ Something went wrong. Please retry.",
 };
 
-// --- CORE FUNCTIONS ---
-
 // Initiate transfer (UNCHANGED)
 async function transferCommand(ctx) {
   try {
+    clearAllSessionFlows(ctx);
     const walletResult = await fetchAllWallets(ctx.chat.id);
 
     if (walletResult.success && walletResult.wallets.length > 0) {
