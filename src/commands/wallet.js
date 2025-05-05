@@ -66,10 +66,6 @@ async function walletCommand(ctx) {
   
         const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
   
-        console.log(`Attempting to save wallet with address: ${walletAddress}`);
-        console.log(`User ID: ${ctx.chat.id}`);
-        console.log(`Encrypted Private Key: ${encryptedPrivateKey}`);
-  
         ctx.session.waitingForWalletName = false;  // Reseteamos el estado       
   
         // Guardar la nueva wallet
