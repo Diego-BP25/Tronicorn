@@ -27,9 +27,9 @@ async function walletCommand(ctx) {
         const formattedBalance = tronWeb.fromSun(balance); // Formatear el balance a TRX
 
         walletMessage += `💼 *${walletName}*  • ${formattedBalance} TRX\n`;
-        walletMessage += `${walletAddress}\n`;
+        walletMessage += `\`${walletAddress}\`\n`;
         walletMessage += `[🔗 View on Tronscan](${tronScanLink})\n`;
-        walletMessage += `\n───────────────────────────\n\n`;  // Separador entre wallets
+        walletMessage += `\n━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;  // Separador entre wallets
       }
 
       // Enviar la lista de wallets junto con el botón "New Wallet"
@@ -113,21 +113,21 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
 
       if (saveResult.success) if (saveResult.success) {
         const message = `🎉 *Your wallet "${walletName}" has been successfully registered.*\n` +
-            `------------------------------------------------------------------------------------\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
             `• *User ID:* ${ctx.chat.id}\n\n` +
 
-            `• *Your new TRON address:* ${walletAddress}\n\n` +
+            `• *Your new TRON address:* \`${walletAddress}\`\n\n` +
 
             `• *Encrypted private key:* ${encryptedPrivateKey}\n\n` +
 
             `• *Private Key:* ${pkey}\n\n` +
              
-            `------------------------------------------------------------------------------------` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` +
             `\n*WARNING*\n` +
             `Never share your private key. Store it in a secure place.\n\n` +
 
             `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`+
-            `------------------------------------------------------------------------------------`;
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
             
         await ctx.reply(message, {
           parse_mode: "Markdown"});

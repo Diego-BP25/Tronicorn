@@ -251,12 +251,12 @@ const ERC20_ABI = [
 
         
         const message = `🔎 *Swap Preview*\n` +
-    `----------------------------\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `• *Amount:* ${swapTokenAmount} ${symbol}\n` +
     `• *Slippage:* ${swapTokenSlippage}%\n` +
     `• *Estimated TRX:* ${estimatedTRX}\n` +
     `• *Minimum Received:* ${new BigNumber(minTRXRaw).dividedBy(1e6).toFixed(6)} TRX\n\n` +
-    `----------------------------\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `\n*Do you want to proceed?*`;
       
     await ctx.reply(message, {

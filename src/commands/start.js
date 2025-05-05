@@ -6,7 +6,7 @@ async function startCommand(ctx) {
     clearAllSessionFlows(ctx);
 
     await ctx.reply(
-`Welcome to the TRON Bot!`,
+`*Welcome to the Tronicorn Bot!*\u00A0\u00A0\u00A0`,
 
    Markup.inlineKeyboard([
         [Markup.button.callback('» Wallet Management «', 'null')],

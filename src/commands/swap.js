@@ -201,12 +201,12 @@ async function getTokenDetails(ctx) {
 
 async function confirmSwap(ctx, details) {
   const message = `🔎 *Swap Preview*\n` +
-    `----------------------------\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `• *TRX Amount:* ${details.trxAmount} ${details.tokenSymbol}\n` +
     `• *Slippage:* ${details.slippage}%\n` +
     `• *Estimated Tokens:* ${new BigNumber(details.estimatedTokens).dividedBy(1e6).toFixed(6)}\n` +
     `• *Min After Slippage:* ${new BigNumber(details.minTokens).dividedBy(1e6).toFixed(6)}\n` +
-    `----------------------------\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `\n*Do you want to proceed?*`;
 
   // Guardamos los detalles en la sesión
