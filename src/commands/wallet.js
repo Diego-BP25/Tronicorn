@@ -152,7 +152,6 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
       
       const pkey = account.privateKey;
       const walletAddress = account.address.base58;  // Dirección pública generada
-      console.log(`direccion de la wallet: ${walletAddress}`)
 
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
 
