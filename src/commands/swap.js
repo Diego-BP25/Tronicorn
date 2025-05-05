@@ -205,8 +205,8 @@ async function confirmSwap(ctx, details) {
     `• *TRX Amount:* ${details.trxAmount}\n` +
     `• *Token:* ${details.tokenSymbol} (${details.tokenDecimals} decimals)\n` +
     `• *Slippage:* ${details.slippage}%\n` +
-    `• *Estimated Tokens:* ${details.estimatedTokens}\n` +
-    `• *Min After Slippage:* ${details.minTokens}\n` +
+    `• *Estimated Tokens:* ${new BigNumber(details.estimatedTokens).dividedBy(1e6).toFixed(6)}\n` +
+    `• *Min After Slippage:* ${new BigNumber(details.minTokens).dividedBy(1e6).toFixed(6)}\n` +
     `----------------------------\n` +
     `\n*Do you want to proceed?*`;
 
@@ -271,8 +271,8 @@ async function executeSwap(ctx) {
         tokenSymbol: symbol,
         tokenDecimals: decimals,
         slippage: swapSlippage,
-        estimatedTokens: estimatedTokens.toFixed(6),
-        minTokens : minTokens.toFixed(6)
+        estimatedTokens,
+        minTokens
       });
 }
 
