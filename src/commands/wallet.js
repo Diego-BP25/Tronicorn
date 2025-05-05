@@ -81,18 +81,20 @@ async function walletCommand(ctx) {
         });
   
         if (saveResult.success) {
-          await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-          await ctx.reply(`
-            Your wallet has been created
-        User id is: ${ctx.chat.id}
-        Your new TRON address is: ${walletAddress}
-        Your encrypted private key is: ${encryptedPrivateKey}
-  
-        Make sure to securely store your private keymong
-        ---------------------------------------------------
-        ===================================================
-        Private Key: ${pkey}
-          `);
+          const message = `🎉 *Your wallet "${walletName}" has been successfully registered.*\n` +
+              `----------------------------\n` +
+              `• *User id is:* ${ctx.chat.id}\n` +
+              `• *Your new TRON address:* ${walletAddress}\n` +
+              `• *Encrypted private key:* ${encryptedPrivateKey}\n` +
+              `----------------------------\n` +
+              `\n*WARNING*\n` +
+              `Never share your private key. Store it in a secure place.\n` +
+              `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`
+              `----------------------------`;
+              
+              
+          await ctx.reply(message, {
+            parse_mode: "Markdown"});
         } else {
           await ctx.reply(`Error: ${saveResult.message}`);
         }

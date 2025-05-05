@@ -5,13 +5,18 @@ const Jimp = require('jimp');
 const path = require('path');
 const { clearAllSessionFlows } = require('./clearSessions');
 
+
+async function desarrollo (ctx){
+    await ctx.reply('🚧 This feature is in development. Coming soon available!');
+}
+
 async function stableCoins(ctx) {
   try {
     clearAllSessionFlows(ctx);
     // Opciones de tipo de swap como botones
     const swapOptions = [
-      [Markup.button.callback("💼⬅️ Receive payment", `receive_payment`)],
-      [Markup.button.callback("💼➡️ Send payment", `send_payment`)]
+      [Markup.button.callback("💼 ⬅️ Receive payment", `receive_payment`)],
+      [Markup.button.callback("💼 ➡️ Send payment", `send_payment`)]
     ];
     await ctx.reply('Select the action you want to perform:', Markup.inlineKeyboard(swapOptions));
   } catch (error) {
@@ -34,7 +39,7 @@ async function listUserWallets(ctx) {
   
         const keyboard = [
           walletRow, // Todas las wallets en una sola fila
-          [Markup.button.callback('🔗 Wallet external', 'external_wallet')] // Botón debajo
+          [Markup.button.callback('🔗 Link Wallet', 'external_wallet')] // Botón debajo
         ];
   
         await ctx.reply(
@@ -135,5 +140,6 @@ module.exports = {
     listUserWallets,
     handleReceive, 
     handleSend,
-    handleExternalWalletInput
+    handleExternalWalletInput,
+    desarrollo
 }

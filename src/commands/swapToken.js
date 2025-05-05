@@ -105,7 +105,7 @@ const ERC20_ABI = [
   
     if (selectedAmount === 'custom') {
       ctx.session.swapTokenState = 'waitingForCustomAmountSwap';
-      await ctx.reply('Please enter the amount of TRX to invest in the swap:');
+      await ctx.reply('Please enter the amount of Tokens to invest in the swap:');
       ctx.session.awaitingTokenAmount = true;
     } else {
       ctx.session.swapTokenAmount = parseFloat(selectedAmount); // Guardar siempre el monto seleccionado
@@ -142,7 +142,7 @@ const ERC20_ABI = [
   
     if (selectedSlippageSwap === 'custom') {
       ctx.session.swapTokenState = 'waitingForCustomSlippageSwapToken';
-      await ctx.reply('Please enter the slip percentage:');
+      await ctx.reply('Please enter the slippage percentage:');
       ctx.session.awaitingSlippageToken = true;
   
     } else {

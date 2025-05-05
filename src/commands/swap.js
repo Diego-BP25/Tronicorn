@@ -108,7 +108,7 @@ async function handleSlippageSelectionSwap(ctx) {
 
   if (selectedSlippageSwap === 'custom') {
     ctx.session.swapState = 'waitingForCustomSlippageSwap';
-    await ctx.reply('Please enter the slip percentage:');
+    await ctx.reply('Please enter the slippage percentage:');
     ctx.session.awaitingSlippage = true;
 
   } else {
