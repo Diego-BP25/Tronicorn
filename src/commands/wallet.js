@@ -47,58 +47,6 @@ async function walletCommand(ctx) {
   } catch (error) {
     console.error("Error fetching or creating wallets:", error);
     ctx.reply("Sorry, an error occurred while fetching or creating your wallet.");
-
-    if (ctx.session.waitingForWalletName) {
-      const walletName = ctx.message.text;
-      console.log(`Nombre de wallet recibido: ${walletName}`);
-  
-      try {
-        // Generar la cuenta TRON (dirección y clave privada)
-        const account = await tronWeb.createAccount();
-  
-       // Validar que se ha creado correctamente la cuenta
-  if (!account || !account.address || !account.address.base58 || !account.privateKey) {
-    throw new Error("Failed to generate a valid wallet account.");
-  }
-        
-        const pkey = account.privateKey;
-        const walletAddress = account.address.base58;  // Dirección pública generada
-  
-        const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
-  
-        ctx.session.waitingForWalletName = false;  // Reseteamos el estado       
-  
-        // Guardar la nueva wallet
-        const saveResult = await saveWallet({
-          id: ctx.chat.id,
-          wallet_name: walletName,
-          wallet_address: walletAddress,
-          encryptedPrivateKey: encryptedPrivateKey
-        });
-  
-        if (saveResult.success) {
-          const message = `🎉 *Your wallet "${walletName}" has been successfully registered.*\n` +
-              `----------------------------\n` +
-              `• *User id is:* ${ctx.chat.id}\n` +
-              `• *Your new TRON address:* ${walletAddress}\n` +
-              `• *Encrypted private key:* ${encryptedPrivateKey}\n` +
-              `----------------------------\n` +
-              `\n*WARNING*\n` +
-              `Never share your private key. Store it in a secure place.\n` +
-              `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`
-              `----------------------------`;
-              
-              
-          await ctx.reply(message, {
-            parse_mode: "Markdown"});
-        } else {
-          await ctx.reply(`Error: ${saveResult.message}`);
-        }
-      } catch (error) {
-        console.error("Error generating wallet or saving to database:", error);
-        await ctx.reply("An error occurred while creating your wallet.");
-      }
-    } 
   }
 }
 
@@ -163,20 +111,22 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
         encryptedPrivateKey: encryptedPrivateKey
       });
 
-      if (saveResult.success) {
-        await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-        await ctx.reply(`
-          Your wallet has been created
-      User id is: ${ctx.chat.id}
-      Your new TRON address is: ${walletAddress}
-      Your encrypted private key is: ${encryptedPrivateKey}
-
-      Make sure to securely store your private keymong
-      ---------------------------------------------------
-      ===================================================
-      Private Key: ${pkey}
-        `);
-      } else {
+      if (saveResult.success) if (saveResult.success) {
+        const message = `🎉 *Your wallet "${walletName}" has been successfully registered.*\n` +
+            `----------------------------\n` +
+            `• *User id is:* ${ctx.chat.id}\n` +
+            `• *Your new TRON address:* ${walletAddress}\n` +
+            `• *Encrypted private key:* ${encryptedPrivateKey}\n` +
+            `----------------------------\n` +
+            `\n*WARNING*\n` +
+            `Never share your private key. Store it in a secure place.\n` +
+            `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`
+            `----------------------------`;
+            
+            
+        await ctx.reply(message, {
+          parse_mode: "Markdown"});
+      }  else {
         await ctx.reply(`Error: ${saveResult.message}`);
       }
     } catch (error) {
