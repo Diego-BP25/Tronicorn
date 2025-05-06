@@ -202,7 +202,7 @@ async function getTokenDetails(ctx) {
 async function confirmSwap(ctx, details) {
   const message = `🔎 *Swap Preview*\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-    `• *TRX Amount:* ${details.trxAmount} ${details.tokenSymbol}\n` +
+    `• *TRX Amount:* ${details.trxAmount}\n` +
     `• *Slippage:* ${details.slippage}%\n` +
     `• *Estimated Tokens:* ${details.estimatedTokens}\n` +
     `• *Min After Slippage:* ${details.minTokens}\n` +
