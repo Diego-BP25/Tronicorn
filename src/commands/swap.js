@@ -204,8 +204,8 @@ async function confirmSwap(ctx, details) {
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `• *TRX Amount:* ${details.trxAmount} ${details.tokenSymbol}\n` +
     `• *Slippage:* ${details.slippage}%\n` +
-    `• *Estimated Tokens:* ${new BigNumber(details.estimatedTokens).dividedBy(1e6).toFixed(6)}\n` +
-    `• *Min After Slippage:* ${new BigNumber(details.minTokens).dividedBy(1e6).toFixed(6)}\n` +
+    `• *Estimated Tokens:* ${details.estimatedTokens}\n` +
+    `• *Min After Slippage:* ${details.minTokens}\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `\n*Do you want to proceed?*`;
 
