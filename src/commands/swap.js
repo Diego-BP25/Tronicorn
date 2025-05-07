@@ -204,8 +204,8 @@ async function confirmSwap(ctx, details) {
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `• *TRX Amount:* ${details.trxAmount}\n` +
     `• *Slippage:* ${details.slippage}%\n` +
-    `• *Estimated Tokens:* ${details.estimatedTokens}\n` +
-    `• *Min After Slippage:* ${details.minTokens}\n` +
+    `• *Estimated Tokens:* ${Number(details.estimatedTokens).toFixed(6)}\n` +
+    `• *Min After Slippage:* ${Number(details.minTokens).toFixed(6)}\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `\n*Do you want to proceed?*`;
 
