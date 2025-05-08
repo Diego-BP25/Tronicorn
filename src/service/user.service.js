@@ -91,6 +91,50 @@ class userServices {
                 success: false,
             };
         }
+<<<<<<< HEAD
+=======
+  
+        // Añadir una nueva wallet a la lista de wallets
+        existingUser.wallets.push({
+          wallet_address: wallet_address,
+          encryptedPrivateKey: encryptedPrivateKey,
+          wallet_name: wallet_name
+        });
+  
+        await existingUser.save();
+  
+        return {
+          message: "Wallet saved successfully for the existing user.",
+          success: true,
+          data: existingUser
+        };
+  
+      } else {
+        console.log('llego a user.service');
+        // Si no existe, crear un nuevo usuario con la wallet
+        const newUser = await user.create({
+          userId: id,
+          wallets: [{
+            wallet_address: wallet_address,
+            encryptedPrivateKey: encryptedPrivateKey,
+            wallet_name: wallet_name
+          }]
+        });
+  
+        return {
+          message: "New user and wallet created successfully.",
+          success: true,
+          data: newUser
+        };
+      }
+  
+    } catch (error) {
+      console.error('Error saving wallet:', error);
+      return {
+        message: "An error occurred while saving the wallet: " + error.message,
+        success: false,
+      };
+>>>>>>> 6655a238e660a73c8f276332efe70c569e567293
     }
 
     // Recuperar todas las wallets de un usuario
@@ -119,28 +163,31 @@ class userServices {
     }
 
     // Recuperar la clave privada cifrada de un usuario
-    async fetch_Private_key(id) {
-        try {
-            const fetch_user = await user.findOne({ userId: id });
-            if (fetch_user) {
-                return {
-                    message: USER.PRIVATE_KEY_FETCHED,
-                    success: true,
-                    encryptedPrivateKey: fetch_user.encryptedPrivateKey,
-                };
-            } else {
-                return {
-                    message: USER.PRIVATE_KEY_NOT_FETCHED,
-                    success: false,
-                };
-            }
-        } catch (error) {
-            return {
-                message: USER.ERROR + error,
-                success: false,
-            };
-        }
-    }
+    async fetch_Private_key(id, walletAddress) {
+      try {
+          const fetch_user = await user.findOne({ userId: id });
+          if (fetch_user) {
+              const wallet = fetch_user.wallets.find(w => w.wallet_address === walletAddress);
+              if (wallet) {
+                  return {
+                      message: USER.PRIVATE_KEY_FETCHED,
+                      success: true,
+                      encryptedPrivateKey: wallet.encryptedPrivateKey,
+                  };
+              }
+          }
+          return {
+              message: USER.PRIVATE_KEY_NOT_FETCHED,
+              success: false,
+          };
+      } catch (error) {
+          return {
+              message: USER.ERROR + error,
+              success: false,
+          };
+      }
+  }
+  
 
     // Actualizar información de un usuario
     async UpdateUser(id, data) {
@@ -164,6 +211,24 @@ class userServices {
             };
         }
     }
+    async fetchAllUsers() {
+      try {
+        const users = await user.find(); // Busca todos los usuarios
+        if (users.length === 0) {
+          return { success: false, message: 'No hay usuarios registrados.' };
+        }
+        return { success: true, users };
+      } catch (error) {
+        console.error('Error al obtener los usuarios:', error);
+        return { success: false, message: 'Error al obtener usuarios.' };
+      }
+    }
 }
 
+<<<<<<< HEAD
 module.exports = new userServices();
+=======
+
+
+module.exports = new userServices();
+>>>>>>> 6655a238e660a73c8f276332efe70c569e567293

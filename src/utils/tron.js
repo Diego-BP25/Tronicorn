@@ -1,4 +1,4 @@
-const TronWeb = require('tronweb');
+const TronWeb = require('tronweb').TronWeb;
 const dotenv = require('dotenv');
 const crypto = require('crypto');
 
