@@ -16,7 +16,7 @@ const LocalSession = require('telegraf-session-local'); // Para manejo de sesió
 const botToken = process.env.BOT_TOKEN;
 const bot = new Telegraf(botToken);
 const app = express();
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 1000;
 
 // Middleware de sesión persistente
 const localSession = new LocalSession({ database: 'sessions.json' });
@@ -296,7 +296,7 @@ bot.on('text', async (ctx) => {
     bot.action('close', handleClose);
 
     // Webhook para recibir actualizaciones, (render)
-    bot.telegram.setWebhook(`https://tronbot-1eu6.onrender.com/bot${botToken}`);
+    bot.telegram.setWebhook(`https://tronicorn-dev.onrender.com/bot${botToken}`);
 
     // Usar Express para manejar peticiones HTTP para el webhook
     app.use(bot.webhookCallback(`/bot${botToken}`));
