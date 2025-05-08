@@ -1,98 +1,34 @@
+
 const user = require("../model/user.model");
 const { USER } = require("../config/config.constant");
 
 class userServices {
     // Guardar o añadir una wallet para un usuario
-    async saveWallet(data) {
-        try {
-            const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
-
-            // Validar que el wallet_address no sea null o undefined
-            if (!wallet_address) {
-                return {
-                    message: "Invalid wallet address. Cannot save wallet.",
-                    success: false
-                };
-            }
-
-            
-
-            // Buscar si el usuario ya existe
-            let existingUser = await user.findOne({ userId: id });
-
-            // Log para verificar el usuario encontrado
-            console.log(`Usuario encontrado: ${existingUser ? existingUser.userId : "Ninguno"}`);
-
-            if (existingUser) {
-                // Verificar si la wallet ya existe para el usuario
-                const walletExists = existingUser.wallets.some(wallet => wallet.wallet_address === wallet_address);
-
-                // Log para verificar si la wallet ya existe
-                console.log(`¿Ya existe la wallet para el usuario ${id}? ${walletExists}`);
-
-                if (walletExists) {
-                    return {
-                        message: "This wallet address already exists for this user.",
-                        success: false
-                    };
-                }
-
-                // Añadir una nueva wallet a la lista de wallets
-                existingUser.wallets.push({
-                    wallet_address: wallet_address,
-                    encryptedPrivateKey: encryptedPrivateKey,
-                    wallet_name: wallet_name
-                });
-
-                // Guardar el usuario existente
-                const saveResult = await existingUser.save();
-
-                // Log adicional para asegurarnos de que el usuario se guardó correctamente
-                console.log('Usuario guardado:', saveResult);
-
-                return {
-                    message: "Wallet saved successfully for the existing user.",
-                    success: true,
-                    data: existingUser
-                };
-
-            } else {
-                // Log para verificar los datos a guardar en MongoDB
-            console.log('id:', id);
-            console.log('address:', wallet_address);
-            console.log('wallet_name:', wallet_name);
-            console.log('encryptedPrivateKey:', encryptedPrivateKey);
-
-
-                // Si no existe, crear un nuevo usuario con la wallet
-                const newUser = await user.create({
-                    userId: id,
-                    wallets: [{
-                        wallet_address: wallet_address,
-                        encryptedPrivateKey: encryptedPrivateKey,
-                        wallet_name: wallet_name
-                    }]
-                });
-
-                // Log para confirmar la creación de un nuevo usuario
-                console.log('Nuevo usuario creado:', newUser);
-
-                return {
-                    message: "New user and wallet created successfully.",
-                    success: true,
-                    data: newUser
-                };
-            }
-
-        } catch (error) {
-            console.error('Error saving wallet:', error);
-            return {
-                message: "An error occurred while saving the wallet: " + error.message,
-                success: false,
-            };
+async saveWallet(data) {
+    try {
+      const { id, wallet_address, encryptedPrivateKey, wallet_name } = data;
+  
+      // Validar que el wallet_address no sea null o undefined
+      if (!wallet_address) {
+        return {
+          message: "Invalid wallet address. Cannot save wallet.",
+          success: false
+        };
+      }
+  
+      // Buscar si el usuario ya existe
+      let existingUser = await user.findOne({ userId: id });
+  
+      if (existingUser) {
+        // Verificar si la wallet ya existe para el usuario
+        const walletExists = existingUser.wallets.some(wallet => wallet.wallet_address === wallet_address);
+  
+        if (walletExists) {
+          return {
+            message: "This wallet address already exists for this user.",
+            success: false
+          };
         }
-<<<<<<< HEAD
-=======
   
         // Añadir una nueva wallet a la lista de wallets
         existingUser.wallets.push({
@@ -134,8 +70,9 @@ class userServices {
         message: "An error occurred while saving the wallet: " + error.message,
         success: false,
       };
->>>>>>> 6655a238e660a73c8f276332efe70c569e567293
     }
+  }
+  
 
     // Recuperar todas las wallets de un usuario
     async fetchAllWallets(userId) {
@@ -225,10 +162,6 @@ class userServices {
     }
 }
 
-<<<<<<< HEAD
-module.exports = new userServices();
-=======
 
 
 module.exports = new userServices();
->>>>>>> 6655a238e660a73c8f276332efe70c569e567293

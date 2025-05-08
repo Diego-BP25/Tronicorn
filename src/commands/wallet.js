@@ -33,19 +33,12 @@ async function walletCommand(ctx) {
       }
 
       // Enviar la lista de wallets junto con el botón "New Wallet"
-<<<<<<< HEAD
-      await ctx.replyWithMarkdown(walletMessage, { disable_web_page_preview: true, ...Markup.inlineKeyboard([
-        Markup.button.callback('💳 New Wallet', 'new_wallet')
-      ])
-      });
-=======
       await ctx.replyWithMarkdown(walletMessage, {disable_web_page_preview: true, ...Markup.inlineKeyboard([
       [Markup.button.callback('💳 New Wallet', 'new_wallet')],
       [Markup.button.callback('❌ Close', 'close')]
       ])
         
     });
->>>>>>> 6655a238e660a73c8f276332efe70c569e567293
     } else {
       // Si no tiene wallets, solicitar que ingrese un nombre para la nueva wallet
       await ctx.reply('It looks like this is your first time. Please send the name for your new wallet:');
@@ -54,63 +47,6 @@ async function walletCommand(ctx) {
   } catch (error) {
     console.error("Error fetching or creating wallets:", error);
     ctx.reply("Sorry, an error occurred while fetching or creating your wallet.");
-<<<<<<< HEAD
-
-    if (ctx.session.waitingForWalletName) {
-      const walletName = ctx.message.text;
-      console.log(`Nombre de wallet recibido: ${walletName}`);
-  
-      try {
-        // Generar la cuenta TRON (dirección y clave privada)
-        const account = await tronWeb.createAccount();
-  
-        // Validar que se ha creado correctamente la cuenta
-        if (!account || !account.address || !account.address.base58 || !account.privateKey) {
-          throw new Error("Failed to generate a valid wallet account.");
-        }
-        
-        const pkey = account.privateKey;
-        const walletAddress = account.address.base58;  // Dirección pública generada
-        console.log(`direccion de la wallet: ${walletAddress}`);
-  
-        const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
-        
-        ctx.session.waitingForWalletName = false;  // Reseteamos el estado
-
-        // Log para asegurarnos de que el valor de walletAddress sea correcto
-        console.log(`Valor de walletAddress antes de guardar: ${walletAddress}`);
-
-        // Guardar la nueva wallet
-        const saveResult = await saveWallet({
-          id: ctx.chat.id,
-          wallet_name: walletName,
-          wallet_address: walletAddress,
-          encryptedPrivateKey: encryptedPrivateKey
-        });
-  
-        if (saveResult.success) {
-          await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-          await ctx.reply(`
-            Your wallet has been created
-            User id is: ${ctx.chat.id}
-            Your new TRON address is: ${walletAddress}
-            Your encrypted private key is: ${encryptedPrivateKey}
-  
-            Make sure to securely store your private key.
-            ---------------------------------------------------
-            ===================================================
-            Private Key: ${pkey}
-          `);
-        } else {
-          await ctx.reply(`Error: ${saveResult.message}`);
-        }
-      } catch (error) {
-        console.error("Error generating wallet or saving to database:", error);
-        await ctx.reply("An error occurred while creating your wallet.");
-      }
-    } 
-=======
->>>>>>> 6655a238e660a73c8f276332efe70c569e567293
   }
 }
 
@@ -153,12 +89,6 @@ async function handleWalletName(ctx) {
       // Generar la cuenta TRON (dirección y clave privada)
       const account = await tronWeb.createAccount();
 
-<<<<<<< HEAD
-      // Validar que se ha creado correctamente la cuenta
-      if (!account || !account.address || !account.address.base58 || !account.privateKey) {
-        throw new Error("Failed to generate a valid wallet account.");
-      }
-=======
      // Validar que se ha creado correctamente la cuenta
 if (!account || !account.address || !account.address.base58 || !account.privateKey) {
   throw new Error("Failed to generate a valid wallet account.");
@@ -166,24 +96,12 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
       
       const pkey = account.privateKey;
       const walletAddress = account.address.base58;  // Dirección pública generada
->>>>>>> 6655a238e660a73c8f276332efe70c569e567293
 
-      const walletAddress = account.address.base58;  // Dirección pública generada
-      const pkey = account.privateKey;
       const encryptedPrivateKey = encrypt(account.privateKey);  // Clave privada cifrada
 
-      // LOG adicional para asegurarnos de que la wallet se generó correctamente
-      console.log(`Wallet generada para el usuario ${ctx.chat.id} con dirección: ${walletAddress}`);
-
-      // Asegurarse de que walletAddress no es nulo
-      if (!walletAddress) {
-        throw new Error("Wallet address is null. Cannot proceed.");
-      }
+      
 
       ctx.session.waitingForWalletName = false;  // Reseteamos el estado
-
-      // Log para asegurarnos de que el valor de walletAddress sea correcto
-      console.log(`Valor de walletAddress antes de guardar: ${walletAddress}`);
 
       // Guardar la nueva wallet
       const saveResult = await saveWallet({
@@ -193,20 +111,6 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
         encryptedPrivateKey: encryptedPrivateKey
       });
 
-<<<<<<< HEAD
-      if (saveResult.success) {
-        await ctx.reply(`Your wallet "${walletName}" has been successfully registered.`);
-        await ctx.reply(`
-          Your wallet has been created
-          User id: ${ctx.chat.id}
-          Your new TRON address is: ${walletAddress}
-          Your encrypted private key is: ${encryptedPrivateKey}
-
-          Make sure to securely store your private key.
-          Private Key: ${pkey}
-        `);
-      } else {
-=======
       if (saveResult.success) if (saveResult.success) {
         const message = `🎉 *Your wallet "${walletName}" has been successfully registered.*\n` +
             `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -228,21 +132,15 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
         await ctx.reply(message, {
           parse_mode: "Markdown"});
       }  else {
->>>>>>> 6655a238e660a73c8f276332efe70c569e567293
         await ctx.reply(`Error: ${saveResult.message}`);
       }
     } catch (error) {
       console.error("Error generating wallet or saving to database:", error);
       await ctx.reply("An error occurred while creating your wallet.");
     }
-<<<<<<< HEAD
-  }
-}
-=======
   } 
 };
 
->>>>>>> 6655a238e660a73c8f276332efe70c569e567293
 
 module.exports = {
   walletCommand,
