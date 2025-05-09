@@ -75,7 +75,7 @@ async function handleExternalWalletInput(ctx) {
     try {
       const qrBuffer = await QRCode.toBuffer(walletAddress, { width: 400 });
   
-      await ctx.replyWithPhotoFlow({ source: qrBuffer }, {
+      await replyWithPhotoFlow(ctx, { source: qrBuffer }, {
         caption: `📥 *Receive USDT*\n\`${walletAddress}\`\nScan to pay.`,
         parse_mode: "Markdown"
       });
