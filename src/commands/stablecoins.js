@@ -1,4 +1,5 @@
 const { Markup, Telegraf  } = require('telegraf');
+const { replyWithFlow, replyWithPhotoFlow} = require('../utils/messageFlow');
 const { fetchAllWallets} = require("../service/user.service");
 const QRCode = require('qrcode');
 const Jimp = require('jimp');
@@ -12,13 +13,16 @@ async function desarrollo (ctx){
 
 async function stableCoins(ctx) {
   try {
+    ctx.session.messageFlow = [];
     clearAllSessionFlows(ctx);
     // Opciones de tipo de swap como botones
     const swapOptions = [
       [Markup.button.callback("💼 ⬅️ Receive payment", `receive_payment`)],
-      [Markup.button.callback("💼 ➡️ Send payment", `send_payment`)]
+      [Markup.button.callback("💼 ➡️ Send payment", `send_payment`)],
+      [Markup.button.callback("❌ Cancel", "cancel_flow")]
+
     ];
-    await ctx.reply('Select the action you want to perform:', Markup.inlineKeyboard(swapOptions));
+    await ctx.replyWithFlow('Select the action you want to perform:', Markup.inlineKeyboard(swapOptions));
   } catch (error) {
     console.error("Error choosing action:", error);
     await ctx.reply("Sorry, an error occurred while selecting the action.");
@@ -42,7 +46,7 @@ async function listUserWallets(ctx) {
           [Markup.button.callback('🔗 Link Wallet', 'external_wallet')] // Botón debajo
         ];
   
-        await ctx.reply(
+        await ctx.replyWithFlow(
           'Choose a wallet:',
           Markup.inlineKeyboard(keyboard)
         );
@@ -74,7 +78,7 @@ async function handleExternalWalletInput(ctx) {
     try {
       const qrBuffer = await QRCode.toBuffer(walletAddress, { width: 400 });
   
-      await ctx.replyWithPhoto({ source: qrBuffer }, {
+      await ctx.replyWithPhotoFlow({ source: qrBuffer }, {
         caption: `📥 *Receive USDT*\n\`${walletAddress}\`\nScan to pay.`,
         parse_mode: "Markdown"
       });
@@ -83,50 +87,6 @@ async function handleExternalWalletInput(ctx) {
       await ctx.reply("❌ Could not generate QR.");
     }
   }
-  
- //qr con imagen 
-//   async function handleReceive(ctx, walletAddress) {
-//       try {
-
-//         // 1. Generar el QR en un buffer
-//         const qrBuffer = await QRCode.toBuffer(walletAddress, {
-//           width: 400,
-//           margin: 2
-//         });
-    
-//         // 2. Leer el QR generado como imagen
-//         const qrImage = await Jimp.read(qrBuffer);
-    
-//         // 3. Cargar tu logo (ajusta el path si es necesario)
-//         const logoPath = path.join(__dirname, 'tronbot2_byn.png'); // Cambia el nombre si tu logo tiene otro
-//         const logo = await Jimp.read(logoPath);
-    
-//         // 4. Redimensionar el logo para que encaje bien en el centro
-//         const logoSize = qrImage.bitmap.width * 0.3; // 300% del tamaño del QR
-//         logo.resize(logoSize, logoSize);
-    
-//         // 5. Calcular posición centrada
-//         const x = (qrImage.bitmap.width / 2) - (logo.bitmap.width / 2);
-//         const y = (qrImage.bitmap.height / 2) - (logo.bitmap.height / 2);
-    
-//         // 6. Pegar el logo sobre el QR
-//         qrImage.composite(logo, x, y);
-    
-//         // 7. Obtener buffer final
-//         const finalBuffer = await qrImage.getBufferAsync(Jimp.MIME_PNG);
-    
-//         // 8. Enviar el QR personalizado
-//         await ctx.replyWithPhoto({ source: finalBuffer }, {
-//           caption: `📥 *Receive USDT*\n\`${walletAddress}\`\nScan to pay.`,
-//           parse_mode: "Markdown"
-//         });
-    
-//       } catch (err) {
-//         console.error("QR error:", err);
-//         await ctx.reply("❌ Could not generate QR.");
-//       }
-//   }
-  
 
 async function handleSend(ctx, walletAddress) {
   ctx.session.selectedWallet = walletAddress;

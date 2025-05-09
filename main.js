@@ -213,6 +213,23 @@ bot.action(/sniper_amount_.+$/, handleAmountSelection);
 
 bot.action(/sniper_slippage_.+$/, handleSlippageSelection);
 
+//--------------boton cancelar-----------------------
+
+bot.action('cancel_flow', async (ctx) => {
+  if (ctx.session.messageFlow) {
+    for (const msgId of ctx.session.messageFlow) {
+      try {
+        await ctx.deleteMessage(msgId);
+      } catch (e) {
+        console.warn('No se pudo borrar el mensaje:', e.message);
+      }
+    }
+    ctx.session.messageFlow = [];
+  }
+  await ctx.answerCbQuery('Cancelled');
+});
+
+
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
 bot.on('text', async (ctx) => {
