@@ -16,13 +16,11 @@ async function stableCoins(ctx) {
     ctx.session.messageFlow = [];
     clearAllSessionFlows(ctx);
     // Opciones de tipo de swap como botones
-    const swapOptions = [
-      [Markup.button.callback("💼 ⬅️ Receive payment", `receive_payment`)],
-      [Markup.button.callback("💼 ➡️ Send payment", `send_payment`)],
-      [Markup.button.callback("❌ Cancel", "cancel_flow")]
-
-    ];
-    await ctx.replyWithFlow('Select the action you want to perform:', Markup.inlineKeyboard(swapOptions));
+    await replyWithFlow(ctx, 'Select the action you want to perform:', Markup.inlineKeyboard([
+        [Markup.button.callback("💼 ⬅️ Receive payment", `receive_payment`)],
+        [Markup.button.callback("💼 ➡️ Send payment", `send_payment`)],
+        [Markup.button.callback("❌ Cancel", "cancel_flow")]
+      ]));
   } catch (error) {
     console.error("Error choosing action:", error);
     await ctx.reply("Sorry, an error occurred while selecting the action.");
@@ -43,13 +41,12 @@ async function listUserWallets(ctx) {
   
         const keyboard = [
           walletRow, // Todas las wallets en una sola fila
-          [Markup.button.callback('🔗 Link Wallet', 'external_wallet')] // Botón debajo
+          [Markup.button.callback('🔗 Link Wallet', 'external_wallet')], // Botón debajo
+          [Markup.button.callback("❌ Cancel", "cancel_flow")]
         ];
   
-        await ctx.replyWithFlow(
-          'Choose a wallet:',
-          Markup.inlineKeyboard(keyboard)
-        );
+        await replyWithFlow(ctx, 'Choose a wallet:', Markup.inlineKeyboard(keyboard));
+
       } else {
         await ctx.reply("❗ You don't have any registered wallets.");
       }
