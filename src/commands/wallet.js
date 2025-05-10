@@ -135,8 +135,8 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
 
             `• *Private Key:* ${pkey}\n\n` +
              
-            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` +
-            `\n*WARNING*\n` +
+            `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+            `*WARNING*\n` +
             `Never share your private key. Store it in a secure place.\n\n` +
 
             `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`+
@@ -146,7 +146,7 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
               parse_mode: "Markdown",
               reply_markup: {
                 inline_keyboard: [
-                  [{ text: '❌ Cancel', callback_data: 'cancel_flow' }]
+                  [{ text: '❌ Close', callback_data: 'cancel_flow' }]
                 ]
               }
             });
