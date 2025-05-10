@@ -35,7 +35,7 @@ async function walletCommand(ctx) {
       // Enviar la lista de wallets junto con el botón "New Wallet"
       await ctx.replyWithMarkdown(walletMessage, {disable_web_page_preview: true, ...Markup.inlineKeyboard([
       [Markup.button.callback('💳 New Wallet', 'new_wallet')],
-      [Markup.button.callback('❌ Close', 'close')]
+      [Markup.button.callback('❌ Cancel', 'cancel_flow')]
       ])
         
     });
@@ -58,12 +58,20 @@ async function createNewWallet(ctx) {
   const walletResult = await fetchAllWallets(userId);
 
   if (walletResult.success && walletResult.wallets.length >= 3){
-    await ctx.editMessageText("You can't have more than 3 wallets")
+    await ctx.editMessageText("You can't have more than 3 wallets",
+      Markup.inlineKeyboard([
+        [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+      ])
+    )
   }
   else{
   try {
     await ctx.answerCbQuery();
-    await ctx.editMessageText('Please type the name for your new wallet:');
+    await ctx.editMessageText('Please type the name for your new wallet:',
+      Markup.inlineKeyboard([
+        [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+      ])
+    );
     ctx.session.waitingForWalletName = true;
     
   } catch (error) {
@@ -81,7 +89,11 @@ async function handleWalletName(ctx) {
     const validName = /^[a-zA-Z0-9]{1,9}$/.test(walletName);
 
     if (!validName) {
-      await ctx.reply("⚠️ The wallet name must be 1-9 characters long, containing only letters and numbers, with no spaces.\n\nPlease enter a valid name:");
+      await ctx.reply("⚠️ The wallet name must be 1-9 characters long, containing only letters and numbers, with no spaces.\n\nPlease enter a valid name:",
+        Markup.inlineKeyboard([
+          [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+        ])
+      );
       return; // Volvemos a esperar otro mensaje sin salir del flujo
     }
 
@@ -129,8 +141,13 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
             `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`+
             `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
             
-        await ctx.reply(message, {
-          parse_mode: "Markdown"});
+        await ctx.reply(message,
+           {
+          parse_mode: "Markdown"},
+          Markup.inlineKeyboard([
+            [Markup.button.callback('❌ Close', 'cancel_flow')]
+          ])
+        );
       }  else {
         await ctx.reply(`Error: ${saveResult.message}`);
       }

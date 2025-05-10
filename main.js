@@ -27,6 +27,33 @@ bot.use(localSession.middleware());  // Usar la sesión persistente
     await databaseConnect();
     console.log('Database connected successfully');
 
+//----------------funcion para guaradr mensajes del bot para luego eliminarlos---------------------
+    bot.use(async (ctx, next) => {
+      if (!ctx.session.messageFlow) ctx.session.messageFlow = [];
+    
+      // Mensajes del usuario
+      if (ctx.message?.message_id) {
+        ctx.session.messageFlow.push(ctx.message.message_id);
+      }
+    
+      // Mensajes con botones (callback)
+      if (ctx.update?.callback_query?.message?.message_id) {
+        ctx.session.messageFlow.push(ctx.update.callback_query.message.message_id);
+      }
+    
+      // Interceptar respuestas del bot
+      const originalReply = ctx.reply;
+      ctx.reply = async function (...args) {
+        const sent = await originalReply.apply(ctx, args);
+        if (sent?.message_id) {
+          ctx.session.messageFlow.push(sent.message_id);
+        }
+        return sent;
+      };
+    
+      await next();
+    });    
+
     // Comandos del bot
     bot.start(startCommand);
 
@@ -226,10 +253,9 @@ bot.action('cancel_flow', async (ctx) => {
     }
     ctx.session.messageFlow = [];
   }
+
   await ctx.answerCbQuery('Cancelled');
 });
-
-
 
     // Manejador de texto para creación de wallet (cuando se espera el nombre de la wallet)
 bot.on('text', async (ctx) => {

@@ -1,5 +1,5 @@
 const { Markup, Telegraf  } = require('telegraf');
-const { replyWithFlow, replyWithPhotoFlow} = require('../utils/messageFlow');
+const { replyWithPhotoFlow} = require('../utils/messageFlow');
 const { fetchAllWallets} = require("../service/user.service");
 const QRCode = require('qrcode');
 const Jimp = require('jimp');

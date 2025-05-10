@@ -26,7 +26,7 @@ async function transferCommand(ctx) {
       const walletButtons = walletResult.wallets.map(wallet => [
         Markup.button.callback(wallet.wallet_name, `transfer_wallet_${wallet.wallet_address}`)
       ]);
-      walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
+      walletButtons.push([Markup.button.callback('❌ Cancel', 'cancel_flow')]);
 
       ctx.session.transferState = 'waitingForWallet';
       await ctx.reply('Select a wallet to transfer from:', Markup.inlineKeyboard(walletButtons));
