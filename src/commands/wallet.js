@@ -7,6 +7,7 @@ const { clearAllSessionFlows } = require('./clearSessions');
 // Función para manejar el comando wallet
 async function walletCommand(ctx) {
   try {
+    ctx.session.messageFlow = [];
     clearAllSessionFlows(ctx);
     const userId = ctx.chat.id;
 
@@ -141,13 +142,14 @@ if (!account || !account.address || !account.address.base58 || !account.privateK
             `*YOU MUST DELETE THIS POST FOR SAFETY.*\n`+
             `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
             
-        await ctx.reply(message,
-           {
-          parse_mode: "Markdown"},
-          Markup.inlineKeyboard([
-            [Markup.button.callback('❌ Close', 'cancel_flow')]
-          ])
-        );
+            await ctx.reply(message, {
+              parse_mode: "Markdown",
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: '❌ Cancel', callback_data: 'cancel_flow' }]
+                ]
+              }
+            });
       }  else {
         await ctx.reply(`Error: ${saveResult.message}`);
       }
