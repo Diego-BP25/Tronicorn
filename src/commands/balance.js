@@ -167,6 +167,7 @@ async function getTRC20Balance(address) {
 async function balanceCommand(ctx) {
 
   try {
+    ctx.session.messageFlow = [];
     clearAllSessionFlows(ctx);
     const userId = ctx.chat.id;
 
@@ -175,23 +176,34 @@ async function balanceCommand(ctx) {
 
     if (walletResult.success && walletResult.wallets.length > 0) {
       // Listar las wallets del usuario como botones
-      const walletButtons = walletResult.wallets.map(wallet => {
-        return [Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)];
-      });
+      const walletButtons = [
+        walletResult.wallets.map(wallet =>
+          Markup.button.callback(wallet.wallet_name, `wallet_balance_${wallet.wallet_address}`)
+        )
+      ];
+      
 
       // Agregar botón de "Close" al final
-      walletButtons.push([Markup.button.callback('❌ Close', 'close')]);
+      walletButtons.push([Markup.button.callback('❌ Cancel', 'cancel_flow')]);
 
       await ctx.reply(
         'Please select a wallet to view its balance:',
         Markup.inlineKeyboard(walletButtons)
       );
     } else {
-      await ctx.reply("You don't have any registered wallets. Please create one first.");
+      await ctx.reply("You don't have any registered wallets. Please create one first.",
+        Markup.inlineKeyboard([
+          [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+        ])
+      );
     }
   } catch (error) {
     console.error("Error fetching wallets:", error);
-    ctx.reply("Sorry, an error occurred while fetching your wallets.");
+    ctx.reply("Sorry, an error occurred while fetching your wallets.",
+      Markup.inlineKeyboard([
+        [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+      ])
+    );
   }
 }
 
@@ -210,8 +222,15 @@ async function handleWalletBalance(ctx) {
     const trc20Balance = await getTRC20Balance(walletAddress);
 
     // Responder con la información de balance
-    await ctx.editMessageText(`${trc20Balance}`, { parse_mode: "Markdown", disable_web_page_preview: true });
-  } catch (error) {
+    await ctx.editMessageText(`${trc20Balance}`, {
+      parse_mode: "Markdown",
+      disable_web_page_preview: true,
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '❌ Close', callback_data: 'cancel_flow' }]
+        ]
+      }
+    });  } catch (error) {
     console.error("Error fetching wallet balance:", error);
     await ctx.reply("Sorry, an error occurred while fetching the balance for this wallet.");
   }
