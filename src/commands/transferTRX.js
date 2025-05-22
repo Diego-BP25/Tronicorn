@@ -31,11 +31,17 @@ async function transferCommand(ctx) {
       ctx.session.transferState = 'waitingForWallet';
       await ctx.reply('Select a wallet to transfer from:', Markup.inlineKeyboard(walletButtons));
     } else {
-      await ctx.reply(ERROR_MESSAGES.NO_WALLETS);
+      await ctx.reply(ERROR_MESSAGES.NO_WALLETS),
+      Markup.inlineKeyboard([
+        [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+      ]);
     }
   } catch (error) {
     console.error("[ERROR] fetchAllWallets failed:", error);
-    await ctx.reply(ERROR_MESSAGES.WALLET_LOAD_FAILED);
+    await ctx.reply(ERROR_MESSAGES.WALLET_LOAD_FAILED)
+    Markup.inlineKeyboard([
+      [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+    ]);
   }
 }
 
@@ -50,7 +56,10 @@ async function handleWalletSelection(ctx) {
     await ctx.reply('Enter the recipient\'s TRON address:');
       } catch (error) {
     console.error("[ERROR] Wallet selection failed:", error);
-    await ctx.reply(ERROR_MESSAGES.GENERIC_ERROR);
+    await ctx.reply(ERROR_MESSAGES.GENERIC_ERROR),
+    Markup.inlineKeyboard([
+      [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+    ]);
   }
 }
 
@@ -60,7 +69,10 @@ async function handleToAddress(ctx) {
 
   if (!tronWeb.isAddress(address)) {
     console.error("[ERROR] Invalid TRON address:", address);
-    return ctx.reply(ERROR_MESSAGES.INVALID_TRON_ADDRESS);
+    return ctx.reply(ERROR_MESSAGES.INVALID_TRON_ADDRESS),
+    Markup.inlineKeyboard([
+      [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+    ]);
   }
 
   ctx.session.toAddress = address;
@@ -74,7 +86,10 @@ async function handleAmount(ctx) {
 
   if (isNaN(amount) || amount < 1) {
     console.error("[ERROR] Invalid amount:", ctx.message.text);
-    return ctx.reply(ERROR_MESSAGES.INVALID_AMOUNT);
+    return ctx.reply(ERROR_MESSAGES.INVALID_AMOUNT),
+    Markup.inlineKeyboard([
+      [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+    ])  ;
   }
 
   ctx.session.amount = amount;
@@ -122,7 +137,10 @@ async function transferTRX(ctx, fromAddress, toAddress, amount) {
         `✅ Sent ${escapeMarkdownV2(amount.toString())} TRX to \`${escapeMarkdownV2(toAddress)}\`\n\n` +
         `📌 Txn Hash: ${escapeMarkdownV2(receipt.txid)}\n` +
         `[🔗 View on Tronscan](${escapeMarkdownV2(tronScanTxLink)})`,
-        { parse_mode: "MarkdownV2", disable_web_page_preview: true }
+        { parse_mode: "MarkdownV2", disable_web_page_preview: true },
+        Markup.inlineKeyboard([
+          [Markup.button.callback('❌ Close', 'cancel_flow')]
+        ])
       );
     } else {
       throw new Error("Network rejected the transaction.");
