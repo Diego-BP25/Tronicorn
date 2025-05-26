@@ -53,13 +53,16 @@ async function handleWalletSelection(ctx) {
 
     ctx.session.fromWallet = walletAddress;
     ctx.session.transferState = 'waitingForToAddress';
-    await ctx.reply('Enter the recipient\'s TRON address:');
-      } catch (error) {
-    console.error("[ERROR] Wallet selection failed:", error);
-    await ctx.reply(ERROR_MESSAGES.GENERIC_ERROR),
+    await ctx.reply('Enter the recipient\'s TRON address:'),
     Markup.inlineKeyboard([
       [Markup.button.callback('❌ Cancel', 'cancel_flow')]
     ]);
+      } catch (error) {
+        console.error("[ERROR] Wallet selection failed:", error);
+        await ctx.reply(ERROR_MESSAGES.GENERIC_ERROR),
+        Markup.inlineKeyboard([
+          [Markup.button.callback('❌ Cancel', 'cancel_flow')]
+        ]);
   }
 }
 

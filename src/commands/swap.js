@@ -170,10 +170,66 @@ async function handleSwapType(ctx) {
       walletAddress
     };
     
-    await ctx.reply("Enter the token address you want to swap (not TRX)");
-    ctx.session.awaitingTokenAddress = true; // Marca que estamos esperando la dirección del token
+    await chooseTokenSwap(ctx);
+
   } else {
     await ctx.reply("Could not fetch the private key for this wallet. Please check your wallet details.");
+  }
+}
+
+async function chooseTokenSwap(ctx) {
+  try {
+    // Lista de tokens de ejemplo
+    const tokenOptions = [
+      { name: 'SUNDOG', address: 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT' },
+      { name: 'PROS', address: 'TFf1aBoNFqxN32V2NQdvNrXVyYCy9qY8p1' },
+      { name: 'PUSS',  address: 'TX5eXdf8458bZ77fk8xdvUgiQmC3L93iv7' },
+      { name: 'TBULL',  address: 'TAt4ufXFaHZAEV44ev7onThjTnF61SEaEM' },
+      { name: 'JST',  address: 'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9' },
+      { name: 'PEPE',  address: 'TMacq4TDUw5q8NFBwmbY4RLXvzvG5JTkvi' }
+    ];
+
+    // Crear los botones con los nombres y el address como callback
+    const buttons = Markup.inlineKeyboard([
+      [
+        Markup.button.callback(tokenOptions[0].name, `swap_token_${tokenOptions[0].address}`),
+        Markup.button.callback(tokenOptions[1].name, `swap_token_${tokenOptions[1].address}`),
+        Markup.button.callback(tokenOptions[2].name, `swap_token_${tokenOptions[2].address}`)
+      ],
+      [
+        Markup.button.callback(tokenOptions[3].name, `swap_token_${tokenOptions[3].address}`),
+        Markup.button.callback(tokenOptions[4].name, `swap_token_${tokenOptions[4].address}`),
+        Markup.button.callback(tokenOptions[5].name, `swap_token_${tokenOptions[5].address}`)
+      ],
+      [
+        Markup.button.callback('✏️ Personalize', 'swap_token_custom')
+      ]
+    ]);
+
+    await ctx.reply('Select a token to swap:', buttons);
+  } catch (error) {
+    console.error('Error in chooseTokenSwap:', error);
+    await ctx.reply('An error occurred while displaying token options.');
+  }
+}
+
+async function handleTokenSelection(ctx) {
+  const selected = ctx.match[0].replace('swap_token_', '');
+
+  if (selected === 'custom') {
+    ctx.session.swapState = 'waitingForCustomToken';
+    await ctx.reply('Please enter the address of the token you want to swap:');
+  } else {
+    ctx.session.awaitingTokenAddress = selected; // Guardar el token directamente
+    await executeSwap(ctx); // o el siguiente paso que tengas
+  }
+}
+
+async function handleCustomTokenInput(ctx) {
+  if (ctx.session.swapState === 'waitingForCustomToken') {
+    ctx.session.awaitingTokenAddress = ctx.message.text.trim();
+    ctx.session.swapState = null;
+    await executeSwap(ctx); // o el siguiente paso que corresponda
   }
 }
 
@@ -577,6 +633,8 @@ module.exports = {
   handleWalletSwap,
   handleSwapType,
   SwapNo,
-  SwapYes
+  SwapYes,
+  handleTokenSelection,
+  handleCustomTokenInput
 
 };
