@@ -13,6 +13,16 @@ const EVENT_SERVER = 'https://api.trongrid.io';
 const ROUTER_ADDRESS = 'TXF1xDbVGdxFGbovmmmXvBGu8ZiE3Lq4mR'; // SunSwap V2 Router
 const WTRX = 'TNUC9Qb1rRpS5CbWLmNMxXBjyFoydXjWFR'; // Wrapped TRX
 
+    // Lista global o en módulo de tokens disponibles
+    const tokenMap = {
+      SUNDOG: 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT',
+      PROS: 'TFf1aBoNFqxN32V2NQdvNrXVyYCy9qY8p1',
+      PUSS: 'TX5eXdf8458bZ77fk8xdvUgiQmC3L93iv7',
+      TBULL:  'TAt4ufXFaHZAEV44ev7onThjTnF61SEaEM',
+      JST:  'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9',
+      PEPE:  'TMacq4TDUw5q8NFBwmbY4RLXvzvG5JTkvi'
+    };
+
 // Definir el porcentaje de comisión
 const commissionRate = 0.01; // Comisión del 1%
 const botAddress = 'TPB27eRk4gPcYqSh4ihqXmdWZWidB87quR'; // Dirección para recibir la comisión
@@ -179,17 +189,7 @@ async function handleSwapType(ctx) {
 
 async function chooseTokenSwap(ctx) {
   try {
-    // Lista global o en módulo de tokens disponibles
-const tokenMap = {
-  SUNDOG: 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT',
-  PROS: 'TFf1aBoNFqxN32V2NQdvNrXVyYCy9qY8p1',
-  PUSS: 'TX5eXdf8458bZ77fk8xdvUgiQmC3L93iv7',
-  TBULL:  'TAt4ufXFaHZAEV44ev7onThjTnF61SEaEM',
-  JST:  'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9',
-  PEPE:  'TMacq4TDUw5q8NFBwmbY4RLXvzvG5JTkvi'
-};
-
-// Al crear botones, solo usa el nombre como callback_data
+    // Al crear botones, solo usa el nombre como callback_data
 const buttons = Markup.inlineKeyboard([
   [
     Markup.button.callback('SUNDOG', 'swap_token_SUNDOG'),
