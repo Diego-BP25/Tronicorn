@@ -221,6 +221,8 @@ async function handleTokenSelection(ctx) {
     await ctx.reply('Please enter the address of the token you want to swap:');
   } else {
     ctx.session.awaitingTokenAddress = selected; // Guardar el token directamente
+    console.log (ctx.session.awaitingTokenAddress
+    )
     await executeSwap(ctx); // o el siguiente paso que tengas
   }
 }
