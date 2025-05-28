@@ -179,32 +179,33 @@ async function handleSwapType(ctx) {
 
 async function chooseTokenSwap(ctx) {
   try {
-    // Lista de tokens de ejemplo
-    const tokenOptions = [
-      { name: 'SUNDOG', address: 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT' },
-      { name: 'PROS', address: 'TFf1aBoNFqxN32V2NQdvNrXVyYCy9qY8p1' },
-      { name: 'PUSS',  address: 'TX5eXdf8458bZ77fk8xdvUgiQmC3L93iv7' },
-      { name: 'TBULL',  address: 'TAt4ufXFaHZAEV44ev7onThjTnF61SEaEM' },
-      { name: 'JST',  address: 'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9' },
-      { name: 'PEPE',  address: 'TMacq4TDUw5q8NFBwmbY4RLXvzvG5JTkvi' }
-    ];
+    // Lista global o en módulo de tokens disponibles
+const tokenMap = {
+  SUNDOG: 'TXL6rJbvmjD46zeN1JssfgxvSo99qC8MRT',
+  PROS: 'TFf1aBoNFqxN32V2NQdvNrXVyYCy9qY8p1',
+  PUSS: 'TX5eXdf8458bZ77fk8xdvUgiQmC3L93iv7',
+  TBULL:  'TAt4ufXFaHZAEV44ev7onThjTnF61SEaEM',
+  JST:  'TCFLL5dx5ZJdKnWuesXxi1VPwjLVmWZZy9',
+  PEPE:  'TMacq4TDUw5q8NFBwmbY4RLXvzvG5JTkvi'
+};
 
-    // Crear los botones con los nombres y el address como callback
-    const buttons = Markup.inlineKeyboard([
-      [
-        Markup.button.callback(tokenOptions[0].name, `swap_token_${tokenOptions[0].address}`),
-        Markup.button.callback(tokenOptions[1].name, `swap_token_${tokenOptions[1].address}`),
-        Markup.button.callback(tokenOptions[2].name, `swap_token_${tokenOptions[2].address}`)
-      ],
-      [
-        Markup.button.callback(tokenOptions[3].name, `swap_token_${tokenOptions[3].address}`),
-        Markup.button.callback(tokenOptions[4].name, `swap_token_${tokenOptions[4].address}`),
-        Markup.button.callback(tokenOptions[5].name, `swap_token_${tokenOptions[5].address}`)
-      ],
-      [
-        Markup.button.callback('✏️ Personalize', 'swap_token_custom')
-      ]
-    ]);
+// Al crear botones, solo usa el nombre como callback_data
+const buttons = Markup.inlineKeyboard([
+  [
+    Markup.button.callback('SUNDOG', 'swap_token_SUNDOG'),
+    Markup.button.callback('PROS', 'swap_token_PROS'),
+    Markup.button.callback('PUSS',  'swap_token_PUSS')
+  ],
+  [
+    Markup.button.callback('TBULL',  'swap_token_TBULL'),
+    Markup.button.callback('JST',  'swap_token_JST'),
+    Markup.button.callback('PEPE',  'swap_token_PEPE')
+  ],
+  [
+    Markup.button.callback('✏️ Personalize', 'swap_token_custom')
+  ]
+]);
+
 
     await ctx.reply('Select a token to swap:', buttons);
   } catch (error) {
@@ -220,18 +221,30 @@ async function handleTokenSelection(ctx) {
     ctx.session.swapState = 'waitingForCustomToken';
     await ctx.reply('Please enter the address of the token you want to swap:');
   } else {
-    ctx.session.awaitingTokenAddress = selected; // Guardar el token directamente
-    console.log (ctx.session.awaitingTokenAddress
-    )
-    await executeSwap(ctx); // o el siguiente paso que tengas
+    const tokenAddress = tokenMap[selected];
+    if (!tokenAddress) {
+      await ctx.reply('❌ Invalid token selected.');
+      return;
+    }
+
+    ctx.session.tokenAddress = tokenAddress;
+    await executeSwap(ctx); // o el siguiente paso
   }
 }
 
+
 async function handleCustomTokenInput(ctx) {
   if (ctx.session.swapState === 'waitingForCustomToken') {
-    ctx.session.awaitingTokenAddress = ctx.message.text.trim();
+    const input = ctx.message.text.trim();
+
+    // Validación básica: longitud típica de dirección TRC20 es 34
+    if (!/^T/.test(input) || input.length < 34) {
+      return ctx.reply('⚠️ Invalid token address. Please try again.');
+    }
+
+    ctx.session.tokenAddress = input;
     ctx.session.swapState = null;
-    await executeSwap(ctx); // o el siguiente paso que corresponda
+    await executeSwap(ctx); // o siguiente paso
   }
 }
 
