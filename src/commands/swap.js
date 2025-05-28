@@ -222,6 +222,7 @@ async function handleTokenSelection(ctx) {
     await ctx.reply('Please enter the address of the token you want to swap:');
   } else {
     const tokenAddress = tokenMap[selected];
+    console.log(tokenAddress)
     if (!tokenAddress) {
       await ctx.reply('❌ Invalid token selected.');
       return;
