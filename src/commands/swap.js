@@ -215,14 +215,13 @@ const buttons = Markup.inlineKeyboard([
 }
 
 async function handleTokenSelection(ctx) {
-  const selected = ctx.match[0].replace('swap_token_', '');
+  const selected = ctx.callbackQuery.data.replace('swap_token_', '');
 
   if (selected === 'custom') {
     ctx.session.swapState = 'waitingForCustomToken';
     await ctx.reply('Please enter the address of the token you want to swap:');
   } else {
     const tokenAddress = tokenMap[selected];
-    console.log(tokenAddress)
     if (!tokenAddress) {
       await ctx.reply('❌ Invalid token selected.');
       return;
