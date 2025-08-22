@@ -1,13 +1,12 @@
-# Tron Blockchain Sniping Bot
+# Bot francotirador de blockchain de Tron
 
-## Overview
-This project is a Sniping Bot for the Tron blockchain, designed to allow users to quickly buy and sell tokens on the Tron network. It utilizes SunSwap's Smart Router for executing trades at the best prices with faster dynamic routing for trading pairs.
+## Descripción general
+Este proyecto es un bot de francotirador para la blockchain de Tron, diseñado para permitir a los usuarios comprar y vender tokens rápidamente en la red de Tron. Utiliza el enrutador inteligente de SunSwap para ejecutar operaciones a los mejores precios con un enrutamiento dinámico más rápido para los pares de intercambio.
 
 ## Key Features
-- Fast Token Trades: Execute buy and sell orders quickly on the Tron blockchain.
-- AI-Enhanced Advisory: Analyze tokens before purchase and provide insights on potential risks.
-- Optimized Routing: Uses SunSwap's Smart Router for best price execution and efficient trading routes.
-- Telegram Bot Interface: Interact with the bot through Telegram commands.
+- Operaciones rápidas de tokens: ejecute órdenes de compra y venta rápidamente en la cadena de bloques Tron.
+- Enrutamiento optimizado: utiliza el enrutador inteligente de SunSwap para lograr la mejor ejecución de precios y rutas comerciales eficientes.
+- Interfaz de bot de Telegram: interactúa con el bot a través de comandos de Telegram.
 
 ## Prerequisites
 - Node.js
@@ -15,13 +14,16 @@ This project is a Sniping Bot for the Tron blockchain, designed to allow users t
 - Tron API Key
 - Telegram Bot Token id
 
+## Link al bot
+- https://t.me/Tronicorn_Bot
+
 ## Installation
-1. Clone the repository
-2. Install dependencies:
+1. Clonar el repositorio
+2. Instalar dependecias:
    ```
    npm install
    ```
-3. Set up environment variables in a `.env` file:
+3. Configurar variables de entorno en un `.env` archivo:
    ```
    BOT_TOKEN=your_telegram_bot_token
    TRON_FULL_HOST=https://api.trongrid.io
@@ -31,60 +33,45 @@ This project is a Sniping Bot for the Tron blockchain, designed to allow users t
    DATABASE_URI=your_mongodb_connection_string
    ```
 
-## Usage
-1. Start the bot:
+## Uso
+1. Iniciar el bot:
    ```
    node src/main.js
    ```
-2. Interact with the bot on Telegram using the following commands:
-   - `/start`: Create a new TRON address and wallet
-   - `/balance`: Check your TRX and TRC20 token balances
-   - `/swap`: Swap tokens using SunSwap's Smart Router
+2. Interactúa con el bot en Telegram usando los siguientes comandos:
+   - `/start`: Crea una nueva dirección y billetera TRON
+   - `/balance`: Consulta tus saldos de tokens TRX y TRC20
+   - `/swap`: Intercambie tokens utilizando el enrutador inteligente de SunSwap
 
-## Project Structure
-- `src/main.js`: Entry point of the application
-- `src/commands/`: Contains command handlers for Telegram bot
-- `src/utils/`: Utility functions including Tron Web setup and database operations
-- `src/service/`: Service layer for user-related operations
-- `src/model/`: MongoDB schema definitions
-- `src/config/`: Configuration constants and settings
+## Estructura del proyecto
+- `src/main.js`: Punto de entrada de la aplicación
+- `src/commands/`: Punto de entrada de la aplicación
+- `src/utils/`: Funciones de utilidad que incluyen configuración web de Tron y operaciones de base de datos
+- `src/service/`: Capa de servicio para operaciones relacionadas con el usuario
+- `src/model/`: Definiciones de esquema de MongoDB
+- `src/config/`: Constantes y ajustes de configuración
 
-## Key Components
-1. Tron Web Integration:
+## Componentes clave
+1. Integración web de Tron:
    ```javascript:src/utils/tron.js
    startLine: 7
    endLine: 11
    ```
 
-2. Telegram Bot Commands:
+2. Comandos de bots de Telegram:
    ```javascript:src/main.js
    startLine: 20
    endLine: 38
    ```
 
-3. Token Swapping:
+3. Intercambio de tokens:
    ```javascript:src/commands/swap.js
    startLine: 26
    endLine: 77
    ```
 
-4. Database Operations:
+4. Operaciones de base de datos:
    ```javascript:src/service/user.service.js
    startLine: 5
    endLine: 107
    ```
-
-## Contributing
-We welcome contributions! If you're interested in improving this project, feel free to fork the repository and submit a pull request.
-
-## Contact Information
-For any queries or collaborations, please reach out to:
-- Email: 
-  - geecypher41@gmail.com
-  - secdad1@gmail.com
-  - chideraonwuatu433@gmail.com
-  - alejandroberrio0525@gmail.com
-
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
